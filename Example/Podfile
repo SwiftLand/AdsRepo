@@ -1,0 +1,13 @@
+use_frameworks!
+
+platform :ios, '9.0'
+
+target 'AdsRepo_Example' do
+  pod 'AdsRepo', :path => '../'
+
+  target 'AdsRepo_Tests' do
+    inherit! :search_paths
+
+    
+  end
+end

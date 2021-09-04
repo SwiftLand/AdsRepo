@@ -1,0 +1,16 @@
+PODS:
+  - AdsRepo (0.1.0)
+
+DEPENDENCIES:
+  - AdsRepo (from `../`)
+
+EXTERNAL SOURCES:
+  AdsRepo:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  AdsRepo: e0864e4b9a4d9b45a6ee0833ff8f57fee0bb3c60
+
+PODFILE CHECKSUM: 20dbf0718454ec00f1d05471671945c462856246
+
+COCOAPODS: 1.11.0.rc.1

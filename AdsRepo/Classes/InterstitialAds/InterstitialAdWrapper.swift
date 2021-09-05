@@ -26,7 +26,7 @@ public class InterstitialAdWrapper:NSObject {
     func loadAd(){
         let request = GADRequest()
         isLoading = true
-        GADInterstitialAd.load(withAdUnitID:repoConfig.AdUnitId,
+        GADInterstitialAd.load(withAdUnitID:repoConfig.adUnitId,
                             request: request,completionHandler: { (ad, error) in
                             self.isLoading = false
                             if let error = error {

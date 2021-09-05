@@ -15,7 +15,13 @@ class RewardAdsController:NSObject{
     
     var adsRepo:[RewardAdWrapper] = []
     var repoConfig:RepoConfig?
-    var isDisable:Bool = false
+    var isDisable:Bool = false{
+        didSet{
+            if isDisable{
+                adsRepo.removeAll()
+            }
+        }
+    }
     var isConfig:Bool{return repoConfig != nil}
     var delegate:AdsRepoDelegate? = nil
     
@@ -26,7 +32,7 @@ class RewardAdsController:NSObject{
        guard !isDisable else{return}
         guard let repoConfig = repoConfig else {return}
         let showedCount = adsRepo.filter({$0.showCount == 0}).count
-         for _ in adsRepo.count..<repoConfig.totalSize+showedCount{
+         for _ in adsRepo.count..<repoConfig.repoSize+showedCount{
             adsRepo.append(RewardAdWrapper(repoConfig: repoConfig, delegate: self))
             adsRepo.last?.loadAd()
         }

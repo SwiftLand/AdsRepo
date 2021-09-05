@@ -29,28 +29,60 @@ class NativeAdWrapper:NSObject,NativeAdWrapperProtocol{
         self.loadedAd = loadedAd
         super.init()
         self.loadedAd.delegate = self
+        self.loadedAd.mediaContent.videoController.delegate = self
     }
 }
 
 extension NativeAdWrapper: GADNativeAdDelegate {
 
      func nativeAdDidRecordClick(_ nativeAd: GADNativeAd) {
-        print("native ad RecordClick")
+        print("NativeAd","RecordClick")
     }
      func nativeAdDidDismissScreen(_ nativeAd: GADNativeAd) {
-        print("native ad DidDismiss")
+        print("NativeAd","DidDismiss")
     }
      func nativeAdWillPresentScreen(_ nativeAd: GADNativeAd) {
-        print("native ad AdWillPresent")
+        print("NativeAd","AdWillPresent")
     }
      func nativeAdWillDismissScreen(_ nativeAd: GADNativeAd) {
-        print("native ad AdWillDismiss")
+        print("NativeAd","AdWillDismiss")
     }
      func nativeAdDidRecordImpression(_ nativeAd: GADNativeAd) {
-        print("native ad RecordImpression")
-        showCount += 1
+        print("NativeAd","RecordImpression")
     }
      func nativeAdIsMuted(_ nativeAd: GADNativeAd) {
-        print("native ad IsMuted")
+        print("NativeAd","IsMuted")
     }
+}
+extension NativeAdWrapper:GADVideoControllerDelegate{
+    // GADVideoControllerDelegate methods
+      func videoControllerDidPlayVideo(_ videoController: GADVideoController) {
+        // Implement this method to receive a notification when the video controller
+        // begins playing the ad.
+        print("NativeAd","DidPlayVideo")
+      }
+
+      func videoControllerDidPauseVideo(_ videoController: GADVideoController) {
+        // Implement this method to receive a notification when the video controller
+        // pauses the ad.
+        print("NativeAd","DidPauseVideo")
+      }
+
+      func videoControllerDidEndVideoPlayback(_ videoController: GADVideoController) {
+        // Implement this method to receive a notification when the video controller
+        // stops playing the ad.
+        print("NativeAd","DidEndVideoPlayback")
+      }
+
+      func videoControllerDidMuteVideo(_ videoController: GADVideoController) {
+        // Implement this method to receive a notification when the video controller
+        // mutes the ad.
+        print("NativeAd","DidMuteVideo")
+      }
+
+      func videoControllerDidUnmuteVideo(_ videoController: GADVideoController) {
+        // Implement this method to receive a notification when the video controller
+        // unmutes the ad.
+        print("NativeAd","DidUnmuteVideo")
+      }
 }

@@ -16,9 +16,11 @@ public class AdsRepo:NSObject{
  
     private override init() {}
     
-    public func config(interstitialConfig interstitial:RepoConfig? = nil,
+    public func config(rootVC:UIViewController? = nil,
+                       interstitialConfig interstitial:RepoConfig? = nil,
                        rewardConfig reward:RepoConfig? = nil,
                        nativeConfig native:RepoConfig? = nil){
+        
         if let reward = reward{
             configRewardAd(reward)
         }
@@ -26,11 +28,15 @@ public class AdsRepo:NSObject{
             configInterstitialAd(interstitial)
         }
         if let native = native{
-            configNativeAd(native)
+            configNativeAd(native,rootVC:rootVC)
         }
       
     }
-    
+    public func isDisable(_ state:Bool){
+        RewardAdsController.default.isDisable = true
+        InterstitialAdsController.default.isDisable = true
+        NativeAdsController.default.isDisable = true
+    }
     public func configRewardAd(_ config:RepoConfig){
         RewardAdsController.default.repoConfig = config
         RewardAdsController.default.delegate = self
@@ -39,8 +45,8 @@ public class AdsRepo:NSObject{
         InterstitialAdsController.default.repoConfig = config
         InterstitialAdsController.default.delegate = self
     }
-    public  func configNativeAd(_ config:RepoConfig){
-        NativeAdsController.default.repoConfig = config
+    public  func configNativeAd(_ config:RepoConfig,rootVC:UIViewController? = nil ){
+        NativeAdsController.default.config(config,rootVC: rootVC)
         NativeAdsController.default.delegate = self
     }
     

@@ -7,26 +7,66 @@
 
 import Foundation
 public struct RepoConfig{
-     let AdUnitId:String
-     let totalSize:Int
+     let adUnitId:String
+     let repoSize:Int
      let expireIntervalTime:TimeInterval
      let isTaggedForChildDirectedTreatment: Bool?// COPPA
      let isTaggedForUnderAgeOfConsent: Bool // GDPR
      let isUMPDisabled: Bool?// Disables User Messaging Platform (UMP) SDK
     
    public init(
-        AdUnitId:String,
-        totalSize:Int,
+        adUnitId:String,
+        repoSize:Int,
         expireIntervalTime:TimeInterval = 360000,
         isTaggedForChildDirectedTreatment: Bool?  = nil ,
         isTaggedForUnderAgeOfConsent: Bool = false,
         isUMPDisabled: Bool? = nil ) {
         
-        self.AdUnitId = AdUnitId
-        self.totalSize = totalSize
+        self.adUnitId = adUnitId
+        self.repoSize = repoSize
         self.expireIntervalTime = expireIntervalTime
         self.isTaggedForChildDirectedTreatment = isTaggedForChildDirectedTreatment
         self.isTaggedForUnderAgeOfConsent = isTaggedForUnderAgeOfConsent
         self.isUMPDisabled = isUMPDisabled
+    }
+    static func debugBanngerConfig(isUMPDisabled: Bool) -> RepoConfig {
+        RepoConfig(
+            adUnitId: "ca-app-pub-3940256099942544/2934735716", repoSize: 2,
+            isTaggedForChildDirectedTreatment: nil,
+            isTaggedForUnderAgeOfConsent: false,
+            isUMPDisabled: isUMPDisabled
+        )
+    }
+    static func debugInterstitialConfig(isUMPDisabled: Bool) -> RepoConfig {
+        RepoConfig(
+            adUnitId: "ca-app-pub-3940256099942544/4411468910", repoSize: 2,
+            isTaggedForChildDirectedTreatment: nil,
+            isTaggedForUnderAgeOfConsent: false,
+            isUMPDisabled: isUMPDisabled
+        )
+    }
+    static func debugRewardedConfig(isUMPDisabled: Bool) -> RepoConfig {
+        RepoConfig(
+            adUnitId: "ca-app-pub-3940256099942544/1712485313",repoSize: 2,
+            isTaggedForChildDirectedTreatment: nil,
+            isTaggedForUnderAgeOfConsent: false,
+            isUMPDisabled: isUMPDisabled
+        )
+    }
+    static func debugRewardedInterstitialConfig(isUMPDisabled: Bool) -> RepoConfig {
+        RepoConfig(
+            adUnitId: "ca-app-pub-3940256099942544/6978759866",repoSize: 2,
+            isTaggedForChildDirectedTreatment: nil,
+            isTaggedForUnderAgeOfConsent: false,
+            isUMPDisabled: isUMPDisabled
+        )
+    }
+    static func debugNativeConfig(isUMPDisabled: Bool) -> RepoConfig {
+        RepoConfig(
+            adUnitId: "ca-app-pub-3940256099942544/3986624511",repoSize: 5,
+            isTaggedForChildDirectedTreatment: nil,
+            isTaggedForUnderAgeOfConsent: false,
+            isUMPDisabled: isUMPDisabled
+        )
     }
 }

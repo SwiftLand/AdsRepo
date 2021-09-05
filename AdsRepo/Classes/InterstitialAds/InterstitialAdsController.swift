@@ -9,10 +9,16 @@ import Foundation
 import GoogleMobileAds
 class InterstitialAdsController:NSObject {
     static let `default` = InterstitialAdsController()
-    var adsRepo:[InterstitialAdWrapper] = []
+    private(set) var adsRepo:[InterstitialAdWrapper] = []
     var repoConfig:RepoConfig? = nil
     var isConfig:Bool{return repoConfig != nil}
-    var isDisable:Bool = false
+    var isDisable:Bool = false{
+        didSet{
+            if isDisable{
+                adsRepo.removeAll()
+            }
+        }
+    }
     var delegate:AdsRepoDelegate? = nil
     
     init(delegate:AdsRepoDelegate? = nil){
@@ -23,7 +29,7 @@ class InterstitialAdsController:NSObject {
          guard !isDisable else{return}
          guard let repoConfig = repoConfig else {return}
           let showedCount = adsRepo.filter({$0.showCount == 0}).count
-          for _ in adsRepo.count..<repoConfig.totalSize + showedCount{
+          for _ in adsRepo.count..<repoConfig.repoSize + showedCount{
             adsRepo.append(InterstitialAdWrapper(repoConfig: repoConfig, delegate: self))
               adsRepo.last?.loadAd()
           }

@@ -29,7 +29,7 @@ public class RewardAdWrapper:NSObject{
     func loadAd(){
         let request = GADRequest()
         isLoading = true
-        GADRewardedAd.load(withAdUnitID:repoConfig.AdUnitId,
+        GADRewardedAd.load(withAdUnitID:repoConfig.adUnitId,
                            request: request,completionHandler: { (ad, error) in
                             self.isLoading = false
                             if let error = error {

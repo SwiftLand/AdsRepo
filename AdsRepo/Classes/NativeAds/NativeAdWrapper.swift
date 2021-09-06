@@ -8,28 +8,43 @@
 import Foundation
 import GoogleMobileAds
 
+
+protocol NativeAdWrapperDelegate{
+    func nativeAdWrapper(didExpire ad:NativeAdWrapper)
+}
 public protocol NativeAdWrapperProtocol {
     var repoConfig:RepoConfig{get}
     var loadedAd: GADNativeAd{get}
-    var loadedDate:Date{get}
+    var loadedDate:TimeInterval{get}
     var showCount:Int{get}
-    var loadCount:Int{get}
     var referenceCount:Int{get}
 }
 class NativeAdWrapper:NSObject,NativeAdWrapperProtocol{
      var repoConfig:RepoConfig
      var loadedAd: GADNativeAd
-     var loadedDate:Date = Date()
+     var loadedDate:TimeInterval = Date().timeIntervalSince1970 * 1000
      var showCount:Int = 0
-     var loadCount:Int = 0
      var referenceCount:Int = 0
-    
-    init(repoConfig:RepoConfig,loadedAd: GADNativeAd) {
+     private var timer:Timer? = nil
+     private var delegate:NativeAdWrapperDelegate? = nil
+    init(repoConfig:RepoConfig,loadedAd: GADNativeAd,delegate:NativeAdWrapperDelegate? = nil) {
         self.repoConfig = repoConfig
         self.loadedAd = loadedAd
         super.init()
+        self.delegate = delegate
         self.loadedAd.delegate = self
         self.loadedAd.mediaContent.videoController.delegate = self
+        self.timer = Timer(fireAt: Date().addingTimeInterval(self.repoConfig.expireIntervalTime), interval: 0, target: self, selector: #selector(self.makeAdExpire), userInfo: nil, repeats: false)
+    }
+    
+    @objc func makeAdExpire() {
+        print("Native Ad was expire")
+        delegate?.nativeAdWrapper(didExpire: self)
+    }
+    deinit {
+        timer?.invalidate()
+        timer = nil
+        print("deinit","Native Ad")
     }
 }
 

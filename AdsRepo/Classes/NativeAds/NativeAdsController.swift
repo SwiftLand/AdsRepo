@@ -10,14 +10,18 @@ import GoogleMobileAds
 
 
 class NativeAdsController:NSObject{
+  
+    
     static let `default` = NativeAdsController()
     private(set) var repoConfig:RepoConfig? = nil
     var isConfig:Bool{return repoConfig != nil}
+    private weak var rootVC:UIViewController? = nil
     private(set) var adsRepo:[NativeAdWrapper] = []
     var isDisable:Bool = false{
         didSet{
             if isDisable{
                 adsRepo.removeAll()
+                stopLoading()
             }
         }
     }
@@ -33,16 +37,21 @@ class NativeAdsController:NSObject{
     
     func config(_ config:RepoConfig? = nil,rootVC:UIViewController? = nil){
         // Create multiple ads ad loader options
-        
+        self.rootVC = rootVC
         guard let config = config else {
             self.repoConfig = nil
-            self.adLoader = nil
+            stopLoading()
             return
         }
         self.repoConfig = config
+        configAdLoader()
+    }
+    
+    private func configAdLoader(){
+        guard let repoConfig = repoConfig else {return}
         var adLoaderOptions: [GADAdLoaderOptions]? {
             let multiAdOption = GADMultipleAdsAdLoaderOptions()
-            multiAdOption.numberOfAds = config.repoSize
+            multiAdOption.numberOfAds = repoConfig.repoSize - adsRepo.count
             
             let videoOption = GADVideoOptions()
             videoOption.startMuted = true
@@ -53,7 +62,7 @@ class NativeAdsController:NSObject{
         
         // Create GADAdLoader
         adLoader = GADAdLoader(
-            adUnitID:config.adUnitId,
+            adUnitID:repoConfig.adUnitId,
             rootViewController: rootVC,
             adTypes: [.native],
             options: adLoaderOptions
@@ -62,27 +71,42 @@ class NativeAdsController:NSObject{
         // Set the GADAdLoader delegate
         adLoader?.delegate = self
     }
-    
     func fillRepoAds(){
         guard !isDisable else {return}
         guard let repoConfig = repoConfig else {return}
         guard adsRepo.count<repoConfig.repoSize else {return}
-        guard let adLoader = adLoader, !adLoader.isLoading else{return}
-        adLoader.load(GADRequest())
+        
+        guard !(adLoader?.isLoading ?? false) else{return}
+        
+        configAdLoader()
+        adLoader?.load(GADRequest())
     }
     
     func loadAd(onAdReay:@escaping ((NativeAdWrapperProtocol?)->Void)){
+        guard let repoConfig = repoConfig else {return}
+        
+        let now = Date().timeIntervalSince1970 * 1000.0
+        adsRepo.removeAll(where: {now-$0.loadedDate > repoConfig.expireIntervalTime})
+        
+        guard adsRepo.count > 0 else {
+            onAdReay(nil)
+            fillRepoAds()
+            return
+        }
+        
         if let lessShowCount = adsRepo.min(by: {$0.showCount<$1.showCount}) {
             lessShowCount.showCount += 1
             onAdReay(lessShowCount)
-            return
         }
-        if let adLoader = adLoader, !adLoader.isLoading{
+        
+        if adsRepo.count<repoConfig.repoSize {
             fillRepoAds()
-        }else{
-            print("Native AdLoader","in loading")
         }
-        onAdReay(nil)
+    }
+    
+    func stopLoading() {
+        adLoader?.delegate = nil
+        adLoader = nil
     }
 }
 
@@ -90,8 +114,7 @@ extension NativeAdsController: GADNativeAdLoaderDelegate {
     
     func adLoader(_ adLoader: GADAdLoader, didReceive nativeAd: GADNativeAd) {
         guard let repoConfig = repoConfig else {return}
-        guard !isDisable else {return}
-        adsRepo.append(NativeAdWrapper(repoConfig: repoConfig, loadedAd: nativeAd))
+        adsRepo.append(NativeAdWrapper(repoConfig: repoConfig, loadedAd: nativeAd,delegate: self))
         print("Native AdLoader","did Receive ads")
         delegate?.didReceiveNativeAds()
     }
@@ -104,27 +127,11 @@ extension NativeAdsController: GADNativeAdLoaderDelegate {
     func adLoader(_ adLoader: GADAdLoader, didFailToReceiveAdWithError error: Error) {
         print("Native AdLoader","error:",error)
         delegate?.didFailToReceiveNativeAdWithError(error)
-        let errorCode = GADErrorCode(rawValue: (error as NSError).code)
-        switch (errorCode) {
-        case .internalError:
-            //                    stopPreloading = true;
-            print("Native AdLoader","Internal error, an invalid response was received from the ad server.")
-            break;
-        case .invalidRequest:
-            //                    stopPreloading = true;
-            print("Native AdLoader","Invalid ad request, possibly an incorrect ad unit ID was given.")
-            break;
-        case .networkError:
-            print("Native AdLoader","The ad request was unsuccessful due to network connectivity.")
-            break;
-        case .noFill:
-            print("Native AdLoader","The ad request was successful, but no ad was returned due to lack of ad inventory.")
-            break;
-        case .serverError,.osVersionTooLow,.timeout,.mediationDataError,.mediationAdapterError,.mediationInvalidAdSize,.invalidArgument,.receivedInvalidResponse,.mediationNoFill,.adAlreadyUsed,.applicationIdentifierMissing:
-            
-            break
-         default:
-            break
-        }
+    }
+}
+extension NativeAdsController: NativeAdWrapperDelegate{
+    func nativeAdWrapper(didExpire ad:NativeAdWrapper) {
+        adsRepo.removeAll(where: {$0 == ad})
+        fillRepoAds()
     }
 }

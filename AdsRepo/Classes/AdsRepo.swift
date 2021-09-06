@@ -8,7 +8,6 @@
 import Foundation
 import GoogleMobileAds
 
-
 public class AdsRepo:NSObject{
     public static let `default` = AdsRepo()
     var observers:[Weak<AdsRepoObserver>] = []
@@ -74,6 +73,36 @@ public class AdsRepo:NSObject{
     }
 }
 
+extension AdsRepo:RewardAdDelegate{
+    func rewardAd(didReady ad: RewardAdWrapper) {
+        observers.forEach({$0.value?.adMobManagerDelegate(didReady: ad)})
+    }
+    
+    func rewardAd(didOpen ad: RewardAdWrapper) {
+        observers.forEach({$0.value?.adMobManagerDelegate(didOpen: ad)})
+    }
+    
+    func rewardAd(willClose ad: RewardAdWrapper) {
+        observers.forEach({$0.value?.adMobManagerDelegate(willClose: ad)})
+    }
+    
+    func rewardAd(didClose ad: RewardAdWrapper) {
+        observers.forEach({$0.value?.adMobManagerDelegate(didClose: ad)})
+    }
+    
+    func rewardAd(onError ad: RewardAdWrapper, error: Error?) {
+        observers.forEach({$0.value?.adMobManagerDelegate(onError: ad,error:error)})
+    }
+    
+    func rewardAd(didReward ad: RewardAdWrapper, reward: Double) {
+        observers.forEach({$0.value?.adMobManagerDelegate(didReward: ad,reward:reward)})
+     
+    }
+    func rewardAd(didExpire ad: RewardAdWrapper) {
+        observers.forEach({$0.value?.adMobManagerDelegate(didExpire: ad)})
+    }
+    
+}
 extension AdsRepo:AdsRepoDelegate{
   
     

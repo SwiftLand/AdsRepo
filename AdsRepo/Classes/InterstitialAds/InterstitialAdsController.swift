@@ -9,6 +9,8 @@ import Foundation
 import GoogleMobileAds
 class InterstitialAdsController:NSObject {
     static let `default` = InterstitialAdsController()
+    private(set) var errorHandler = ErrorHandler()
+    var isLoading:Bool {adsRepo.contains(where: {$0.isLoading})}
     private(set) var adsRepo:[InterstitialAdWrapper] = []
     var repoConfig:RepoConfig? = nil
     var isConfig:Bool{return repoConfig != nil}
@@ -28,19 +30,19 @@ class InterstitialAdsController:NSObject {
     func fillRepoAds(){
          guard !isDisable else{return}
          guard let repoConfig = repoConfig else {return}
-          let showedCount = adsRepo.filter({$0.showCount == 0}).count
-          for _ in adsRepo.count..<repoConfig.repoSize + showedCount{
+          let loadingAdsCount = adsRepo.filter({$0.isLoading}).count
+          let totalAdsNeedCount = repoConfig.repoSize-loadingAdsCount
+          for _ in adsRepo.count..<totalAdsNeedCount{
             adsRepo.append(InterstitialAdWrapper(repoConfig: repoConfig, delegate: self))
               adsRepo.last?.loadAd()
           }
       }
 
   func presentAd(vc:UIViewController){
-        adsRepo.sort(by: {($0.loadedDate ?? Date()) < ($1.loadedDate ?? Date())})
-        guard let rewardedAdWrapper = adsRepo.first else{
-            return
-        }
-        rewardedAdWrapper.presentAd(vc: vc)
+    let now = Date().timeIntervalSince1970 * 1000
+    guard let rewardedAdWrapper = adsRepo.min(by: {($0.loadedDate ?? now) < ($1.loadedDate ?? now)})
+    else{return}
+    rewardedAdWrapper.presentAd(vc: vc)
     }
     
     func hasReadyAd(vc:UIViewController)->Bool{
@@ -49,26 +51,33 @@ class InterstitialAdsController:NSObject {
 
 }
     
-extension InterstitialAdsController:AdsRepoDelegate{
+extension InterstitialAdsController:InterstitialAdDelegate{
 
-    func adMobManagerDelegate(didReady ad:InterstitialAdWrapper) {
+    func interstitialAd(didReady ad:InterstitialAdWrapper) {
         delegate?.adMobManagerDelegate(didReady: ad)
+        errorHandler.restart()
     }
     
-    func adMobManagerDelegate(didOpen ad:InterstitialAdWrapper) {
+    func interstitialAd(didOpen ad:InterstitialAdWrapper) {
         delegate?.adMobManagerDelegate(didOpen: ad)
-            fillRepoAds()
     }
-    func adMobManagerDelegate(willClose ad:InterstitialAdWrapper){
+    func interstitialAd(willClose ad:InterstitialAdWrapper){
         delegate?.adMobManagerDelegate(willClose: ad)
     }
-    func adMobManagerDelegate(didClose ad:InterstitialAdWrapper) {
+    func interstitialAd(didClose ad:InterstitialAdWrapper) {
         delegate?.adMobManagerDelegate(didClose: ad)
         adsRepo.removeAll(where: {$0.showCount>0})
+        fillRepoAds()
     }
     
-    func adMobManagerDelegate(onError ad:InterstitialAdWrapper, error: Error?) {
+    func interstitialAd(onError ad:InterstitialAdWrapper, error: Error?) {
         delegate?.adMobManagerDelegate(onError: ad,error:error)
+        adsRepo.removeAll(where: {$0 == ad})
+        if errorHandler.isRetryAble(error: error),!isLoading{
+            fillRepoAds()
+        }
+    }
+    func interstitialAd(didExpire ad: InterstitialAdWrapper) {
         adsRepo.removeAll(where: {$0 == ad})
         fillRepoAds()
     }

@@ -10,27 +10,19 @@ import GoogleMobileAds
 import UIKit
 
 
-protocol RewardAdDelegate {
-    func rewardAd(didReady ad:RewardAdWrapper)
-    func rewardAd(didOpen ad:RewardAdWrapper)
-    func rewardAd(willClose ad:RewardAdWrapper)
-    func rewardAd(didClose ad:RewardAdWrapper)
-    func rewardAd(onError ad:RewardAdWrapper,error:Error?)
-    func rewardAd(didReward ad:RewardAdWrapper,reward:Double)
-    func rewardAd(didExpire ad:RewardAdWrapper)
-}
-public class RewardAdWrapper:NSObject{
 
+public class RewardAdWrapper:NSObject{
+    
     private(set) public var loadedAd: GADRewardedAd?
     private(set) public var loadedDate:TimeInterval? = nil
     private(set) public var isLoading:Bool = false
     private(set) public var showCount:Int = 0
     private(set) public var isRewardRecived:Bool = false
     private(set) public var repoConfig:RepoConfig
-    private var delegate:RewardAdDelegate? = nil
+    private weak var owner:RewardAdsController? = nil
     private var timer:Timer? = nil
-    init(repoConfig:RepoConfig,delegate:RewardAdDelegate? = nil) {
-        self.delegate = delegate
+    init(repoConfig:RepoConfig,owner:RewardAdsController? = nil) {
+        self.owner = owner
         self.repoConfig = repoConfig
     }
     
@@ -44,28 +36,30 @@ public class RewardAdWrapper:NSObject{
                             self.isLoading = false
                             if let error = error {
                                 print("Rewarded ad failed to load with error: \(error.localizedDescription)")
-                                self.delegate?.rewardAd(onError:self,error:error)
+                                self.owner?.rewardAd(onError:self,error:error)
                                 return
                             }
                             self.loadedAd = ad
-                            self.loadedDate = Date().timeIntervalSince1970 * 1000
+                            self.loadedDate = Date().timeIntervalSince1970
                             self.loadedAd?.fullScreenContentDelegate = self
-                            self.delegate?.rewardAd(didReady: self)
-                            self.timer = Timer(fireAt: Date().addingTimeInterval(self.repoConfig.expireIntervalTime), interval: 0, target: self, selector: #selector(self.makeAdExpire), userInfo: nil, repeats: false)
-                           })
+                            self.owner?.rewardAd(didReady: self)
+                            
+                            self.timer = Timer.scheduledTimer(withTimeInterval: self.repoConfig.expireIntervalTime, repeats: false, block: {[weak self]  timer in
+                                guard let self = self else {return}
+                                print("Reward Ad was expire")
+                                self.owner?.rewardAd(didExpire: self)
+                            })
+                        })
+        
     }
     
-    @objc func makeAdExpire() {
-        print("Reward Ad was expire")
-        delegate?.rewardAd(didExpire: self)
-    }
     
     func presentAd(vc:UIViewController){
         
         if adsIsReady(vc: vc)  {
             loadedAd?.fullScreenContentDelegate = self
             loadedAd?.present(fromRootViewController: vc,
-                               userDidEarnRewardHandler: {self.onReceivedReward()})
+                              userDidEarnRewardHandler: {self.onReceivedReward()})
         } else {
             print("Reward Ad wasn't ready")
         }
@@ -88,7 +82,7 @@ public class RewardAdWrapper:NSObject{
         let amount = rewardedAd.adReward.amount
         print("Reward received with amount \(amount).")
         isRewardRecived = true
-        delegate?.rewardAd(didReward: self, reward: Double(truncating: amount))
+        owner?.rewardAd(didReward: self, reward: Double(truncating: amount))
     }
     private func stopTime(){
         timer?.invalidate()
@@ -103,7 +97,7 @@ extension RewardAdWrapper:GADFullScreenContentDelegate{
     public func adDidPresentFullScreenContent(_ ad: GADFullScreenPresentingAd) {
         print("Rewarded ad presented.")
         showCount += 1
-        delegate?.rewardAd(didOpen: self)
+        owner?.rewardAd(didOpen: self)
     }
     /// Tells the delegate that the rewarded ad was dismissed.
     public func adWillDismissFullScreenContent(_ ad: GADFullScreenPresentingAd) {
@@ -111,13 +105,13 @@ extension RewardAdWrapper:GADFullScreenContentDelegate{
     }
     public func adDidDismissFullScreenContent(_ ad: GADFullScreenPresentingAd) {
         print("Rewarded ad dismissed.")
-        delegate?.rewardAd(didClose: self)
+        owner?.rewardAd(didClose: self)
     }
     /// Tells the delegate that the rewarded ad failed to present.
     public func ad(_ ad: GADFullScreenPresentingAd,
-                     didFailToPresentFullScreenContentWithError error: Error) {
+                   didFailToPresentFullScreenContentWithError error: Error) {
         print("Rewarded ad failed to present with error: \(error.localizedDescription).")
-        delegate?.rewardAd(onError: self,error:error)
+        owner?.rewardAd(onError: self,error:error)
     }
     
 }

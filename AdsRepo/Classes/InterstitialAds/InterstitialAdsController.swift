@@ -7,6 +7,15 @@
 
 import Foundation
 import GoogleMobileAds
+
+protocol InterstitialAdDelegate {
+    func interstitialAd(didReady ad:InterstitialAdWrapper)
+    func interstitialAd(didOpen ad:InterstitialAdWrapper)
+    func interstitialAd(willClose ad:InterstitialAdWrapper)
+    func interstitialAd(didClose ad:InterstitialAdWrapper)
+    func interstitialAd(onError ad:InterstitialAdWrapper,error:Error?)
+    func interstitialAd(didExpire ad:InterstitialAdWrapper)
+}
 class InterstitialAdsController:NSObject {
     static let `default` = InterstitialAdsController()
     private(set) var errorHandler = ErrorHandler()
@@ -18,12 +27,14 @@ class InterstitialAdsController:NSObject {
         didSet{
             if isDisable{
                 adsRepo.removeAll()
+            }else{
+                fillRepoAds()
             }
         }
     }
-    var delegate:AdsRepoDelegate? = nil
+    var delegate:InterstitialAdDelegate? = nil
     
-    init(delegate:AdsRepoDelegate? = nil){
+    init(delegate:InterstitialAdDelegate? = nil){
         super.init()
         self.delegate = delegate
     }
@@ -32,14 +43,14 @@ class InterstitialAdsController:NSObject {
          guard let repoConfig = repoConfig else {return}
           let loadingAdsCount = adsRepo.filter({$0.isLoading}).count
           let totalAdsNeedCount = repoConfig.repoSize-loadingAdsCount
-          for _ in adsRepo.count..<totalAdsNeedCount{
-            adsRepo.append(InterstitialAdWrapper(repoConfig: repoConfig, delegate: self))
-              adsRepo.last?.loadAd()
+          while adsRepo.count<totalAdsNeedCount{
+            adsRepo.append(InterstitialAdWrapper(repoConfig: repoConfig, owner: self))
+            adsRepo.last?.loadAd()
           }
       }
 
   func presentAd(vc:UIViewController){
-    let now = Date().timeIntervalSince1970 * 1000
+    let now = Date().timeIntervalSince1970
     guard let rewardedAdWrapper = adsRepo.min(by: {($0.loadedDate ?? now) < ($1.loadedDate ?? now)})
     else{return}
     rewardedAdWrapper.presentAd(vc: vc)
@@ -54,24 +65,24 @@ class InterstitialAdsController:NSObject {
 extension InterstitialAdsController:InterstitialAdDelegate{
 
     func interstitialAd(didReady ad:InterstitialAdWrapper) {
-        delegate?.adMobManagerDelegate(didReady: ad)
+        delegate?.interstitialAd(didReady: ad)
         errorHandler.restart()
     }
     
     func interstitialAd(didOpen ad:InterstitialAdWrapper) {
-        delegate?.adMobManagerDelegate(didOpen: ad)
+        delegate?.interstitialAd(didOpen: ad)
     }
     func interstitialAd(willClose ad:InterstitialAdWrapper){
-        delegate?.adMobManagerDelegate(willClose: ad)
+        delegate?.interstitialAd(willClose: ad)
     }
     func interstitialAd(didClose ad:InterstitialAdWrapper) {
-        delegate?.adMobManagerDelegate(didClose: ad)
+        delegate?.interstitialAd(didClose: ad)
         adsRepo.removeAll(where: {$0.showCount>0})
         fillRepoAds()
     }
     
     func interstitialAd(onError ad:InterstitialAdWrapper, error: Error?) {
-        delegate?.adMobManagerDelegate(onError: ad,error:error)
+        delegate?.interstitialAd(onError: ad,error:error)
         adsRepo.removeAll(where: {$0 == ad})
         if errorHandler.isRetryAble(error: error),!isLoading{
             fillRepoAds()

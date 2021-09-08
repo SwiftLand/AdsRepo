@@ -8,14 +8,6 @@
 import Foundation
 import GoogleMobileAds
 
-protocol InterstitialAdDelegate {
-    func interstitialAd(didReady ad:InterstitialAdWrapper)
-    func interstitialAd(didOpen ad:InterstitialAdWrapper)
-    func interstitialAd(willClose ad:InterstitialAdWrapper)
-    func interstitialAd(didClose ad:InterstitialAdWrapper)
-    func interstitialAd(onError ad:InterstitialAdWrapper,error:Error?)
-    func interstitialAd(didExpire ad:InterstitialAdWrapper)
-}
 
 public class InterstitialAdWrapper:NSObject {
     
@@ -26,10 +18,10 @@ public class InterstitialAdWrapper:NSObject {
     private(set) public var isLoading:Bool = false
     private(set) public var showCount:Int = 0
     private var timer:Timer? = nil
-    private var delegate:InterstitialAdDelegate? = nil
+    private weak var owner:InterstitialAdsController? = nil
     
-    init(repoConfig:RepoConfig,delegate:InterstitialAdDelegate? = nil) {
-        self.delegate = delegate
+    init(repoConfig:RepoConfig,owner:InterstitialAdsController? = nil) {
+        self.owner = owner
         self.repoConfig = repoConfig
     }
     
@@ -43,20 +35,21 @@ public class InterstitialAdWrapper:NSObject {
                                 self.isLoading = false
                                 if let error = error {
                                     print("Interstitial Ad failed to load with error: \(error.localizedDescription)")
-                                    self.delegate?.interstitialAd(onError:self,error:error)
+                                    self.owner?.interstitialAd(onError:self,error:error)
                                     return
                                 }
                                 self.loadedAd = ad
-                                self.loadedDate = Date().timeIntervalSince1970 * 1000
+                                self.loadedDate = Date().timeIntervalSince1970
                                 self.loadedAd?.fullScreenContentDelegate = self
-                                self.delegate?.interstitialAd(didReady: self)
-                                self.timer = Timer(fireAt: Date().addingTimeInterval(self.repoConfig.expireIntervalTime), interval: 0, target: self, selector: #selector(self.makeAdExpire), userInfo: nil, repeats: false)
+                                self.owner?.interstitialAd(didReady: self)
+                                self.timer = Timer.scheduledTimer(withTimeInterval: self.repoConfig.expireIntervalTime, repeats: false, block: {[weak self] timer in
+                                    print("Interstitial Ad was expire")
+                                    guard let self = self else {return}
+                                    self.owner?.interstitialAd(didExpire: self)
+                                })
                                })
     }
-    @objc func makeAdExpire() {
-        print("Interstitial Ad was expire")
-        delegate?.interstitialAd(didExpire: self)
-    }
+
     func presentAd(vc:UIViewController){
         
         if adsIsReady(vc: vc)  {
@@ -89,7 +82,7 @@ extension InterstitialAdWrapper:GADFullScreenContentDelegate{
     public func adDidPresentFullScreenContent(_ ad: GADFullScreenPresentingAd) {
         print("Interstitial Ad  presented.")
         showCount += 1
-        delegate?.interstitialAd(didOpen: self)
+        owner?.interstitialAd(didOpen: self)
     }
     /// Tells the delegate that the rewarded ad was dismissed.
     public func adWillDismissFullScreenContent(_ ad: GADFullScreenPresentingAd) {
@@ -97,13 +90,13 @@ extension InterstitialAdWrapper:GADFullScreenContentDelegate{
     }
     public func adDidDismissFullScreenContent(_ ad: GADFullScreenPresentingAd) {
         print("Interstitial Ad  dismissed.")
-        delegate?.interstitialAd(didClose: self)
+        owner?.interstitialAd(didClose: self)
     }
     /// Tells the delegate that the rewarded ad failed to present.
     public func ad(_ ad: GADFullScreenPresentingAd,
                    didFailToPresentFullScreenContentWithError error: Error) {
         print("Interstitial Ad  failed to present with error: \(error.localizedDescription).")
-        delegate?.interstitialAd(onError: self,error:error)
+        owner?.interstitialAd(onError: self,error:error)
     }
     
 }

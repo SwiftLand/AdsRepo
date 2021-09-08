@@ -8,7 +8,12 @@
 import Foundation
 import GoogleMobileAds
 
-
+protocol NativeAdsControllerDelegate {
+    func didReceiveNativeAds()
+    func didFinishLoadingNativeAds()
+    func didFailToReceiveNativeAdWithError(_ error: Error)
+    func adsRepoDelegate(didExpire ad: NativeAdWrapperProtocol)
+}
 class NativeAdsController:NSObject{
   
     
@@ -22,15 +27,17 @@ class NativeAdsController:NSObject{
             if isDisable{
                 adsRepo.removeAll()
                 stopLoading()
+            }else{
+                fillRepoAds()
             }
         }
     }
-    var delegate:AdsRepoDelegate? = nil
+    var delegate:NativeAdsControllerDelegate? = nil
     private var adLoader: GADAdLoader?
     private var onCompleteLoading:(()->Void)? = nil
     
     
-    init(delegate:AdsRepoDelegate? = nil){
+    init(delegate:NativeAdsControllerDelegate? = nil){
         super.init()
         self.delegate = delegate
     }
@@ -85,7 +92,7 @@ class NativeAdsController:NSObject{
     func loadAd(onAdReay:@escaping ((NativeAdWrapperProtocol?)->Void)){
         guard let repoConfig = repoConfig else {return}
         
-        let now = Date().timeIntervalSince1970 * 1000.0
+        let now = Date().timeIntervalSince1970
         adsRepo.removeAll(where: {now-$0.loadedDate > repoConfig.expireIntervalTime})
         
         guard adsRepo.count > 0 else {
@@ -114,7 +121,7 @@ extension NativeAdsController: GADNativeAdLoaderDelegate {
     
     func adLoader(_ adLoader: GADAdLoader, didReceive nativeAd: GADNativeAd) {
         guard let repoConfig = repoConfig else {return}
-        adsRepo.append(NativeAdWrapper(repoConfig: repoConfig, loadedAd: nativeAd,delegate: self))
+        adsRepo.append(NativeAdWrapper(repoConfig: repoConfig, loadedAd: nativeAd,owner: self))
         print("Native AdLoader","did Receive ads")
         delegate?.didReceiveNativeAds()
     }
@@ -128,10 +135,11 @@ extension NativeAdsController: GADNativeAdLoaderDelegate {
         print("Native AdLoader","error:",error)
         delegate?.didFailToReceiveNativeAdWithError(error)
     }
-}
-extension NativeAdsController: NativeAdWrapperDelegate{
+    
     func nativeAdWrapper(didExpire ad:NativeAdWrapper) {
+        print("Native didExpire",ad)
         adsRepo.removeAll(where: {$0 == ad})
+        delegate?.adsRepoDelegate(didExpire: ad)
         fillRepoAds()
     }
 }

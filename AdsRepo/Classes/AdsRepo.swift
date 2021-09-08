@@ -32,9 +32,9 @@ public class AdsRepo:NSObject{
       
     }
     public func isDisable(_ state:Bool){
-        RewardAdsController.default.isDisable = true
-        InterstitialAdsController.default.isDisable = true
-        NativeAdsController.default.isDisable = true
+        RewardAdsController.default.isDisable = state
+        InterstitialAdsController.default.isDisable = state
+        NativeAdsController.default.isDisable = state
     }
     public func configRewardAd(_ config:RepoConfig){
         RewardAdsController.default.repoConfig = config
@@ -55,10 +55,17 @@ public class AdsRepo:NSObject{
         NativeAdsController.default.fillRepoAds()
     }
     
-    public func hasReadyRewardAd(vc:UIViewController) -> Bool{
+    public func requestRewardAdsIfNeed(){
+        RewardAdsController.default.fillRepoAds()
+    }
+    public func requestInterstitialAdsIfNeed(){
+        InterstitialAdsController.default.fillRepoAds()
+    }
+    
+    public func hasAReadyRewardAd(vc:UIViewController) -> Bool{
         return RewardAdsController.default.hasReadyAd(vc: vc)
     }
-    public func hasReadyInterstitialAd(vc:UIViewController) -> Bool{
+    public func hasAReadyInterstitialAd(vc:UIViewController) -> Bool{
         return InterstitialAdsController.default.hasReadyAd(vc: vc)
     }
     
@@ -75,85 +82,74 @@ public class AdsRepo:NSObject{
 
 extension AdsRepo:RewardAdDelegate{
     func rewardAd(didReady ad: RewardAdWrapper) {
-        observers.forEach({$0.value?.adMobManagerDelegate(didReady: ad)})
+        observers.forEach({$0.value?.adsRepoDelegate(didReady: ad)})
     }
     
     func rewardAd(didOpen ad: RewardAdWrapper) {
-        observers.forEach({$0.value?.adMobManagerDelegate(didOpen: ad)})
+        observers.forEach({$0.value?.adsRepoDelegate(didOpen: ad)})
     }
     
     func rewardAd(willClose ad: RewardAdWrapper) {
-        observers.forEach({$0.value?.adMobManagerDelegate(willClose: ad)})
+        observers.forEach({$0.value?.adsRepoDelegate(willClose: ad)})
     }
     
     func rewardAd(didClose ad: RewardAdWrapper) {
-        observers.forEach({$0.value?.adMobManagerDelegate(didClose: ad)})
+        observers.forEach({$0.value?.adsRepoDelegate(didClose: ad)})
     }
     
     func rewardAd(onError ad: RewardAdWrapper, error: Error?) {
-        observers.forEach({$0.value?.adMobManagerDelegate(onError: ad,error:error)})
+        observers.forEach({$0.value?.adsRepoDelegate(onError: ad,error:error)})
     }
     
     func rewardAd(didReward ad: RewardAdWrapper, reward: Double) {
-        observers.forEach({$0.value?.adMobManagerDelegate(didReward: ad,reward:reward)})
+        observers.forEach({$0.value?.adsRepoDelegate(didReward: ad,reward:reward)})
      
     }
     func rewardAd(didExpire ad: RewardAdWrapper) {
-        observers.forEach({$0.value?.adMobManagerDelegate(didExpire: ad)})
+        observers.forEach({$0.value?.adsRepoDelegate(didExpire: ad)})
     }
     
 }
-extension AdsRepo:AdsRepoDelegate{
-  
-    
-    //rewardAds
-    public  func adMobManagerDelegate(didReady ad:RewardAdWrapper){
-        observers.forEach({$0.value?.adMobManagerDelegate(didReady: ad)})
-    }
-    public func adMobManagerDelegate(didOpen ad:RewardAdWrapper){
-        observers.forEach({$0.value?.adMobManagerDelegate(didOpen: ad)})
-    }
-    public func adMobManagerDelegate(willClose ad:RewardAdWrapper){
-        observers.forEach({$0.value?.adMobManagerDelegate(willClose: ad)})
-    }
-    public func adMobManagerDelegate(didClose ad:RewardAdWrapper){
-        observers.forEach({$0.value?.adMobManagerDelegate(didClose: ad)})
-    }
-    public func adMobManagerDelegate(onError ad:RewardAdWrapper,error:Error?){
-        observers.forEach({$0.value?.adMobManagerDelegate(onError: ad,error:error)})
-    }
-    public func adMobManagerDelegate(didReward ad:RewardAdWrapper,reward:Double){
-        observers.forEach({$0.value?.adMobManagerDelegate(didReward: ad,reward:reward)})
+extension AdsRepo:InterstitialAdDelegate{
+    func interstitialAd(didReady ad: InterstitialAdWrapper) {
+        observers.forEach({$0.value?.adsRepoDelegate(didReady: ad)})
     }
     
-    //InterstitialAds
-    public func adMobManagerDelegate(didReady ad:InterstitialAdWrapper){
-        observers.forEach({$0.value?.adMobManagerDelegate(didReady: ad)})
-    }
-    public func adMobManagerDelegate(didOpen ad:InterstitialAdWrapper){
-        observers.forEach({$0.value?.adMobManagerDelegate(didOpen: ad)})
-    }
-    public func adMobManagerDelegate(willClose ad:InterstitialAdWrapper){
-        observers.forEach({$0.value?.adMobManagerDelegate(willClose: ad)})
-    }
-    public func adMobManagerDelegate(didClose ad:InterstitialAdWrapper){
-        observers.forEach({$0.value?.adMobManagerDelegate(didClose: ad)})
-    }
-    public func adMobManagerDelegate(onError ad:InterstitialAdWrapper,error:Error?){
-        observers.forEach({$0.value?.adMobManagerDelegate(onError: ad,error:error)})
+    func interstitialAd(didOpen ad: InterstitialAdWrapper) {
+        observers.forEach({$0.value?.adsRepoDelegate(didOpen: ad)})
     }
     
-    //NativeAds
+    func interstitialAd(willClose ad: InterstitialAdWrapper) {
+        observers.forEach({$0.value?.adsRepoDelegate(willClose: ad)})
+    }
+    
+    func interstitialAd(didClose ad: InterstitialAdWrapper) {
+        observers.forEach({$0.value?.adsRepoDelegate(didClose: ad)})
+    }
+    
+    func interstitialAd(onError ad: InterstitialAdWrapper, error: Error?) {
+        observers.forEach({$0.value?.adsRepoDelegate(onError: ad,error:error)})
+    }
+    
+    func interstitialAd(didExpire ad: InterstitialAdWrapper) {
+        observers.forEach({$0.value?.adsRepoDelegate(didExpire: ad)})
+    }
+    
+    
+}
+extension AdsRepo:NativeAdsControllerDelegate{
+    
     public func didReceiveNativeAds() {
         observers.forEach({$0.value?.didReceiveNativeAds()})
     }
-    
     public func didFinishLoadingNativeAds() {
         observers.forEach({$0.value?.didFinishLoadingNativeAds()})
     }
-    
     public func didFailToReceiveNativeAdWithError(_ error: Error) {
         observers.forEach({$0.value?.didFailToReceiveNativeAdWithError(error)})
+    }
+    public func adsRepoDelegate(didExpire ad: NativeAdWrapperProtocol) {
+        observers.forEach({$0.value?.adsRepoDelegate(didExpire:ad)})
     }
 }
 

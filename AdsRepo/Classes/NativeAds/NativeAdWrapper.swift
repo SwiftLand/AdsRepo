@@ -9,9 +9,6 @@ import Foundation
 import GoogleMobileAds
 
 
-protocol NativeAdWrapperDelegate{
-    func nativeAdWrapper(didExpire ad:NativeAdWrapper)
-}
 public protocol NativeAdWrapperProtocol {
     var repoConfig:RepoConfig{get}
     var loadedAd: GADNativeAd{get}
@@ -22,25 +19,26 @@ public protocol NativeAdWrapperProtocol {
 class NativeAdWrapper:NSObject,NativeAdWrapperProtocol{
      var repoConfig:RepoConfig
      var loadedAd: GADNativeAd
-     var loadedDate:TimeInterval = Date().timeIntervalSince1970 * 1000
+     var loadedDate:TimeInterval = Date().timeIntervalSince1970
      var showCount:Int = 0
      var referenceCount:Int = 0
      private var timer:Timer? = nil
-     private var delegate:NativeAdWrapperDelegate? = nil
-    init(repoConfig:RepoConfig,loadedAd: GADNativeAd,delegate:NativeAdWrapperDelegate? = nil) {
+     private var owner:NativeAdsController? = nil
+    init(repoConfig:RepoConfig,loadedAd: GADNativeAd,owner:NativeAdsController? = nil) {
         self.repoConfig = repoConfig
         self.loadedAd = loadedAd
         super.init()
-        self.delegate = delegate
+        self.owner = owner
         self.loadedAd.delegate = self
         self.loadedAd.mediaContent.videoController.delegate = self
-        self.timer = Timer(fireAt: Date().addingTimeInterval(self.repoConfig.expireIntervalTime), interval: 0, target: self, selector: #selector(self.makeAdExpire), userInfo: nil, repeats: false)
+        
+        self.timer = Timer.scheduledTimer(withTimeInterval: self.repoConfig.expireIntervalTime, repeats: false, block: {[weak self]  timer in
+            guard let self = self else {return}
+            print("Native Ad was expire")
+            self.owner?.nativeAdWrapper(didExpire: self)
+        })
     }
     
-    @objc func makeAdExpire() {
-        print("Native Ad was expire")
-        delegate?.nativeAdWrapper(didExpire: self)
-    }
     deinit {
         timer?.invalidate()
         timer = nil

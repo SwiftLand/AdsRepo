@@ -7,7 +7,7 @@
 
 import Foundation
 import GoogleMobileAds
-
+import AppTrackingTransparency
 public class AdsRepo:NSObject{
     public static let `default` = AdsRepo()
     var observers:[Weak<AdsRepoObserver>] = []
@@ -50,9 +50,11 @@ public class AdsRepo:NSObject{
     }
     
     public func loadAds(){
-        RewardAdsController.default.fillRepoAds()
-        InterstitialAdsController.default.fillRepoAds()
-        NativeAdsController.default.fillRepoAds()
+        ATTrackingManager.requestTrackingAuthorization { (status) in
+            RewardAdsController.default.fillRepoAds()
+            InterstitialAdsController.default.fillRepoAds()
+            NativeAdsController.default.fillRepoAds()
+        }
     }
     
     public func requestRewardAdsIfNeed(){

@@ -31,6 +31,9 @@ public class AdsRepo:NSObject{
         }
       
     }
+    public func setTestDevices(deviceIds:[String]){
+        GADMobileAds.sharedInstance().requestConfiguration.testDeviceIdentifiers = deviceIds
+    }
     public func isDisable(_ state:Bool){
         RewardAdsController.default.isDisable = state
         InterstitialAdsController.default.isDisable = state

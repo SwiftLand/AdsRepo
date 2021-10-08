@@ -29,6 +29,9 @@ public class AdsRepo:NSObject{
         if let native = native{
             configNativeAd(native,rootVC:rootVC)
         }
+        DispatchQueue.main.asyncAfter(deadline: .now()+1){
+            self.loadAds()
+        }
       
     }
     public func setTestDevices(deviceIds:[String]){

@@ -59,7 +59,7 @@ class RewardAdsController:NSObject{
     }
     
     func hasReadyAd(vc:UIViewController)->Bool{
-        return  adsRepo.first(where: {$0.adsIsReady(vc: vc)}) != nil
+        return  adsRepo.first(where: {$0.isReady(vc: vc)}) != nil
     }
     
 }

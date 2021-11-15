@@ -8,15 +8,14 @@
 import Foundation
 import GoogleMobileAds
 
-protocol NativeAdsControllerDelegate {
+protocol NativeAdsControllerDelegate:NativeAdWrapperDelegate {
     func didReceiveNativeAds()
     func didFinishLoadingNativeAds()
     func didFailToReceiveNativeAdWithError(_ error: Error)
-    func adsRepoDelegate(didExpire ad: NativeAdWrapperProtocol)
 }
+
 class NativeAdsController:NSObject{
   
-    
     static let `default` = NativeAdsController()
     private(set) var repoConfig:RepoConfig? = nil
     var isConfig:Bool{return repoConfig != nil}
@@ -89,7 +88,7 @@ class NativeAdsController:NSObject{
         adLoader?.load(GADRequest())
     }
     
-    func loadAd(onAdReay:@escaping ((NativeAdWrapperProtocol?)->Void)){
+    func loadAd(onAdReay:@escaping ((NativeAdWrapper?)->Void)){
         guard let repoConfig = repoConfig else {return}
         
         let now = Date().timeIntervalSince1970
@@ -102,7 +101,6 @@ class NativeAdsController:NSObject{
         }
         
         if let lessShowCount = adsRepo.min(by: {$0.showCount<$1.showCount}) {
-            lessShowCount.showCount += 1
             onAdReay(lessShowCount)
         }
         
@@ -136,10 +134,47 @@ extension NativeAdsController: GADNativeAdLoaderDelegate {
         delegate?.didFailToReceiveNativeAdWithError(error)
     }
     
-    func nativeAdWrapper(didExpire ad:NativeAdWrapper) {
+}
+extension NativeAdsController: NativeAdWrapperDelegate{
+
+    func nativeAd(didReady ad: NativeAdWrapper) {
+        delegate?.nativeAd(didReady:ad)
+    }
+    
+    func nativeAd(willShown ad: NativeAdWrapper) {
+        delegate?.nativeAd(willShown:ad)
+    }
+    
+    func nativeAd(willDismiss ad: NativeAdWrapper) {
+        delegate?.nativeAd(willDismiss:ad)
+    }
+    
+    func nativeAd(didDismiss ad: NativeAdWrapper) {
+        delegate?.nativeAd(didDismiss:ad)
+        if let threshold = repoConfig?.showCountThreshold,ad.showCount>=threshold{
+            adsRepo.removeAll(where: {$0 == ad})
+            fillRepoAds()
+        }
+    }
+    
+    func nativeAd(onError ad: NativeAdWrapper, error: Error?) {//<- handle from adloader
+        delegate?.nativeAd(onError:ad,error:error)
+    }
+    
+    func nativeAd(didExpire ad: NativeAdWrapper) {
         print("Native didExpire",ad)
         adsRepo.removeAll(where: {$0 == ad})
-        delegate?.adsRepoDelegate(didExpire: ad)
+        delegate?.nativeAd(didExpire: ad)
         fillRepoAds()
+    }
+    
+    func nativeAd(didClicked ad:NativeAdWrapper){
+        delegate?.nativeAd(didClicked:ad)
+    }
+    func nativeAd(didRecordImpression ad:NativeAdWrapper){
+        delegate?.nativeAd(didRecordImpression:ad)
+    }
+    func nativeAd(_ ad:NativeAdWrapper,isMuted:Bool){
+        delegate?.nativeAd(ad,isMuted:isMuted)
     }
 }

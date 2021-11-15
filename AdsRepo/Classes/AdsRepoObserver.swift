@@ -8,6 +8,18 @@
 import Foundation
 
 public protocol AdsRepoDelegate {
+    
+    func bannerAd(didReady ad:BannerAdWrapper)
+    func bannerAd(didShown ad:BannerAdWrapper)
+    func bannerAd(willDismiss ad:BannerAdWrapper)
+    func bannerAd(didDismiss ad:BannerAdWrapper)
+    func bannerAd(onError ad:BannerAdWrapper,error:Error?)
+    func bannerAd(didExpire ad:BannerAdWrapper)
+    func didReceiveBannerAds()
+    func didFinishLoadingBannerAds()
+    func didFailToReceiveBannerAdWithError(_ error: Error)
+    
+    
     func adsRepoDelegate(didReady ad:RewardAdWrapper)
     func adsRepoDelegate(didOpen ad:RewardAdWrapper)
     func adsRepoDelegate(willClose ad:RewardAdWrapper)
@@ -26,9 +38,27 @@ public protocol AdsRepoDelegate {
     func didReceiveNativeAds()
     func didFinishLoadingNativeAds()
     func didFailToReceiveNativeAdWithError(_ error: Error)
-    func adsRepoDelegate(didExpire ad:NativeAdWrapperProtocol)
+    func nativeAd(didReady ad:NativeAdWrapper)
+    func nativeAd(willShown ad:NativeAdWrapper)
+    func nativeAd(willDismiss ad:NativeAdWrapper)
+    func nativeAd(didDismiss ad:NativeAdWrapper)
+    func nativeAd(onError ad:NativeAdWrapper,error:Error?)
+    func nativeAd(didExpire ad:NativeAdWrapper)
+    func nativeAd(didClicked ad:NativeAdWrapper)
+    func nativeAd(didRecordImpression ad:NativeAdWrapper)
+    func nativeAd(_ ad:NativeAdWrapper,isMuted:Bool)
 }
 public extension AdsRepoDelegate {
+    func bannerAd(didReady ad:BannerAdWrapper){}
+    func bannerAd(didShown ad:BannerAdWrapper){}
+    func bannerAd(willDismiss ad:BannerAdWrapper){}
+    func bannerAd(didDismiss ad:BannerAdWrapper){}
+    func bannerAd(onError ad:BannerAdWrapper,error:Error?){}
+    func bannerAd(didExpire ad:BannerAdWrapper){}
+    func didReceiveBannerAds(){}
+    func didFinishLoadingBannerAds(){}
+    func didFailToReceiveBannerAdWithError(_ error: Error){}
+    
     func adsRepoDelegate(didReady ad:RewardAdWrapper){}
     func adsRepoDelegate(didOpen ad:RewardAdWrapper){}
     func adsRepoDelegate(willClose ad:RewardAdWrapper){}
@@ -47,7 +77,15 @@ public extension AdsRepoDelegate {
     func didReceiveNativeAds(){}
     func didFinishLoadingNativeAds(){}
     func didFailToReceiveNativeAdWithError(_ error: Error){}
-    func adsRepoDelegate(didExpire ad:NativeAdWrapperProtocol){}
+    func nativeAd(didReady ad:NativeAdWrapper){}
+    func nativeAd(willShown ad:NativeAdWrapper){}
+    func nativeAd(willDismiss ad:NativeAdWrapper){}
+    func nativeAd(didDismiss ad:NativeAdWrapper){}
+    func nativeAd(onError ad:NativeAdWrapper,error:Error?){}
+    func nativeAd(didExpire ad:NativeAdWrapper){}
+    func nativeAd(didClicked ad:NativeAdWrapper){}
+    func nativeAd(didRecordImpression ad:NativeAdWrapper){}
+    func nativeAd(_ ad:NativeAdWrapper,isMuted:Bool){}
 }
 
 public protocol AdsRepoObserver:AnyObject,AdsRepoDelegate {
@@ -60,47 +98,6 @@ protocol AdsRepoObservable {
     func removeObserver(observer: AdsRepoObserver)
     func removeObserver(observerId: String)
 }
-
-//public class WeakArray<T:AnyObject> {
-//    private let pointers = NSPointerArray.weakObjects()
-//
-//    init (_ elements: T...) {
-//        elements.forEach{self.pointers.addPointer(Unmanaged.passUnretained($0).toOpaque())}
-//    }
-//
-//    func get (_ index: Int) -> T? {
-//        if index < self.pointers.count, let pointer = self.pointers.pointer(at: index) {
-//            return Unmanaged<T>.fromOpaque(pointer).takeUnretainedValue()
-//        } else {
-//            return nil
-//        }
-//    }
-//    func append (_ element: T) {
-//        self.pointers.addPointer(Unmanaged.passUnretained(element).toOpaque())
-//    }
-//    func remove(at index:Int){
-//        guard index < self.pointers.count else {return}
-//        self.pointers.removePointer(at: index)
-//    }
-//    func removeAll(_ element: T){
-//        for index in 0..<self.pointers.count{
-//            if let pointer =  self.pointers.pointer(at: index){
-//                let obj:T = Unmanaged<T>.fromOpaque(pointer).takeUnretainedValue()
-//                if obj === element {
-//                    remove(at: index)
-//                }
-//            }
-//        }
-//    }
-//
-//    func forEach (_ callback: (T) -> ()) {
-//        for i in 0..<self.pointers.count {
-//            if let element = self.get(i) {
-//                callback(element)
-//            }
-//        }
-//    }
-//}
 
 struct Weak<T> {
     var value: T? { provider() }

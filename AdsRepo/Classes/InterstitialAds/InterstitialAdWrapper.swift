@@ -52,7 +52,7 @@ public class InterstitialAdWrapper:NSObject {
 
     func presentAd(vc:UIViewController){
         
-        if adsIsReady(vc: vc)  {
+        if isReady(vc: vc)  {
             loadedAd?.fullScreenContentDelegate = self
             loadedAd?.present(fromRootViewController: vc)
         } else {
@@ -60,7 +60,7 @@ public class InterstitialAdWrapper:NSObject {
         }
     }
     
-    func adsIsReady(vc:UIViewController)->Bool{
+    func isReady(vc:UIViewController)->Bool{
         guard loadedAd != nil else{return false}
         do{
             try self.loadedAd?.canPresent(fromRootViewController: vc)

@@ -6,24 +6,34 @@
 //
 
 import Foundation
+
+public typealias AdSize = (width:Double,height:Double)
+
 public struct RepoConfig{
+    
      let adUnitId:String
      let repoSize:Int
      let expireIntervalTime:TimeInterval
+     let showCountThreshold:Int?
      let isTaggedForChildDirectedTreatment: Bool?// COPPA
      let isTaggedForUnderAgeOfConsent: Bool // GDPR
      let isUMPDisabled: Bool?// Disables User Messaging Platform (UMP) SDK
+     let bannerSize:AdSize?
     
    public init(
         adUnitId:String,
         repoSize:Int,
         expireIntervalTime:TimeInterval = 360000,
+        showCountThreshold:Int? = nil,
+        bannerSize:AdSize? = nil,
         isTaggedForChildDirectedTreatment: Bool?  = nil ,
         isTaggedForUnderAgeOfConsent: Bool = false,
         isUMPDisabled: Bool? = nil ) {
         
         self.adUnitId = adUnitId
         self.repoSize = repoSize
+        self.showCountThreshold = showCountThreshold
+        self.bannerSize = bannerSize
         self.expireIntervalTime = expireIntervalTime
         self.isTaggedForChildDirectedTreatment = isTaggedForChildDirectedTreatment
         self.isTaggedForUnderAgeOfConsent = isTaggedForUnderAgeOfConsent
@@ -70,3 +80,4 @@ public struct RepoConfig{
         )
     }
 }
+

@@ -51,13 +51,13 @@ class InterstitialAdsController:NSObject {
 
   func presentAd(vc:UIViewController){
     let now = Date().timeIntervalSince1970
-    guard let rewardedAdWrapper = adsRepo.min(by: {($0.loadedDate ?? now) < ($1.loadedDate ?? now)})
+    guard let adWrapper = adsRepo.min(by: {($0.loadedDate ?? now) < ($1.loadedDate ?? now)})
     else{return}
-    rewardedAdWrapper.presentAd(vc: vc)
+      adWrapper.presentAd(vc: vc)
     }
     
     func hasReadyAd(vc:UIViewController)->Bool{
-      return  adsRepo.first(where: {$0.adsIsReady(vc: vc)}) != nil
+      return  adsRepo.first(where: {$0.isReady(vc: vc)}) != nil
     }
 
 }

@@ -12,10 +12,10 @@ public class AdsRepo:NSObject{
     public static let `default` = AdsRepo()
     var observers:[Weak<AdsRepoObserver>] = []
  
- 
     private override init() {}
     
     public func config(rootVC:UIViewController? = nil,
+                       bannerConfig banner:RepoConfig? = nil,
                        interstitialConfig interstitial:RepoConfig? = nil,
                        rewardConfig reward:RepoConfig? = nil,
                        nativeConfig native:RepoConfig? = nil){
@@ -29,7 +29,11 @@ public class AdsRepo:NSObject{
         if let native = native{
             configNativeAd(native,rootVC:rootVC)
         }
-        DispatchQueue.main.asyncAfter(deadline: .now()+1){
+        if let banner = banner{
+            configBannerAd(banner,rootVC:rootVC)
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now()+1){//<- for ios15 bug (require 1 sec delay after launch)
             self.loadAds()
         }
       
@@ -54,12 +58,24 @@ public class AdsRepo:NSObject{
         NativeAdsController.default.config(config,rootVC: rootVC)
         NativeAdsController.default.delegate = self
     }
+    public  func configBannerAd(_ config:RepoConfig,rootVC:UIViewController? = nil){
+        BannerAdsController.default.config(config,rootVC: rootVC)
+        BannerAdsController.default.delegate = self
+    }
     
-    public func loadAds(){
-        ATTrackingManager.requestTrackingAuthorization { (status) in
+    public func loadAds(withATTCheck:Bool = true){
+        if withATTCheck {
+            ATTrackingManager.requestTrackingAuthorization { (status) in
+                RewardAdsController.default.fillRepoAds()
+                InterstitialAdsController.default.fillRepoAds()
+                NativeAdsController.default.fillRepoAds()
+                BannerAdsController.default.fillRepoAds()
+            }
+        }else{
             RewardAdsController.default.fillRepoAds()
             InterstitialAdsController.default.fillRepoAds()
             NativeAdsController.default.fillRepoAds()
+            BannerAdsController.default.fillRepoAds()
         }
     }
     
@@ -83,8 +99,11 @@ public class AdsRepo:NSObject{
     public func showInterstitialAd(vc:UIViewController){
         InterstitialAdsController.default.presentAd(vc: vc)
     }
-    public func loadNativeAd(onAdReay:@escaping ((NativeAdWrapperProtocol?)->Void)){
+    public func loadNativeAd(onAdReay:@escaping ((NativeAdWrapper?)->Void)){
         NativeAdsController.default.loadAd(onAdReay: onAdReay)
+    }
+    public func loadBannerAd(onAdReay:@escaping ((BannerAdWrapper?)->Void)){
+        BannerAdsController.default.loadAd(onAdReay: onAdReay)
     }
 }
 
@@ -156,8 +175,65 @@ extension AdsRepo:NativeAdsControllerDelegate{
     public func didFailToReceiveNativeAdWithError(_ error: Error) {
         observers.forEach({$0.value?.didFailToReceiveNativeAdWithError(error)})
     }
-    public func adsRepoDelegate(didExpire ad: NativeAdWrapperProtocol) {
-        observers.forEach({$0.value?.adsRepoDelegate(didExpire:ad)})
+    public func nativeAd(didReady ad:NativeAdWrapper){
+        observers.forEach({$0.value?.nativeAd(didReady:ad)})
+    }
+    public func nativeAd(willShown ad:NativeAdWrapper){
+        observers.forEach({$0.value?.nativeAd(willShown:ad)})
+    }
+    public func nativeAd(willDismiss ad:NativeAdWrapper){
+        observers.forEach({$0.value?.nativeAd(willDismiss:ad)})
+    }
+    public func nativeAd(didDismiss ad:NativeAdWrapper){
+        observers.forEach({$0.value?.nativeAd(didDismiss:ad)})
+    }
+    public func nativeAd(onError ad:NativeAdWrapper,error:Error?){
+        observers.forEach({$0.value?.nativeAd(onError:ad,error:error)})
+    }
+    public func nativeAd(didExpire ad:NativeAdWrapper){
+        observers.forEach({$0.value?.nativeAd(didExpire:ad)})
+    }
+    func nativeAd(didClicked ad:NativeAdWrapper){
+        observers.forEach({$0.value?.nativeAd(didClicked:ad)})
+    }
+    func nativeAd(didRecordImpression ad:NativeAdWrapper){
+        observers.forEach({$0.value?.nativeAd(didRecordImpression:ad)})
+    }
+    func nativeAd(_ ad:NativeAdWrapper,isMuted:Bool){
+        observers.forEach({$0.value?.nativeAd(ad,isMuted:isMuted)})
+    }
+}
+
+extension AdsRepo:BannerAdsControllerDelegate{
+    func didReceiveBannerAds() {
+        observers.forEach({$0.value?.didReceiveBannerAds()})
+    }
+    
+    func didFinishLoadingBannerAds() {
+        observers.forEach({$0.value?.didFinishLoadingBannerAds()})
+    }
+    
+    func didFailToReceiveBannerAdWithError(_ error: Error) {
+        observers.forEach({$0.value?.didFailToReceiveBannerAdWithError(error)})
+    }
+    
+    func bannerAd(didReady ad:BannerAdWrapper){
+        observers.forEach({$0.value?.bannerAd(didReady:ad)})
+    }
+    func bannerAd(didShown ad:BannerAdWrapper){
+        observers.forEach({$0.value?.bannerAd(didShown:ad)})
+    }
+    func bannerAd(willDismiss ad:BannerAdWrapper){
+        observers.forEach({$0.value?.bannerAd(willDismiss:ad)})
+    }
+    func bannerAd(didDismiss ad:BannerAdWrapper){
+        observers.forEach({$0.value?.bannerAd(didDismiss:ad)})
+    }
+    func bannerAd(onError ad:BannerAdWrapper,error:Error?){
+        observers.forEach({$0.value?.bannerAd(onError:ad,error:error)})
+    }
+    func bannerAd(didExpire ad:BannerAdWrapper){
+        observers.forEach({$0.value?.bannerAd(didExpire:ad)})
     }
 }
 

@@ -32,11 +32,8 @@ public class AdsRepo:NSObject{
         if let banner = banner{
             configBannerAd(banner,rootVC:rootVC)
         }
-        
-        DispatchQueue.main.asyncAfter(deadline: .now()+1){//<- for ios15 bug (require 1 sec delay after launch)
-            self.loadAds()
-        }
-      
+        //<- for ios15 bug (require 1 sec delay after launch)
+        DispatchQueue.main.asyncAfter(deadline: .now()+1, execute: loadAds)
     }
     public func setTestDevices(deviceIds:[String]){
         GADMobileAds.sharedInstance().requestConfiguration.testDeviceIdentifiers = deviceIds
@@ -63,6 +60,9 @@ public class AdsRepo:NSObject{
         BannerAdsController.default.delegate = self
     }
     
+    private func loadAds(){
+        self.loadAds(withATTCheck:true)
+    }
     public func loadAds(withATTCheck:Bool = true){
         if withATTCheck {
             ATTrackingManager.requestTrackingAuthorization { (status) in

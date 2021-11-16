@@ -26,12 +26,10 @@ public class BannerAdWrapper:NSObject{
         self.repoConfig = repoConfig
     }
     func loadAd(rootVC:UIViewController){
+        guard let size = repoConfig.bannerSize else {return}
         guard !isLoading else {return}
         isLoading = true
-        var adSize = GADCurrentOrientationInlineAdaptiveBannerAdSizeWithWidth(UIScreen.main.nativeBounds.width)
-        if let size = repoConfig.bannerSize{
-            adSize = GADInlineAdaptiveBannerAdSizeWithWidthAndMaxHeight(size.width, size.height)
-        }
+        let adSize = GADInlineAdaptiveBannerAdSizeWithWidthAndMaxHeight(size.width, size.height)
         loadedAd = GADBannerView(adSize: adSize)
         loadedAd?.rootViewController = rootVC
         loadedAd?.adUnitID = repoConfig.adUnitId

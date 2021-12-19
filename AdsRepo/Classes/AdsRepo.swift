@@ -29,9 +29,6 @@ public class AdsRepo:NSObject{
         if let native = native{
             configNativeAd(native,rootVC:rootVC)
         }
-        if let banner = banner{
-            configBannerAd(banner,rootVC:rootVC)
-        }
         //<- for ios15 bug (require 1 sec delay after launch)
         DispatchQueue.main.asyncAfter(deadline: .now()+1, execute: loadAds)
     }
@@ -55,11 +52,7 @@ public class AdsRepo:NSObject{
         NativeAdsController.default.config(config,rootVC: rootVC)
         NativeAdsController.default.delegate = self
     }
-    public  func configBannerAd(_ config:RepoConfig,rootVC:UIViewController? = nil){
-        BannerAdsController.default.config(config,rootVC: rootVC)
-        BannerAdsController.default.delegate = self
-    }
-    
+  
     private func loadAds(){
         self.loadAds(withATTCheck:true)
     }
@@ -69,13 +62,13 @@ public class AdsRepo:NSObject{
                 RewardAdsController.default.fillRepoAds()
                 InterstitialAdsController.default.fillRepoAds()
                 NativeAdsController.default.fillRepoAds()
-                BannerAdsController.default.fillRepoAds()
+             
             }
         }else{
             RewardAdsController.default.fillRepoAds()
             InterstitialAdsController.default.fillRepoAds()
             NativeAdsController.default.fillRepoAds()
-            BannerAdsController.default.fillRepoAds()
+          
         }
     }
     
@@ -101,9 +94,6 @@ public class AdsRepo:NSObject{
     }
     public func loadNativeAd(onAdReay:@escaping ((NativeAdWrapper?)->Void)){
         NativeAdsController.default.loadAd(onAdReay: onAdReay)
-    }
-    public func loadBannerAd(onAdReay:@escaping ((BannerAdWrapper?)->Void)){
-        BannerAdsController.default.loadAd(onAdReay: onAdReay)
     }
 }
 
@@ -201,39 +191,6 @@ extension AdsRepo:NativeAdsControllerDelegate{
     }
     func nativeAd(_ ad:NativeAdWrapper,isMuted:Bool){
         observers.forEach({$0.value?.nativeAd(ad,isMuted:isMuted)})
-    }
-}
-
-extension AdsRepo:BannerAdsControllerDelegate{
-    func didReceiveBannerAds() {
-        observers.forEach({$0.value?.didReceiveBannerAds()})
-    }
-    
-    func didFinishLoadingBannerAds() {
-        observers.forEach({$0.value?.didFinishLoadingBannerAds()})
-    }
-    
-    func didFailToReceiveBannerAdWithError(_ error: Error) {
-        observers.forEach({$0.value?.didFailToReceiveBannerAdWithError(error)})
-    }
-    
-    func bannerAd(didReady ad:BannerAdWrapper){
-        observers.forEach({$0.value?.bannerAd(didReady:ad)})
-    }
-    func bannerAd(didShown ad:BannerAdWrapper){
-        observers.forEach({$0.value?.bannerAd(didShown:ad)})
-    }
-    func bannerAd(willDismiss ad:BannerAdWrapper){
-        observers.forEach({$0.value?.bannerAd(willDismiss:ad)})
-    }
-    func bannerAd(didDismiss ad:BannerAdWrapper){
-        observers.forEach({$0.value?.bannerAd(didDismiss:ad)})
-    }
-    func bannerAd(onError ad:BannerAdWrapper,error:Error?){
-        observers.forEach({$0.value?.bannerAd(onError:ad,error:error)})
-    }
-    func bannerAd(didExpire ad:BannerAdWrapper){
-        observers.forEach({$0.value?.bannerAd(didExpire:ad)})
     }
 }
 

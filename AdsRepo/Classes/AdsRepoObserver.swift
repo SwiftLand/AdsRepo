@@ -9,16 +9,7 @@ import Foundation
 
 public protocol AdsRepoDelegate {
     
-    func bannerAd(didReady ad:BannerAdWrapper)
-    func bannerAd(didShown ad:BannerAdWrapper)
-    func bannerAd(willDismiss ad:BannerAdWrapper)
-    func bannerAd(didDismiss ad:BannerAdWrapper)
-    func bannerAd(onError ad:BannerAdWrapper,error:Error?)
-    func bannerAd(didExpire ad:BannerAdWrapper)
-    func didReceiveBannerAds()
-    func didFinishLoadingBannerAds()
-    func didFailToReceiveBannerAdWithError(_ error: Error)
-    
+ 
     
     func adsRepoDelegate(didReady ad:RewardAdWrapper)
     func adsRepoDelegate(didOpen ad:RewardAdWrapper)
@@ -49,15 +40,6 @@ public protocol AdsRepoDelegate {
     func nativeAd(_ ad:NativeAdWrapper,isMuted:Bool)
 }
 public extension AdsRepoDelegate {
-    func bannerAd(didReady ad:BannerAdWrapper){}
-    func bannerAd(didShown ad:BannerAdWrapper){}
-    func bannerAd(willDismiss ad:BannerAdWrapper){}
-    func bannerAd(didDismiss ad:BannerAdWrapper){}
-    func bannerAd(onError ad:BannerAdWrapper,error:Error?){}
-    func bannerAd(didExpire ad:BannerAdWrapper){}
-    func didReceiveBannerAds(){}
-    func didFinishLoadingBannerAds(){}
-    func didFailToReceiveBannerAdWithError(_ error: Error){}
     
     func adsRepoDelegate(didReady ad:RewardAdWrapper){}
     func adsRepoDelegate(didOpen ad:RewardAdWrapper){}

@@ -7,7 +7,7 @@
 
 import Foundation
 import GoogleMobileAds
-import AppTrackingTransparency
+
 public class AdsRepo:NSObject{
     public static let `default` = AdsRepo()
     var observers:[Weak<AdsRepoObserver>] = []
@@ -29,8 +29,6 @@ public class AdsRepo:NSObject{
         if let native = native{
             configNativeAd(native,rootVC:rootVC)
         }
-        //<- for ios15 bug (require 1 sec delay after launch)
-        DispatchQueue.main.asyncAfter(deadline: .now()+1, execute: loadAds)
     }
     public func setTestDevices(deviceIds:[String]){
         GADMobileAds.sharedInstance().requestConfiguration.testDeviceIdentifiers = deviceIds
@@ -58,17 +56,16 @@ public class AdsRepo:NSObject{
     }
     public func loadAds(withATTCheck:Bool = true){
         if withATTCheck {
-            ATTrackingManager.requestTrackingAuthorization { (status) in
+            ATTHelper.request(){ (status) in
                 RewardAdsController.default.fillRepoAds()
                 InterstitialAdsController.default.fillRepoAds()
                 NativeAdsController.default.fillRepoAds()
-             
             }
         }else{
             RewardAdsController.default.fillRepoAds()
             InterstitialAdsController.default.fillRepoAds()
             NativeAdsController.default.fillRepoAds()
-          
+
         }
     }
     

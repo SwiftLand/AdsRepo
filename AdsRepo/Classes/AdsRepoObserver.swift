@@ -7,71 +7,26 @@
 
 import Foundation
 
-public protocol AdsRepoDelegate {
+public protocol AdsRepoDelegate:RewardedAdsControllerDelegate,
+                                NativeAdsControllerDelegate,
+                                InterstitialAdsControllerDelegate {
     
- 
-    
-    func adsRepoDelegate(didReady ad:RewardAdWrapper)
-    func adsRepoDelegate(didOpen ad:RewardAdWrapper)
-    func adsRepoDelegate(willClose ad:RewardAdWrapper)
-    func adsRepoDelegate(didClose ad:RewardAdWrapper)
-    func adsRepoDelegate(onError ad:RewardAdWrapper,error:Error?)
-    func adsRepoDelegate(didReward ad:RewardAdWrapper,reward:Double)
-    func adsRepoDelegate(didExpire ad:RewardAdWrapper)
-    
-    func adsRepoDelegate(didReady ad:InterstitialAdWrapper)
-    func adsRepoDelegate(didOpen ad:InterstitialAdWrapper)
-    func adsRepoDelegate(willClose ad:InterstitialAdWrapper)
-    func adsRepoDelegate(didClose ad:InterstitialAdWrapper)
-    func adsRepoDelegate(onError ad:InterstitialAdWrapper,error:Error?)
-    func adsRepoDelegate(didExpire ad:InterstitialAdWrapper)
-    
-    func didReceiveNativeAds()
-    func didFinishLoadingNativeAds()
-    func didFailToReceiveNativeAdWithError(_ error: Error)
-    func nativeAd(didReady ad:NativeAdWrapper)
-    func nativeAd(willShown ad:NativeAdWrapper)
-    func nativeAd(willDismiss ad:NativeAdWrapper)
-    func nativeAd(didDismiss ad:NativeAdWrapper)
-    func nativeAd(onError ad:NativeAdWrapper,error:Error?)
-    func nativeAd(didExpire ad:NativeAdWrapper)
-    func nativeAd(didClicked ad:NativeAdWrapper)
-    func nativeAd(didRecordImpression ad:NativeAdWrapper)
-    func nativeAd(_ ad:NativeAdWrapper,isMuted:Bool)
-}
-public extension AdsRepoDelegate {
-    
-    func adsRepoDelegate(didReady ad:RewardAdWrapper){}
-    func adsRepoDelegate(didOpen ad:RewardAdWrapper){}
-    func adsRepoDelegate(willClose ad:RewardAdWrapper){}
-    func adsRepoDelegate(didClose ad:RewardAdWrapper){}
-    func adsRepoDelegate(onError ad:RewardAdWrapper,error:Error?){}
-    func adsRepoDelegate(didReward ad:RewardAdWrapper,reward:Double){}
-    func adsRepoDelegate(didExpire ad:RewardAdWrapper){}
-    
-    func adsRepoDelegate(didReady ad:InterstitialAdWrapper){}
-    func adsRepoDelegate(didOpen ad:InterstitialAdWrapper){}
-    func adsRepoDelegate(willClose ad:InterstitialAdWrapper){}
-    func adsRepoDelegate(didClose ad:InterstitialAdWrapper){}
-    func adsRepoDelegate(onError ad:InterstitialAdWrapper,error:Error?){}
-    func adsRepoDelegate(didExpire ad:InterstitialAdWrapper){}
-    
-    func didReceiveNativeAds(){}
-    func didFinishLoadingNativeAds(){}
-    func didFailToReceiveNativeAdWithError(_ error: Error){}
-    func nativeAd(didReady ad:NativeAdWrapper){}
-    func nativeAd(willShown ad:NativeAdWrapper){}
-    func nativeAd(willDismiss ad:NativeAdWrapper){}
-    func nativeAd(didDismiss ad:NativeAdWrapper){}
-    func nativeAd(onError ad:NativeAdWrapper,error:Error?){}
-    func nativeAd(didExpire ad:NativeAdWrapper){}
-    func nativeAd(didClicked ad:NativeAdWrapper){}
-    func nativeAd(didRecordImpression ad:NativeAdWrapper){}
-    func nativeAd(_ ad:NativeAdWrapper,isMuted:Bool){}
+
 }
 
-public protocol AdsRepoObserver:AnyObject,AdsRepoDelegate {
+public protocol AdsRepoObserver:AdsRepoDelegate {
     var observerId:String{get}
+}
+
+extension AdsRepoObserver {
+    func nativeAdsControl(didReceive config:RepoConfig){}
+    func nativeAdsControl(didFinishLoading config:RepoConfig,error:Error?){}
+    
+    func rewardedAdsController(didReceiveAds config:RepoConfig){}
+    func rewardedAdsController(didFinishLoading config:RepoConfig,error:Error?){}
+    
+    func interstitialAdsController(didReceive config:RepoConfig){}
+    func interstitialAdsController(didFinishLoading config:RepoConfig,error:Error?){}
 }
 
 protocol AdsRepoObservable {

@@ -8,45 +8,48 @@
 import Foundation
 import GoogleMobileAds
 
-protocol RewardAdDelegate {
-    func rewardAd(didReady ad:RewardAdWrapper)
-    func rewardAd(didOpen ad:RewardAdWrapper)
-    func rewardAd(willClose ad:RewardAdWrapper)
-    func rewardAd(didClose ad:RewardAdWrapper)
-    func rewardAd(onError ad:RewardAdWrapper,error:Error?)
-    func rewardAd(didReward ad:RewardAdWrapper,reward:Double)
-    func rewardAd(didExpire ad:RewardAdWrapper)
+public protocol RewardedAdsControllerDelegate:NSObject {
+    func rewardedAdsController(didReceiveAds config:RepoConfig)
+    func rewardedAdsController(didFinishLoading config:RepoConfig,error:Error?)
 }
 
-class RewardAdsController:NSObject{
-    
-    static let `default` = RewardAdsController()
-    var errorHandler = ErrorHandler()
+extension RewardedAdsControllerDelegate {
+    func rewardedAdsController(didReceiveAds config:RepoConfig){}
+    func rewardedAdsController(didFinishLoading config:RepoConfig,error:Error?){}
+}
+
+public class RewardedAdsController:NSObject,AdsRepoProtocol{
+
+    private var errorHandler:ErrorHandler
     var adsRepo:[RewardAdWrapper] = []
-    var repoConfig:RepoConfig?
+    var config:RepoConfig
     var isLoading:Bool {adsRepo.contains(where: {$0.isLoading})}
     var isDisable:Bool = false{
         didSet{
             if isDisable{
+                errorHandler.cancel()
                 adsRepo.removeAll()
             }else{
                 fillRepoAds()
             }
         }
     }
-    var isConfig:Bool{return repoConfig != nil}
-    var delegate:RewardAdDelegate? = nil
+   weak var delegate:RewardedAdsControllerDelegate? = nil
     
-    init(delegate:RewardAdDelegate? = nil){
+    init(config:RepoConfig,
+         errorHandlerConfig:ErrorHandlerConfig? = nil,
+         delegate:RewardedAdsControllerDelegate? = nil){
         self.delegate = delegate
+        self.config = config
+        self.errorHandler = ErrorHandler(config: errorHandlerConfig)
+        super.init()
     }
     func fillRepoAds(){
         guard !isDisable else{return}
-        guard let repoConfig = repoConfig else {return}
         let loadingAdsCount = adsRepo.filter({$0.isLoading}).count
-        let totalAdsNeedCount = repoConfig.repoSize-loadingAdsCount
+        let totalAdsNeedCount = config.repoSize-loadingAdsCount
         while adsRepo.count<totalAdsNeedCount{
-            adsRepo.append(RewardAdWrapper(repoConfig: repoConfig, owner: self))
+            adsRepo.append(RewardAdWrapper(owner: self))
             adsRepo.last?.loadAd()
         }
     }
@@ -63,39 +66,34 @@ class RewardAdsController:NSObject{
     }
     
 }
-extension RewardAdsController:RewardAdDelegate{
+extension RewardedAdsController{
+    
     func rewardAd(didReady ad:RewardAdWrapper) {
-        delegate?.rewardAd(didReady: ad)
         errorHandler.restart()
+        delegate?.rewardedAdsController(didReceiveAds:config)
+        AdsRepo.default.rewardedAdsController(didReceiveAds:config)
+        if !adsRepo.contains(where: {!$0.isLoaded}){
+            delegate?.rewardedAdsController(didFinishLoading: config, error: nil)
+            AdsRepo.default.rewardedAdsController(didFinishLoading: config, error: nil)
+        }
     }
-    func rewardAd(didOpen ad:RewardAdWrapper) {
-        delegate?.rewardAd(didOpen: ad)
-    }
-    func rewardAd(willClose ad:RewardAdWrapper){
-        delegate?.rewardAd(willClose: ad)
-    }
+    
     func rewardAd(didClose ad:RewardAdWrapper) {
-        delegate?.rewardAd(didClose: ad)
         adsRepo.removeAll(where: {$0.showCount>0})
         fillRepoAds()
     }
     
     func rewardAd(onError ad:RewardAdWrapper, error: Error?) {
-        delegate?.rewardAd(onError: ad,error:error)
         adsRepo.removeAll(where: {$0 == ad})
         if errorHandler.isRetryAble(error: error),!isLoading{
             self.fillRepoAds()
+        }else{
+            delegate?.rewardedAdsController(didFinishLoading: config, error: error)
+            AdsRepo.default.rewardedAdsController(didFinishLoading: config, error: error)
         }
     }
-    
-    func rewardAd(didReward ad:RewardAdWrapper, reward: Double) {
-        delegate?.rewardAd(didReward: ad,reward:reward)
-    }
     func rewardAd(didExpire ad: RewardAdWrapper) {
-        delegate?.rewardAd(didExpire: ad)
         adsRepo.removeAll(where: {$0 == ad})
         fillRepoAds()
     }
-    
-    
 }

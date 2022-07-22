@@ -28,7 +28,7 @@ TODO: Add long description of the pod here.
   s.source           = { :git => 'https://github.com/x-oauth-basic/AdsRepo.git', :tag => s.version.to_s }
   # s.social_media_url = 'https://twitter.com/<TWITTER_USERNAME>'
 
-  s.ios.deployment_target = '14.0'
+  s.ios.deployment_target = '10.0'
 
   s.source_files = 'AdsRepo/Classes/**/*'
   
@@ -38,4 +38,10 @@ TODO: Add long description of the pod here.
   s.static_framework = true
   s.frameworks = 'UIKit'
   s.dependency 'Google-Mobile-Ads-SDK'
+  
+  s.test_spec 'Tests' do |test_spec|
+    test_spec.source_files = 'AdsRepo/Tests/**/*'
+    test_spec.dependency 'Nimble'
+    test_spec.dependency 'Quick'
+  end
 end

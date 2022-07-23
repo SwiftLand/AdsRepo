@@ -9,24 +9,26 @@ import Foundation
 import GoogleMobileAds
 
 public protocol NativeAdsControllerDelegate:NSObject{
-    func nativeAdsControl(didReceive config:RepoConfig)
-    func nativeAdsControl(didFinishLoading config:RepoConfig,error:Error?)
+    func nativeAdsControl(didReceive repo:NativeAdsController)
+    func nativeAdsControl(didFinishLoading repo:NativeAdsController,error:Error?)
 }
 extension NativeAdsControllerDelegate{
-    func nativeAdsControl(didReceive config:RepoConfig){}
-    func nativeAdsControl(didFinishLoading config:RepoConfig,error:Error?){}
+    public func nativeAdsControl(didReceive repo:NativeAdsController){}
+    public func nativeAdsControl(didFinishLoading repo:NativeAdsController,error:Error?){}
 }
 public class NativeAdsController:NSObject,AdsRepoProtocol{
-   
-    private var errorHandler:ErrorHandler
-    private(set) var config:RepoConfig
-    private weak var rootVC:UIViewController? = nil
-    private(set) var adsRepo:[NativeAdWrapper] = []
     
-    var isLoading:Bool {
+    private var errorHandler:ErrorHandler
+    public private(set) var config:RepoConfig
+    private weak var rootVC:UIViewController? = nil
+    public private(set) var adsRepo:[NativeAdWrapper] = []
+    public var autoFill:Bool = true
+    
+    public  var isLoading:Bool {
         adLoader?.isLoading ?? false
     }
-    var isDisable:Bool = false{
+    
+    public  var isDisable:Bool = false{
         didSet{
             if isDisable{
                 adsRepo.removeAll()
@@ -36,14 +38,14 @@ public class NativeAdsController:NSObject,AdsRepoProtocol{
             }
         }
     }
-    var delegate:NativeAdsControllerDelegate? = nil
+    weak var delegate:NativeAdsControllerDelegate? = nil
     private var adLoader: GADAdLoader?
     private var onCompleteLoading:(()->Void)? = nil
     
     
-    init(config:RepoConfig,
-         errorHandlerConfig:ErrorHandlerConfig? = nil,
-         delegate:NativeAdsControllerDelegate? = nil){
+    public init(config:RepoConfig,
+                errorHandlerConfig:ErrorHandlerConfig? = nil,
+                delegate:NativeAdsControllerDelegate? = nil){
         
         self.delegate = delegate
         self.config = config
@@ -51,7 +53,7 @@ public class NativeAdsController:NSObject,AdsRepoProtocol{
         super.init()
     }
     
-    func config(_ config:RepoConfig,rootVC:UIViewController? = nil){
+    public func config(_ config:RepoConfig,rootVC:UIViewController? = nil){
         // Create multiple ads ad loader options
         self.rootVC = rootVC
         self.config = config
@@ -81,7 +83,7 @@ public class NativeAdsController:NSObject,AdsRepoProtocol{
         adLoader?.delegate = self
     }
     
-    func fillRepoAds(){
+    public func fillRepoAds(){
         guard !isDisable else {return}
         guard adsRepo.count<config.repoSize else {return}
         
@@ -91,26 +93,26 @@ public class NativeAdsController:NSObject,AdsRepoProtocol{
         adLoader?.load(GADRequest())
     }
     
-    func loadAd(onAdReay:@escaping ((NativeAdWrapper?)->Void)){
+    public func loadAd(loadFromRepo:@escaping ((NativeAdWrapper?)->Void)){
         
-        let now = Date().timeIntervalSince1970
-        adsRepo.removeAll(where: {now-$0.loadedDate > config.expireIntervalTime})
-        
-        guard adsRepo.count > 0 else {
-            onAdReay(nil)
+        removeExpireAds()
+        guard adsRepo.count>0 else {
+            loadFromRepo(nil)
             fillRepoAds()
             return
         }
         
-        if let lessShowCount = adsRepo.min(by: {$0.showCount<$1.showCount}) {
-            onAdReay(lessShowCount)
-        }
-        
-        if adsRepo.count<config.repoSize {
-            fillRepoAds()
-        }
+      loadFromRepo(adsRepo.min(by: {$0.showCount<$1.showCount}))
+      if adsRepo.count<config.repoSize {
+           fillRepoAds()
+       }
     }
-    func stopLoading() {
+    
+    public func removeExpireAds(){
+        let now = Date().timeIntervalSince1970
+        adsRepo.removeAll(where: {now-$0.loadedDate > config.expireIntervalTime})
+    }
+    public func stopLoading() {
         errorHandler.cancel()
         adLoader?.delegate = nil
         adLoader = nil
@@ -120,12 +122,16 @@ extension NativeAdsController {
     func nativeAd(didDismiss ad: NativeAdWrapper){
         if let threshold = config.showCountThreshold,ad.showCount>=threshold{
             adsRepo.removeAll(where: {$0 == ad})
-            fillRepoAds()
+            if autoFill {
+                fillRepoAds()
+            }
         }
     }
     func nativeAd(didExpire ad: NativeAdWrapper){
         adsRepo.removeAll(where: {$0 == ad})
-        fillRepoAds()
+        if autoFill {
+            fillRepoAds()
+        }
     }
 }
 
@@ -133,23 +139,25 @@ extension NativeAdsController:GADNativeAdLoaderDelegate{
     public func adLoader(_ adLoader: GADAdLoader, didReceive nativeAd: GADNativeAd) {
         print("Native AdLoader","did Receive ads")
         adsRepo.append(NativeAdWrapper(loadedAd: nativeAd,owner: self))
-        delegate?.nativeAdsControl(didReceive: config)
-        AdsRepo.default.nativeAdsControl(didReceive: config)
+        delegate?.nativeAdsControl(didReceive: self)
+        AdsRepo.default.nativeAdsControl(didReceive: self)
     }
     
     public func adLoaderDidFinishLoading(_ adLoader: GADAdLoader) {
         print("Native AdLoader","DidFinishLoading")
-        delegate?.nativeAdsControl(didFinishLoading:config,error:nil)
-        AdsRepo.default.nativeAdsControl(didFinishLoading:config,error:nil)
+        delegate?.nativeAdsControl(didFinishLoading:self,error:nil)
+        AdsRepo.default.nativeAdsControl(didFinishLoading:self,error:nil)
     }
     
     public func adLoader(_ adLoader: GADAdLoader, didFailToReceiveAdWithError error: Error) {
         print("Native AdLoader","error:",error)
         if errorHandler.isRetryAble(error: error),!isLoading{
-            fillRepoAds()
+            if autoFill {
+                fillRepoAds()
+            }
         }else{
-            delegate?.nativeAdsControl(didFinishLoading:config, error: error)
-            AdsRepo.default.nativeAdsControl(didFinishLoading:config, error: error)
+            delegate?.nativeAdsControl(didFinishLoading:self, error: error)
+            AdsRepo.default.nativeAdsControl(didFinishLoading:self, error: error)
         }
     }
 }

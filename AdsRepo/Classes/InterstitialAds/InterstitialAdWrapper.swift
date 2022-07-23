@@ -17,19 +17,28 @@ public protocol InterstitialAdWrapperDelegate:NSObject {
     func interstitialAd(onError ad:InterstitialAdWrapper,error:Error?)
     func interstitialAd(didExpire ad:InterstitialAdWrapper)
 }
+extension InterstitialAdWrapperDelegate {
+    public func interstitialAd(didReady ad:InterstitialAdWrapper){}
+    public func interstitialAd(didOpen ad:InterstitialAdWrapper){}
+    public func interstitialAd(willClose ad:InterstitialAdWrapper){}
+    public func interstitialAd(didClose ad:InterstitialAdWrapper){}
+    public func interstitialAd(onError ad:InterstitialAdWrapper,error:Error?){}
+    public func interstitialAd(didExpire ad:InterstitialAdWrapper){}
+}
+
 public class InterstitialAdWrapper:NSObject {
     
-    
-    private(set) public var config:RepoConfig
-    private(set) public var loadedAd: GADInterstitialAd?
-    private(set) public var loadedDate:TimeInterval? = nil
-    private(set) public var isLoading:Bool = false
-    private(set) public var showCount:Int = 0
+    public private(set) var config:RepoConfig
+    public private(set) var loadedAd: GADInterstitialAd?
+    public private(set) var loadedDate:TimeInterval? = nil
+    public private(set) var isLoading:Bool = false
+    public private(set) var showCount:Int = 0
     public var isLoaded:Bool {loadedDate != nil}
+    public private(set) weak var owner:InterstitialAdsController? = nil
+    public  weak var delegate:InterstitialAdWrapperDelegate?
     
     private weak var timer:Timer? = nil
-    private(set) weak var owner:InterstitialAdsController? = nil
-    public  weak var delegate:InterstitialAdWrapperDelegate?
+
     init(owner:InterstitialAdsController) {
         self.owner = owner
         self.config = owner.config
@@ -93,6 +102,12 @@ public class InterstitialAdWrapper:NSObject {
     deinit {
         stopTime()
         print("deinit","Interstitial AdWrapper")
+    }
+}
+
+extension InterstitialAdWrapper{
+    static func == (lhs: InterstitialAdWrapper, rhs: InterstitialAdWrapper) -> Bool{
+        lhs.loadedAd == rhs.loadedAd
     }
 }
 extension InterstitialAdWrapper:GADFullScreenContentDelegate{

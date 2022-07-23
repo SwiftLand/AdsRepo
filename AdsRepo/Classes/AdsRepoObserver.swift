@@ -18,16 +18,7 @@ public protocol AdsRepoObserver:AdsRepoDelegate {
     var observerId:String{get}
 }
 
-extension AdsRepoObserver {
-    func nativeAdsControl(didReceive config:RepoConfig){}
-    func nativeAdsControl(didFinishLoading config:RepoConfig,error:Error?){}
-    
-    func rewardedAdsController(didReceiveAds config:RepoConfig){}
-    func rewardedAdsController(didFinishLoading config:RepoConfig,error:Error?){}
-    
-    func interstitialAdsController(didReceive config:RepoConfig){}
-    func interstitialAdsController(didFinishLoading config:RepoConfig,error:Error?){}
-}
+
 
 protocol AdsRepoObservable {
     var observers : [Weak<AdsRepoObserver>] { get set }

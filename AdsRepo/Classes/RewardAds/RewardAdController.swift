@@ -9,34 +9,37 @@ import Foundation
 import GoogleMobileAds
 
 public protocol RewardedAdsControllerDelegate:NSObject {
-    func rewardedAdsController(didReceiveAds config:RepoConfig)
-    func rewardedAdsController(didFinishLoading config:RepoConfig,error:Error?)
+    func rewardedAdsController(didReceiveAds repo:RewardedAdsController)
+    func rewardedAdsController(didFinishLoading repo:RewardedAdsController,error:Error?)
 }
 
 extension RewardedAdsControllerDelegate {
-    func rewardedAdsController(didReceiveAds config:RepoConfig){}
-    func rewardedAdsController(didFinishLoading config:RepoConfig,error:Error?){}
+    public func rewardedAdsController(didReceiveAds repo:RewardedAdsController){}
+    public func rewardedAdsController(didFinishLoading repo:RewardedAdsController,error:Error?){}
 }
 
 public class RewardedAdsController:NSObject,AdsRepoProtocol{
 
     private var errorHandler:ErrorHandler
-    var adsRepo:[RewardAdWrapper] = []
-    var config:RepoConfig
-    var isLoading:Bool {adsRepo.contains(where: {$0.isLoading})}
-    var isDisable:Bool = false{
+    public private(set) var adsRepo:[RewardAdWrapper] = []
+    public private(set) var config:RepoConfig
+    public var isLoading:Bool {adsRepo.contains(where: {$0.isLoading})}
+    public var autoFill:Bool = true
+    public private(set) var isDisable:Bool = false{
         didSet{
             if isDisable{
                 errorHandler.cancel()
                 adsRepo.removeAll()
             }else{
-                fillRepoAds()
+                if autoFill {
+                    fillRepoAds()
+                }
             }
         }
     }
    weak var delegate:RewardedAdsControllerDelegate? = nil
     
-    init(config:RepoConfig,
+ public init(config:RepoConfig,
          errorHandlerConfig:ErrorHandlerConfig? = nil,
          delegate:RewardedAdsControllerDelegate? = nil){
         self.delegate = delegate
@@ -44,7 +47,7 @@ public class RewardedAdsController:NSObject,AdsRepoProtocol{
         self.errorHandler = ErrorHandler(config: errorHandlerConfig)
         super.init()
     }
-    func fillRepoAds(){
+  public func fillRepoAds(){
         guard !isDisable else{return}
         let loadingAdsCount = adsRepo.filter({$0.isLoading}).count
         let totalAdsNeedCount = config.repoSize-loadingAdsCount
@@ -54,14 +57,14 @@ public class RewardedAdsController:NSObject,AdsRepoProtocol{
         }
     }
     
-    func presentAd(vc:UIViewController){
+  public func presentAd(vc:UIViewController){
         let now = Date().timeIntervalSince1970
         guard let rewardedAdWrapper = adsRepo.min(by: {($0.loadedDate ?? now) < ($1.loadedDate ?? now)})
         else{return}
         rewardedAdWrapper.presentAd(vc: vc)
     }
     
-    func hasReadyAd(vc:UIViewController)->Bool{
+    public func hasReadyAd(vc:UIViewController)->Bool{
         return  adsRepo.first(where: {$0.isReady(vc: vc)}) != nil
     }
     
@@ -70,30 +73,36 @@ extension RewardedAdsController{
     
     func rewardAd(didReady ad:RewardAdWrapper) {
         errorHandler.restart()
-        delegate?.rewardedAdsController(didReceiveAds:config)
-        AdsRepo.default.rewardedAdsController(didReceiveAds:config)
+        delegate?.rewardedAdsController(didReceiveAds:self)
+        AdsRepo.default.rewardedAdsController(didReceiveAds:self)
         if !adsRepo.contains(where: {!$0.isLoaded}){
-            delegate?.rewardedAdsController(didFinishLoading: config, error: nil)
-            AdsRepo.default.rewardedAdsController(didFinishLoading: config, error: nil)
+            delegate?.rewardedAdsController(didFinishLoading: self, error: nil)
+            AdsRepo.default.rewardedAdsController(didFinishLoading: self, error: nil)
         }
     }
     
     func rewardAd(didClose ad:RewardAdWrapper) {
         adsRepo.removeAll(where: {$0.showCount>0})
-        fillRepoAds()
+        if autoFill {
+           fillRepoAds()
+        }
     }
     
     func rewardAd(onError ad:RewardAdWrapper, error: Error?) {
         adsRepo.removeAll(where: {$0 == ad})
         if errorHandler.isRetryAble(error: error),!isLoading{
-            self.fillRepoAds()
+            if autoFill {
+              self.fillRepoAds()
+            }
         }else{
-            delegate?.rewardedAdsController(didFinishLoading: config, error: error)
-            AdsRepo.default.rewardedAdsController(didFinishLoading: config, error: error)
+            delegate?.rewardedAdsController(didFinishLoading: self, error: error)
+            AdsRepo.default.rewardedAdsController(didFinishLoading: self, error: error)
         }
     }
     func rewardAd(didExpire ad: RewardAdWrapper) {
         adsRepo.removeAll(where: {$0 == ad})
-        fillRepoAds()
+        if autoFill {
+           fillRepoAds()
+        }
     }
 }

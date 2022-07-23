@@ -18,17 +18,26 @@ public protocol NativeAdWrapperDelegate:NSObject {
     func nativeAd(didRecordImpression ad:NativeAdWrapper)
     func nativeAd(_ ad:NativeAdWrapper,isMuted:Bool)
 }
-
+extension NativeAdWrapperDelegate {
+  public func nativeAd(willShown ad:NativeAdWrapper){}
+  public func nativeAd(willDismiss ad:NativeAdWrapper){}
+  public func nativeAd(didDismiss ad:NativeAdWrapper){}
+  public func nativeAd(onError ad:NativeAdWrapper,error:Error?){}
+  public func nativeAd(didExpire ad:NativeAdWrapper){}
+  public func nativeAd(didClicked ad:NativeAdWrapper){}
+  public func nativeAd(didRecordImpression ad:NativeAdWrapper){}
+  public func nativeAd(_ ad:NativeAdWrapper,isMuted:Bool){}
+}
 public class NativeAdWrapper:NSObject{
-    private(set) var repoConfig:RepoConfig
-    private(set) var loadedAd: GADNativeAd
-    private(set) var loadedDate:TimeInterval = Date().timeIntervalSince1970
-    private(set) var showCount:Int = 0
-    private(set) var referenceCount:Int = 0
+   public private(set) var repoConfig:RepoConfig
+   public private(set) var loadedAd: GADNativeAd
+   public private(set) var loadedDate:TimeInterval = Date().timeIntervalSince1970
+   public private(set) var showCount:Int = 0
+   public private(set) var referenceCount:Int = 0
+   public private(set) weak var owner:NativeAdsController? = nil
+   public  weak var delegate:NativeAdWrapperDelegate? = nil
     
-    private weak var timer:Timer? = nil
-    private(set) weak var owner:NativeAdsController? = nil
-    public  weak var delegate:NativeAdWrapperDelegate? = nil
+   private weak var timer:Timer? = nil
     
     init(loadedAd: GADNativeAd,owner:NativeAdsController) {
         self.repoConfig = owner.config
@@ -53,6 +62,11 @@ public class NativeAdWrapper:NSObject{
         timer?.invalidate()
         timer = nil
         print("deinit","Native Ad")
+    }
+}
+extension NativeAdWrapper{
+    static func == (lhs: NativeAdWrapper, rhs: NativeAdWrapper) -> Bool{
+        lhs.loadedAd == rhs.loadedAd
     }
 }
 

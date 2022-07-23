@@ -18,20 +18,29 @@ public protocol RewardAdWrapperDelegate:NSObject {
     func rewardAd(didReward ad:RewardAdWrapper,reward:Double)
     func rewardAd(didExpire ad:RewardAdWrapper)
 }
+extension RewardAdWrapperDelegate {
+    public func rewardAd(didReady ad:RewardAdWrapper){}
+    public func rewardAd(didOpen ad:RewardAdWrapper){}
+    public func rewardAd(willClose ad:RewardAdWrapper){}
+    public func rewardAd(didClose ad:RewardAdWrapper){}
+    public func rewardAd(onError ad:RewardAdWrapper,error:Error?){}
+    public func rewardAd(didReward ad:RewardAdWrapper,reward:Double){}
+    public func rewardAd(didExpire ad:RewardAdWrapper){}
+}
+
 
 public class RewardAdWrapper:NSObject{
     
-    private(set) public var loadedAd: GADRewardedAd?
-    private(set) public var loadedDate:TimeInterval? = nil
-    private(set) public var isLoading:Bool = false
-    private(set) public var showCount:Int = 0
-    private(set) public var isRewardRecived:Bool = false
-    private(set) public var config:RepoConfig
-    
+    public private(set) var loadedAd: GADRewardedAd?
+    public private(set) var loadedDate:TimeInterval? = nil
+    public private(set) var isLoading:Bool = false
+    public private(set) var showCount:Int = 0
+    public private(set) var isRewardRecived:Bool = false
+    public private(set) var config:RepoConfig
+    public private(set) weak var owner:RewardedAdsController? = nil
     public var isLoaded:Bool {loadedDate != nil}
     public weak var delegate:RewardAdWrapperDelegate?
     
-    private(set) weak var owner:RewardedAdsController? = nil
     private weak var timer:Timer? = nil
     
     init(owner:RewardedAdsController) {
@@ -110,6 +119,11 @@ public class RewardAdWrapper:NSObject{
     deinit {
         stopTime()
         print("deinit","Rewarded AdWrapper")
+    }
+}
+extension RewardAdWrapper{
+    static func == (lhs: RewardAdWrapper, rhs: RewardAdWrapper) -> Bool{
+        lhs.loadedAd == rhs.loadedAd
     }
 }
 extension RewardAdWrapper:GADFullScreenContentDelegate{

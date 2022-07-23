@@ -16,9 +16,9 @@ class FullScreenNativeAdController: UIViewController {
     var observerId: String = UUID().uuidString
     var isLoaded:Bool {nativeAdView.nativeAd != nil}
     @IBOutlet weak var nativeAdView: GADNativeAdView!
-    weak var adController:NativeAdsController? = nil
+    weak var adController:NativeAdsRepository? = nil
     
-    static func instantiate(_ adController:NativeAdsController) -> Self {
+    static func instantiate(_ adController:NativeAdsRepository) -> Self {
            let storyboardIdentifier = String(describing: self)
            // `Main` can be your stroyboard name.
            let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
@@ -40,7 +40,7 @@ class FullScreenNativeAdController: UIViewController {
         deregisterCellForAdsRepo()
     }
 
-    func showNativeAd(_ adController:NativeAdsController){
+    func showNativeAd(_ adController:NativeAdsRepository){
         self.adController = adController
         adController.loadAd {[weak self] adWrapper in
             if let adWrapper = adWrapper {
@@ -124,7 +124,7 @@ class FullScreenNativeAdController: UIViewController {
 
 
 extension FullScreenNativeAdController:AdsRepoObserver{
-    func nativeAdsControl(didReceive repo: NativeAdsController) {
+    func nativeAdsRepository(didReceive repo: NativeAdsRepository) {
         guard !isLoaded,let adController = self.adController else {return}
         showNativeAd(adController)
     }

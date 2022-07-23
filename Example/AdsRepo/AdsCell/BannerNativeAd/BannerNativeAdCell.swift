@@ -12,7 +12,7 @@ import AdsRepo
 class BannerNativeAdCell:UICollectionViewCell{
     var observerId: String = UUID().uuidString
     var isLoaded:Bool {nativeAdView.nativeAd != nil}
-    weak var adController:NativeAdsController? = nil
+    weak var adController:NativeAdsRepository? = nil
     
     @IBOutlet weak var adView:UIView!
     @IBOutlet weak var adLabel:UILabel!
@@ -29,7 +29,7 @@ class BannerNativeAdCell:UICollectionViewCell{
     }
     
     
-    func showNativeAd(_ adController:NativeAdsController){
+    func showNativeAd(_ adController:NativeAdsRepository){
         self.adController = adController
         adController.loadAd {[weak self] adWrapper in
             if let adWrapper = adWrapper {
@@ -117,7 +117,7 @@ class BannerNativeAdCell:UICollectionViewCell{
 }
 
 extension BannerNativeAdCell:AdsRepoObserver{
-    func nativeAdsControl(didReceive repo: NativeAdsController) {
+    func nativeAdsRepository(didReceive repo: NativeAdsRepository) {
         guard !isLoaded,let adController = self.adController else {return}
         showNativeAd(adController)
     }

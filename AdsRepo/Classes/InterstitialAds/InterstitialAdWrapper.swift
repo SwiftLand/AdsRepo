@@ -34,12 +34,12 @@ public class InterstitialAdWrapper:NSObject {
     public private(set) var isLoading:Bool = false
     public private(set) var showCount:Int = 0
     public var isLoaded:Bool {loadedDate != nil}
-    public private(set) weak var owner:InterstitialAdsController? = nil
+    public private(set) weak var owner:InterstitialAdsRepository? = nil
     public  weak var delegate:InterstitialAdWrapperDelegate?
     
     private weak var timer:Timer? = nil
 
-    init(owner:InterstitialAdsController) {
+    init(owner:InterstitialAdsRepository) {
         self.owner = owner
         self.config = owner.config
     }

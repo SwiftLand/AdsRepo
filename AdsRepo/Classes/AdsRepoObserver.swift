@@ -7,9 +7,9 @@
 
 import Foundation
 
-public protocol AdsRepoDelegate:RewardedAdsControllerDelegate,
-                                NativeAdsControllerDelegate,
-                                InterstitialAdsControllerDelegate {
+public protocol AdsRepoDelegate:RewardedAdsRepositoryDelegate,
+                                NativeAdsRepositoryDelegate,
+                                InterstitialAdsRepositoryDelegate {
     
 
 }

@@ -8,18 +8,18 @@
 import Foundation
 import GoogleMobileAds
 
-public protocol RewardedAdsControllerDelegate:NSObject {
-    func rewardedAdsController(didReceiveAds repo:RewardedAdsController)
-    func rewardedAdsController(didFinishLoading repo:RewardedAdsController,error:Error?)
+public protocol RewardedAdsRepositoryDelegate:NSObject {
+    func rewardedAdsRepository(didReceiveAds repo:RewardedAdsRepository)
+    func rewardedAdsRepository(didFinishLoading repo:RewardedAdsRepository,error:Error?)
 }
 
-extension RewardedAdsControllerDelegate {
-    public func rewardedAdsController(didReceiveAds repo:RewardedAdsController){}
-    public func rewardedAdsController(didFinishLoading repo:RewardedAdsController,error:Error?){}
+extension RewardedAdsRepositoryDelegate {
+    public func rewardedAdsRepository(didReceiveAds repo:RewardedAdsRepository){}
+    public func rewardedAdsRepository(didFinishLoading repo:RewardedAdsRepository,error:Error?){}
 }
 
-public class RewardedAdsController:NSObject,AdsRepoProtocol{
-
+public class RewardedAdsRepository:NSObject,AdsRepoProtocol{
+    let identifier:String
     private var errorHandler:ErrorHandler
     public private(set) var adsRepo:[RewardAdWrapper] = []
     public private(set) var config:RepoConfig
@@ -37,11 +37,13 @@ public class RewardedAdsController:NSObject,AdsRepoProtocol{
             }
         }
     }
-   weak var delegate:RewardedAdsControllerDelegate? = nil
+   weak var delegate:RewardedAdsRepositoryDelegate? = nil
     
- public init(config:RepoConfig,
+ public init(identifier:String,config:RepoConfig,
          errorHandlerConfig:ErrorHandlerConfig? = nil,
-         delegate:RewardedAdsControllerDelegate? = nil){
+         delegate:RewardedAdsRepositoryDelegate? = nil){
+     
+        self.identifier = identifier
         self.delegate = delegate
         self.config = config
         self.errorHandler = ErrorHandler(config: errorHandlerConfig)
@@ -69,15 +71,15 @@ public class RewardedAdsController:NSObject,AdsRepoProtocol{
     }
     
 }
-extension RewardedAdsController{
+extension RewardedAdsRepository{
     
     func rewardAd(didReady ad:RewardAdWrapper) {
         errorHandler.restart()
-        delegate?.rewardedAdsController(didReceiveAds:self)
-        AdsRepo.default.rewardedAdsController(didReceiveAds:self)
+        delegate?.rewardedAdsRepository(didReceiveAds:self)
+        AdsRepo.default.rewardedAdsRepository(didReceiveAds:self)
         if !adsRepo.contains(where: {!$0.isLoaded}){
-            delegate?.rewardedAdsController(didFinishLoading: self, error: nil)
-            AdsRepo.default.rewardedAdsController(didFinishLoading: self, error: nil)
+            delegate?.rewardedAdsRepository(didFinishLoading: self, error: nil)
+            AdsRepo.default.rewardedAdsRepository(didFinishLoading: self, error: nil)
         }
     }
     
@@ -95,8 +97,8 @@ extension RewardedAdsController{
               self.fillRepoAds()
             }
         }else{
-            delegate?.rewardedAdsController(didFinishLoading: self, error: error)
-            AdsRepo.default.rewardedAdsController(didFinishLoading: self, error: error)
+            delegate?.rewardedAdsRepository(didFinishLoading: self, error: error)
+            AdsRepo.default.rewardedAdsRepository(didFinishLoading: self, error: error)
         }
     }
     func rewardAd(didExpire ad: RewardAdWrapper) {

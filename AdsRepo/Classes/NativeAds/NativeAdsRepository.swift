@@ -8,16 +8,17 @@
 import Foundation
 import GoogleMobileAds
 
-public protocol NativeAdsControllerDelegate:NSObject{
-    func nativeAdsControl(didReceive repo:NativeAdsController)
-    func nativeAdsControl(didFinishLoading repo:NativeAdsController,error:Error?)
+public protocol NativeAdsRepositoryDelegate:NSObject{
+    func nativeAdsRepository(didReceive repo:NativeAdsRepository)
+    func nativeAdsRepository(didFinishLoading repo:NativeAdsRepository,error:Error?)
 }
-extension NativeAdsControllerDelegate{
-    public func nativeAdsControl(didReceive repo:NativeAdsController){}
-    public func nativeAdsControl(didFinishLoading repo:NativeAdsController,error:Error?){}
+extension NativeAdsRepositoryDelegate{
+    public func nativeAdsRepository(didReceive repo:NativeAdsRepository){}
+    public func nativeAdsRepository(didFinishLoading repo:NativeAdsRepository,error:Error?){}
 }
-public class NativeAdsController:NSObject,AdsRepoProtocol{
+public class NativeAdsRepository:NSObject,AdsRepoProtocol{
     
+    public let identifier:String
     private var errorHandler:ErrorHandler
     public private(set) var config:RepoConfig
     private weak var rootVC:UIViewController? = nil
@@ -38,15 +39,16 @@ public class NativeAdsController:NSObject,AdsRepoProtocol{
             }
         }
     }
-    weak var delegate:NativeAdsControllerDelegate? = nil
+    weak var delegate:NativeAdsRepositoryDelegate? = nil
     private var adLoader: GADAdLoader?
     private var onCompleteLoading:(()->Void)? = nil
     
     
-    public init(config:RepoConfig,
+    public init(identifier:String,config:RepoConfig,
                 errorHandlerConfig:ErrorHandlerConfig? = nil,
-                delegate:NativeAdsControllerDelegate? = nil){
+                delegate:NativeAdsRepositoryDelegate? = nil){
         
+        self.identifier = identifier
         self.delegate = delegate
         self.config = config
         self.errorHandler = ErrorHandler(config: errorHandlerConfig)
@@ -118,7 +120,7 @@ public class NativeAdsController:NSObject,AdsRepoProtocol{
         adLoader = nil
     }
 }
-extension NativeAdsController {
+extension NativeAdsRepository {
     func nativeAd(didDismiss ad: NativeAdWrapper){
         if let threshold = config.showCountThreshold,ad.showCount>=threshold{
             adsRepo.removeAll(where: {$0 == ad})
@@ -135,18 +137,18 @@ extension NativeAdsController {
     }
 }
 
-extension NativeAdsController:GADNativeAdLoaderDelegate{
+extension NativeAdsRepository:GADNativeAdLoaderDelegate{
     public func adLoader(_ adLoader: GADAdLoader, didReceive nativeAd: GADNativeAd) {
         print("Native AdLoader","did Receive ads")
         adsRepo.append(NativeAdWrapper(loadedAd: nativeAd,owner: self))
-        delegate?.nativeAdsControl(didReceive: self)
-        AdsRepo.default.nativeAdsControl(didReceive: self)
+        delegate?.nativeAdsRepository(didReceive: self)
+        AdsRepo.default.nativeAdsRepository(didReceive: self)
     }
     
     public func adLoaderDidFinishLoading(_ adLoader: GADAdLoader) {
         print("Native AdLoader","DidFinishLoading")
-        delegate?.nativeAdsControl(didFinishLoading:self,error:nil)
-        AdsRepo.default.nativeAdsControl(didFinishLoading:self,error:nil)
+        delegate?.nativeAdsRepository(didFinishLoading:self,error:nil)
+        AdsRepo.default.nativeAdsRepository(didFinishLoading:self,error:nil)
     }
     
     public func adLoader(_ adLoader: GADAdLoader, didFailToReceiveAdWithError error: Error) {
@@ -156,8 +158,8 @@ extension NativeAdsController:GADNativeAdLoaderDelegate{
                 fillRepoAds()
             }
         }else{
-            delegate?.nativeAdsControl(didFinishLoading:self, error: error)
-            AdsRepo.default.nativeAdsControl(didFinishLoading:self, error: error)
+            delegate?.nativeAdsRepository(didFinishLoading:self, error: error)
+            AdsRepo.default.nativeAdsRepository(didFinishLoading:self, error: error)
         }
     }
 }

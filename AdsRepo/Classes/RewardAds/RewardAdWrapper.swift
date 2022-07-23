@@ -37,13 +37,13 @@ public class RewardAdWrapper:NSObject{
     public private(set) var showCount:Int = 0
     public private(set) var isRewardRecived:Bool = false
     public private(set) var config:RepoConfig
-    public private(set) weak var owner:RewardedAdsController? = nil
+    public private(set) weak var owner:RewardedAdsRepository? = nil
     public var isLoaded:Bool {loadedDate != nil}
     public weak var delegate:RewardAdWrapperDelegate?
     
     private weak var timer:Timer? = nil
     
-    init(owner:RewardedAdsController) {
+    init(owner:RewardedAdsRepository) {
         self.owner = owner
         self.config = owner.config
     }

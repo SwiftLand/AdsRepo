@@ -29,24 +29,28 @@ class MainController: UIViewController {
     @IBOutlet weak var rewardedAdBtn: UIButton!
     @IBOutlet weak var interstinalAdBtn: UIButton!
     
-    let interstitialAdsController: InterstitialAdsController = {
-        let adController = InterstitialAdsController(config:RepoConfig.debugInterstitialConfig())
+    let interstitialAdsController: InterstitialAdsRepository = {
+        let adController = InterstitialAdsRepository(identifier: "InterstitialAdsRepository",
+                                                     config:RepoConfig.debugInterstitialConfig())
         adController.fillRepoAds()
         return adController
     }()
-    let rewardedAdsController: RewardedAdsController = {
-        let adController = RewardedAdsController(config:RepoConfig.debugRewardedConfig())
+    let rewardedAdsController: RewardedAdsRepository = {
+        let adController = RewardedAdsRepository(identifier: "RewardedAdsRepository",
+                                                 config:RepoConfig.debugRewardedConfig())
         adController.fillRepoAds()
         return adController
     }()
     
-    let nativeVideoAdController: NativeAdsController = {
-        let adController = NativeAdsController(config:RepoConfig.debugNativeVideoConfig())
+    let nativeVideoAdController: NativeAdsRepository = {
+        let adController = NativeAdsRepository(identifier: "nativeVideoAdController",
+                                               config:RepoConfig.debugNativeVideoConfig())
         adController.fillRepoAds()
         return adController
     }()
-    let nativeImageAdController: NativeAdsController = {
-        let adController = NativeAdsController(config:RepoConfig.debugNativeConfig())
+    let nativeImageAdController: NativeAdsRepository = {
+        let adController = NativeAdsRepository(identifier: "nativeImageAdController",
+                                               config:RepoConfig.debugNativeConfig())
         adController.fillRepoAds()
         return adController
     }()
@@ -81,10 +85,10 @@ class MainController: UIViewController {
 }
 extension MainController:AdsRepoObserver{
     
-    func interstitialAdsController(didReceive repo: InterstitialAdsController) {
+    func interstitialAdsRepository(didReceive repo: InterstitialAdsRepository) {
         loadedInterstinalAdCount = repo.adsRepo.count
     }
-    func interstitialAdsController(didFinishLoading repo: InterstitialAdsController, error: Error?) {
+    func interstitialAdsRepository(didFinishLoading repo: InterstitialAdsRepository, error: Error?) {
         if error == nil{
             print("Repo(\(repo.config.adUnitId)) is full, count:\(repo.adsRepo.count)")
         }else{
@@ -92,10 +96,12 @@ extension MainController:AdsRepoObserver{
         }
         
     }
-    func rewardedAdsController(didReceiveAds repo: RewardedAdsController) {
+    
+    func rewardedAdsRepository(didReceiveAds repo: RewardedAdsRepository) {
         loadedRewardedAdCount =  repo.adsRepo.count
     }
-    func rewardedAdsController(didFinishLoading repo: RewardedAdsController, error: Error?) {
+    
+    func rewardedAdsRepository(didFinishLoading repo: RewardedAdsRepository, error: Error?) {
         if error == nil{
             print("Repo(\(repo.config.adUnitId)) is full, count:\(repo.adsRepo.count)")
         }else{

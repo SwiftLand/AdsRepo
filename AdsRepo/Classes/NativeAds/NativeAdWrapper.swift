@@ -28,18 +28,19 @@ extension NativeAdWrapperDelegate {
   public func nativeAd(didRecordImpression ad:NativeAdWrapper){}
   public func nativeAd(_ ad:NativeAdWrapper,isMuted:Bool){}
 }
+
 public class NativeAdWrapper:NSObject{
    public private(set) var repoConfig:RepoConfig
    public private(set) var loadedAd: GADNativeAd
    public private(set) var loadedDate:TimeInterval = Date().timeIntervalSince1970
    public private(set) var showCount:Int = 0
    public private(set) var referenceCount:Int = 0
-   public private(set) weak var owner:NativeAdsController? = nil
+   public private(set) weak var owner:NativeAdsRepository? = nil
    public  weak var delegate:NativeAdWrapperDelegate? = nil
     
    private weak var timer:Timer? = nil
     
-    init(loadedAd: GADNativeAd,owner:NativeAdsController) {
+    init(loadedAd: GADNativeAd,owner:NativeAdsRepository) {
         self.repoConfig = owner.config
         self.loadedAd = loadedAd
         super.init()

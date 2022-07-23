@@ -8,17 +8,19 @@
 import Foundation
 import GoogleMobileAds
 
-public protocol InterstitialAdsControllerDelegate:NSObject {
-    func interstitialAdsController(didReceive repo:InterstitialAdsController)
-    func interstitialAdsController(didFinishLoading repo:InterstitialAdsController,error:Error?)
+public protocol InterstitialAdsRepositoryDelegate:NSObject {
+    func interstitialAdsRepository(didReceive repo:InterstitialAdsRepository)
+    func interstitialAdsRepository(didFinishLoading repo:InterstitialAdsRepository,error:Error?)
 }
 
-extension InterstitialAdsControllerDelegate {
-    public func interstitialAdsController(didReceive repo:InterstitialAdsController){}
-    public func interstitialAdsController(didFinishLoading repo:InterstitialAdsController,error:Error?){}
+extension InterstitialAdsRepositoryDelegate {
+    public func interstitialAdsRepository(didReceive repo:InterstitialAdsRepository){}
+    public func interstitialAdsRepository(didFinishLoading repo:InterstitialAdsRepository,error:Error?){}
 }
 
-public class InterstitialAdsController:NSObject,AdsRepoProtocol{
+public class InterstitialAdsRepository:NSObject,AdsRepoProtocol{
+
+    public let identifier:String
     private var errorHandler:ErrorHandler
     public var isLoading:Bool {adsRepo.contains(where: {$0.isLoading})}
     public private(set) var adsRepo:[InterstitialAdWrapper] = []
@@ -36,11 +38,12 @@ public class InterstitialAdsController:NSObject,AdsRepoProtocol{
             }
         }
     }
-   weak var delegate:InterstitialAdsControllerDelegate? = nil
+   weak var delegate:InterstitialAdsRepositoryDelegate? = nil
     
-public init(config:RepoConfig,
+    public init(identifier:String,config:RepoConfig,
          errorHandlerConfig:ErrorHandlerConfig? = nil,
-         delegate:InterstitialAdsControllerDelegate? = nil){
+         delegate:InterstitialAdsRepositoryDelegate? = nil){
+        self.identifier = identifier
         self.config = config
         self.delegate = delegate
         self.errorHandler = ErrorHandler(config:errorHandlerConfig)
@@ -70,15 +73,15 @@ public init(config:RepoConfig,
 
 }
 
-extension InterstitialAdsController{
+extension InterstitialAdsRepository{
 
     func interstitialAd(didReady ad:InterstitialAdWrapper) {
         errorHandler.restart()
-        delegate?.interstitialAdsController(didReceive: self)
-        AdsRepo.default.interstitialAdsController(didReceive: self)
+        delegate?.interstitialAdsRepository(didReceive: self)
+        AdsRepo.default.interstitialAdsRepository(didReceive: self)
         if !adsRepo.contains(where: {!$0.isLoaded}){
-            delegate?.interstitialAdsController(didFinishLoading: self, error: nil)
-            AdsRepo.default.interstitialAdsController(didFinishLoading: self, error: nil)
+            delegate?.interstitialAdsRepository(didFinishLoading: self, error: nil)
+            AdsRepo.default.interstitialAdsRepository(didFinishLoading: self, error: nil)
         }
     }
     
@@ -94,8 +97,8 @@ extension InterstitialAdsController{
         if errorHandler.isRetryAble(error: error),!isLoading{
             fillRepoAds()
         }else{
-            delegate?.interstitialAdsController(didFinishLoading: self, error: error)
-            AdsRepo.default.interstitialAdsController(didFinishLoading: self, error: error)
+            delegate?.interstitialAdsRepository(didFinishLoading: self, error: error)
+            AdsRepo.default.interstitialAdsRepository(didFinishLoading: self, error: error)
         }
     }
     func interstitialAd(didExpire ad: InterstitialAdWrapper) {

@@ -19,13 +19,13 @@ class NativeAdCell:UICollectionViewCell{
     @IBOutlet weak var nativeAdView: GADNativeAdView!
     @IBOutlet weak var adIconLeadingConstrian: NSLayoutConstraint!
     @IBOutlet weak var adIconWidthConstrians: NSLayoutConstraint!
-    weak var adController:NativeAdsController? = nil
+    weak var adController:NativeAdsRepository? = nil
     
     override func awakeFromNib() {
         nativeAdView.isHidden = true
     }
     
-    func showNativeAd(_ adController:NativeAdsController){
+    func showNativeAd(_ adController:NativeAdsRepository){
         self.adController = adController
         adController.loadAd {[weak self] adWrapper in
             if let adWrapper = adWrapper {
@@ -115,7 +115,7 @@ class NativeAdCell:UICollectionViewCell{
 }
 
 extension NativeAdCell:AdsRepoObserver{
-    func nativeAdsControl(didReceive repo: NativeAdsController) {
+    func nativeAdsRepository(didReceive repo: NativeAdsRepository) {
         guard !isLoaded,let adController = self.adController else {return}
         showNativeAd(adController)
     }

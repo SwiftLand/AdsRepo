@@ -12,6 +12,7 @@ public protocol NativeAdWrapperDelegate:NSObject {
     func nativeAd(willShown ad:NativeAdWrapper)
     func nativeAd(willDismiss ad:NativeAdWrapper)
     func nativeAd(didDismiss ad:NativeAdWrapper)
+    func nativeAd(didRemoveFromRepository ad:NativeAdWrapper)
     func nativeAd(onError ad:NativeAdWrapper,error:Error?)
     func nativeAd(didExpire ad:NativeAdWrapper)
     func nativeAd(didClicked ad:NativeAdWrapper)
@@ -22,6 +23,7 @@ extension NativeAdWrapperDelegate {
   public func nativeAd(willShown ad:NativeAdWrapper){}
   public func nativeAd(willDismiss ad:NativeAdWrapper){}
   public func nativeAd(didDismiss ad:NativeAdWrapper){}
+  public func nativeAd(didRemoveFromRepository ad:NativeAdWrapper){}
   public func nativeAd(onError ad:NativeAdWrapper,error:Error?){}
   public func nativeAd(didExpire ad:NativeAdWrapper){}
   public func nativeAd(didClicked ad:NativeAdWrapper){}

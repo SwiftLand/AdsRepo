@@ -14,6 +14,7 @@ public protocol RewardAdWrapperDelegate:NSObject {
     func rewardAd(didOpen ad:RewardAdWrapper)
     func rewardAd(willClose ad:RewardAdWrapper)
     func rewardAd(didClose ad:RewardAdWrapper)
+    func rewardAd(didRemoveFromRepository ad:RewardAdWrapper)
     func rewardAd(onError ad:RewardAdWrapper,error:Error?)
     func rewardAd(didReward ad:RewardAdWrapper,reward:Double)
     func rewardAd(didExpire ad:RewardAdWrapper)
@@ -23,6 +24,7 @@ extension RewardAdWrapperDelegate {
     public func rewardAd(didOpen ad:RewardAdWrapper){}
     public func rewardAd(willClose ad:RewardAdWrapper){}
     public func rewardAd(didClose ad:RewardAdWrapper){}
+    public func rewardAd(didRemoveFromRepository ad:RewardAdWrapper){}
     public func rewardAd(onError ad:RewardAdWrapper,error:Error?){}
     public func rewardAd(didReward ad:RewardAdWrapper,reward:Double){}
     public func rewardAd(didExpire ad:RewardAdWrapper){}

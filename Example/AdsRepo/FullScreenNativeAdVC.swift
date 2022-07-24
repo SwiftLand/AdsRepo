@@ -11,28 +11,16 @@ import UIKit
 import AdsRepo
 import GoogleMobileAds
 
-class FullScreenNativeAdController: UIViewController {
+class FullScreenNativeAdVC: UIViewController {
     
     var observerId: String = UUID().uuidString
     var isLoaded:Bool {nativeAdView.nativeAd != nil}
     @IBOutlet weak var nativeAdView: GADNativeAdView!
-    weak var adController:NativeAdsRepository? = nil
-    
-    static func instantiate(_ adController:NativeAdsRepository) -> Self {
-           let storyboardIdentifier = String(describing: self)
-           // `Main` can be your stroyboard name.
-           let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
-           
-           guard let vc = storyboard.instantiateViewController(withIdentifier: storyboardIdentifier) as? Self else {
-               fatalError("No storyboard with this identifier ")
-           }
-           vc.adController = adController
-           return vc
-    }
+    weak var adRepository:NativeAdsRepository? = nil
     
     override func viewWillAppear(_ animated: Bool) {
         nativeAdView.isHidden = true
-        if let adController = adController {
+        if let adController = adRepository {
             showNativeAd(adController)
         }
     }
@@ -41,7 +29,7 @@ class FullScreenNativeAdController: UIViewController {
     }
 
     func showNativeAd(_ adController:NativeAdsRepository){
-        self.adController = adController
+        self.adRepository = adController
         adController.loadAd {[weak self] adWrapper in
             if let adWrapper = adWrapper {
                 adWrapper.delegate = self//<-- weak reference
@@ -123,18 +111,18 @@ class FullScreenNativeAdController: UIViewController {
 }
 
 
-extension FullScreenNativeAdController:AdsRepoObserver{
+extension FullScreenNativeAdVC:AdsRepoObserver{
     func nativeAdsRepository(didReceive repo: NativeAdsRepository) {
-        guard !isLoaded,let adController = self.adController else {return}
+        guard !isLoaded,let adController = self.adRepository else {return}
         showNativeAd(adController)
     }
 }
 
-extension FullScreenNativeAdController:NativeAdWrapperDelegate{
+extension FullScreenNativeAdVC:NativeAdWrapperDelegate{
     func nativeAd(didExpire ad: NativeAdWrapper) {
         if isLoaded ,
            ad.loadedAd == nativeAdView.nativeAd,
-           let adController = self.adController {
+           let adController = self.adRepository {
             showNativeAd(adController)
         }
     }

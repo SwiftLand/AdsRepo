@@ -112,7 +112,9 @@ public class NativeAdsRepository:NSObject,AdsRepoProtocol{
     
     public func removeExpireAds(){
         let now = Date().timeIntervalSince1970
+        let ads = adsRepo.filter({now-$0.loadedDate > config.expireIntervalTime})
         adsRepo.removeAll(where: {now-$0.loadedDate > config.expireIntervalTime})
+        ads.forEach({$0.delegate?.nativeAd(didRemoveFromRepository: $0)})
     }
     public func stopLoading() {
         errorHandler.cancel()
@@ -122,7 +124,8 @@ public class NativeAdsRepository:NSObject,AdsRepoProtocol{
 }
 extension NativeAdsRepository {
     func nativeAd(didDismiss ad: NativeAdWrapper){
-        if let threshold = config.showCountThreshold,ad.showCount>=threshold{
+        if ad.showCount>=config.showCountThreshold{
+            ad.delegate?.nativeAd(didRemoveFromRepository: ad)
             adsRepo.removeAll(where: {$0 == ad})
             if autoFill {
                 fillRepoAds()

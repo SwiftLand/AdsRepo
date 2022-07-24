@@ -12,7 +12,7 @@ public struct RepoConfig{
     public let adUnitId:String
     public let repoSize:Int
     public let expireIntervalTime:TimeInterval
-    public let showCountThreshold:Int?
+    public let showCountThreshold:Int
     public let isTaggedForChildDirectedTreatment: Bool?// COPPA
     public let isTaggedForUnderAgeOfConsent: Bool // GDPR
     public let isUMPDisabled: Bool?// Disables User Messaging Platform (UMP) SDK
@@ -21,7 +21,7 @@ public struct RepoConfig{
         adUnitId:String,
         repoSize:Int,
         expireIntervalTime:TimeInterval = 120,//second
-        showCountThreshold:Int? = nil,
+        showCountThreshold:Int = 1,
         isTaggedForChildDirectedTreatment: Bool?  = nil ,
         isTaggedForUnderAgeOfConsent: Bool = false,
         isUMPDisabled: Bool? = nil ) {
@@ -39,6 +39,7 @@ public struct RepoConfig{
         RepoConfig(
             adUnitId: "ca-app-pub-3940256099942544/4411468910",
             repoSize: size,
+            showCountThreshold: 1,
             isTaggedForChildDirectedTreatment: nil,
             isTaggedForUnderAgeOfConsent: false,
             isUMPDisabled: isUMPDisabled
@@ -48,6 +49,7 @@ public struct RepoConfig{
         RepoConfig(
             adUnitId: "ca-app-pub-3940256099942544/5135589807",
             repoSize: size,
+            showCountThreshold: 1,
             isTaggedForChildDirectedTreatment: nil,
             isTaggedForUnderAgeOfConsent: false,
             isUMPDisabled: isUMPDisabled
@@ -57,6 +59,7 @@ public struct RepoConfig{
         RepoConfig(
             adUnitId: "ca-app-pub-3940256099942544/1712485313",
             repoSize: size,
+            showCountThreshold: 1,
             isTaggedForChildDirectedTreatment: nil,
             isTaggedForUnderAgeOfConsent: false,
             isUMPDisabled: isUMPDisabled
@@ -66,6 +69,7 @@ public struct RepoConfig{
         RepoConfig(
             adUnitId: "ca-app-pub-3940256099942544/6978759866",
             repoSize: size,
+            showCountThreshold: 1,
             isTaggedForChildDirectedTreatment: nil,
             isTaggedForUnderAgeOfConsent: false,
             isUMPDisabled: isUMPDisabled
@@ -75,6 +79,7 @@ public struct RepoConfig{
         RepoConfig(
             adUnitId: "ca-app-pub-3940256099942544/2521693316",
             repoSize: size,
+            showCountThreshold: 3,
             isTaggedForChildDirectedTreatment: nil,
             isTaggedForUnderAgeOfConsent: false,
             isUMPDisabled: isUMPDisabled
@@ -84,6 +89,7 @@ public struct RepoConfig{
         RepoConfig(
             adUnitId: "ca-app-pub-3940256099942544/3986624511",
             repoSize: size,
+            showCountThreshold: 3,
             isTaggedForChildDirectedTreatment: nil,
             isTaggedForUnderAgeOfConsent: false,
             isUMPDisabled: isUMPDisabled

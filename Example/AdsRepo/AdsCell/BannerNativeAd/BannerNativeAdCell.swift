@@ -35,8 +35,6 @@ class BannerNativeAdCell:UICollectionViewCell{
             if let adWrapper = adWrapper {
                 adWrapper.delegate = self//<-- weak reference
                 self?.showNativeAd(adWrapper.loadedAd)
-            }else{
-                self?.registerCellForAdsRepo()
             }
         }
     }

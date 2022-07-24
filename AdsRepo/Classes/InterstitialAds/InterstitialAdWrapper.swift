@@ -14,6 +14,7 @@ public protocol InterstitialAdWrapperDelegate:NSObject {
     func interstitialAd(didOpen ad:InterstitialAdWrapper)
     func interstitialAd(willClose ad:InterstitialAdWrapper)
     func interstitialAd(didClose ad:InterstitialAdWrapper)
+    func interstitialAd(didRemoveFromRepository ad:InterstitialAdWrapper)
     func interstitialAd(onError ad:InterstitialAdWrapper,error:Error?)
     func interstitialAd(didExpire ad:InterstitialAdWrapper)
 }
@@ -22,6 +23,7 @@ extension InterstitialAdWrapperDelegate {
     public func interstitialAd(didOpen ad:InterstitialAdWrapper){}
     public func interstitialAd(willClose ad:InterstitialAdWrapper){}
     public func interstitialAd(didClose ad:InterstitialAdWrapper){}
+    public func interstitialAd(didRemoveFromRepository ad:InterstitialAdWrapper){}
     public func interstitialAd(onError ad:InterstitialAdWrapper,error:Error?){}
     public func interstitialAd(didExpire ad:InterstitialAdWrapper){}
 }

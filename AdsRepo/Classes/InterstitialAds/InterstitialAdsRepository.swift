@@ -19,7 +19,7 @@ extension InterstitialAdsRepositoryDelegate {
 }
 
 public class InterstitialAdsRepository:NSObject,AdsRepoProtocol{
-
+    
     public let identifier:String
     private var errorHandler:ErrorHandler
     public var isLoading:Bool {adsRepo.contains(where: {$0.isLoading})}
@@ -30,6 +30,7 @@ public class InterstitialAdsRepository:NSObject,AdsRepoProtocol{
         didSet{
             if isDisable{
                 errorHandler.cancel()
+                adsRepo.forEach({$0.delegate?.interstitialAd(didRemoveFromRepository: $0)}) 
                 adsRepo.removeAll()
             }else{
                 if autoFill {
@@ -38,11 +39,11 @@ public class InterstitialAdsRepository:NSObject,AdsRepoProtocol{
             }
         }
     }
-   weak var delegate:InterstitialAdsRepositoryDelegate? = nil
+    weak var delegate:InterstitialAdsRepositoryDelegate? = nil
     
     public init(identifier:String,config:RepoConfig,
-         errorHandlerConfig:ErrorHandlerConfig? = nil,
-         delegate:InterstitialAdsRepositoryDelegate? = nil){
+                errorHandlerConfig:ErrorHandlerConfig? = nil,
+                delegate:InterstitialAdsRepositoryDelegate? = nil){
         self.identifier = identifier
         self.config = config
         self.delegate = delegate
@@ -51,30 +52,31 @@ public class InterstitialAdsRepository:NSObject,AdsRepoProtocol{
     }
     
     public func fillRepoAds(){
-         guard !isDisable else{return}
-          let loadingAdsCount = adsRepo.filter({$0.isLoading}).count
-          let totalAdsNeedCount = config.repoSize-loadingAdsCount
-          while adsRepo.count<totalAdsNeedCount{
+        guard !isDisable else{return}
+        let loadingAdsCount = adsRepo.filter({$0.isLoading}).count
+        let totalAdsNeedCount = config.repoSize-loadingAdsCount
+        while adsRepo.count<totalAdsNeedCount{
             adsRepo.append(InterstitialAdWrapper(owner: self))
             adsRepo.last?.loadAd()
-          }
-      }
-
- public func presentAd(vc:UIViewController){
-    let now = Date().timeIntervalSince1970
-    guard let adWrapper = adsRepo.min(by: {($0.loadedDate ?? now) < ($1.loadedDate ?? now)})
-    else{return}
-      adWrapper.presentAd(vc: vc)
+        }
     }
     
- public func hasReadyAd(vc:UIViewController)->Bool{
-      return  adsRepo.first(where: {$0.isReady(vc: vc)}) != nil
+    public func presentAd(vc:UIViewController,willLoad:((InterstitialAdWrapper)->Void)? = nil){
+        let now = Date().timeIntervalSince1970
+        guard let adWrapper = adsRepo.min(by: {($0.loadedDate ?? now) < ($1.loadedDate ?? now)})
+        else{return}
+        willLoad?(adWrapper)
+        adWrapper.presentAd(vc: vc)
     }
-
+    
+    public func hasReadyAd(vc:UIViewController)->Bool{
+        return  adsRepo.first(where: {$0.isReady(vc: vc)}) != nil
+    }
+    
 }
 
 extension InterstitialAdsRepository{
-
+    
     func interstitialAd(didReady ad:InterstitialAdWrapper) {
         errorHandler.restart()
         delegate?.interstitialAdsRepository(didReceive: self)
@@ -86,7 +88,8 @@ extension InterstitialAdsRepository{
     }
     
     func interstitialAd(didClose ad:InterstitialAdWrapper) {
-        adsRepo.removeAll(where: {$0.showCount>0})
+        adsRepo.removeAll(where: {$0.showCount>=config.showCountThreshold})
+        ad.delegate?.interstitialAd(didRemoveFromRepository: ad)
         if autoFill {
             fillRepoAds()
         }
@@ -94,6 +97,7 @@ extension InterstitialAdsRepository{
     
     func interstitialAd(onError ad:InterstitialAdWrapper, error: Error?) {
         adsRepo.removeAll(where: {$0 == ad})
+        ad.delegate?.interstitialAd(didRemoveFromRepository: ad)
         if errorHandler.isRetryAble(error: error),!isLoading{
             fillRepoAds()
         }else{
@@ -103,8 +107,9 @@ extension InterstitialAdsRepository{
     }
     func interstitialAd(didExpire ad: InterstitialAdWrapper) {
         adsRepo.removeAll(where: {$0 == ad})
+        ad.delegate?.interstitialAd(didRemoveFromRepository: ad)
         if autoFill {
-          fillRepoAds()
+            fillRepoAds()
         }
     }
 }

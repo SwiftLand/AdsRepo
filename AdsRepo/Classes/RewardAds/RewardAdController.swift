@@ -29,6 +29,7 @@ public class RewardedAdsRepository:NSObject,AdsRepoProtocol{
         didSet{
             if isDisable{
                 errorHandler.cancel()
+                adsRepo.forEach({$0.delegate?.rewardAd(didRemoveFromRepository: $0)})
                 adsRepo.removeAll()
             }else{
                 if autoFill {
@@ -59,11 +60,12 @@ public class RewardedAdsRepository:NSObject,AdsRepoProtocol{
         }
     }
     
-  public func presentAd(vc:UIViewController){
+    public func presentAd(vc:UIViewController,willLoad:((RewardAdWrapper)->Void)? = nil){
         let now = Date().timeIntervalSince1970
-        guard let rewardedAdWrapper = adsRepo.min(by: {($0.loadedDate ?? now) < ($1.loadedDate ?? now)})
+        guard let adWrapper = adsRepo.min(by: {($0.loadedDate ?? now) < ($1.loadedDate ?? now)})
         else{return}
-        rewardedAdWrapper.presentAd(vc: vc)
+        willLoad?(adWrapper)
+        adWrapper.presentAd(vc: vc)
     }
     
     public func hasReadyAd(vc:UIViewController)->Bool{
@@ -84,7 +86,8 @@ extension RewardedAdsRepository{
     }
     
     func rewardAd(didClose ad:RewardAdWrapper) {
-        adsRepo.removeAll(where: {$0.showCount>0})
+        adsRepo.removeAll(where: {$0.showCount>=config.showCountThreshold})
+        ad.delegate?.rewardAd(didRemoveFromRepository: ad)
         if autoFill {
            fillRepoAds()
         }
@@ -92,6 +95,7 @@ extension RewardedAdsRepository{
     
     func rewardAd(onError ad:RewardAdWrapper, error: Error?) {
         adsRepo.removeAll(where: {$0 == ad})
+        ad.delegate?.rewardAd(didRemoveFromRepository: ad)
         if errorHandler.isRetryAble(error: error),!isLoading{
             if autoFill {
               self.fillRepoAds()
@@ -103,6 +107,7 @@ extension RewardedAdsRepository{
     }
     func rewardAd(didExpire ad: RewardAdWrapper) {
         adsRepo.removeAll(where: {$0 == ad})
+        ad.delegate?.rewardAd(didRemoveFromRepository: ad)
         if autoFill {
            fillRepoAds()
         }

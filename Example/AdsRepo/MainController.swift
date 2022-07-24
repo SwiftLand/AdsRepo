@@ -22,38 +22,15 @@ class MainController: UIViewController {
         }
     }
     
+    @IBOutlet weak var nativeBannerCollectionViewBtn: UIButton!
     @IBOutlet weak var nativeCollectionViewBtn: UIButton!
     @IBOutlet weak var nativeTableViewBtn: UIButton!
+    @IBOutlet weak var nativeBannerTableViewBtn: UIButton!
     @IBOutlet weak var imageNativeAdbtn: UIButton!
     @IBOutlet weak var VideoNativeAdBtn: UIButton!
     @IBOutlet weak var rewardedAdBtn: UIButton!
     @IBOutlet weak var interstinalAdBtn: UIButton!
     
-    let interstitialAdsController: InterstitialAdsRepository = {
-        let adController = InterstitialAdsRepository(identifier: "InterstitialAdsRepository",
-                                                     config:RepoConfig.debugInterstitialConfig())
-        adController.fillRepoAds()
-        return adController
-    }()
-    let rewardedAdsController: RewardedAdsRepository = {
-        let adController = RewardedAdsRepository(identifier: "RewardedAdsRepository",
-                                                 config:RepoConfig.debugRewardedConfig())
-        adController.fillRepoAds()
-        return adController
-    }()
-    
-    let nativeVideoAdController: NativeAdsRepository = {
-        let adController = NativeAdsRepository(identifier: "nativeVideoAdController",
-                                               config:RepoConfig.debugNativeVideoConfig())
-        adController.fillRepoAds()
-        return adController
-    }()
-    let nativeImageAdController: NativeAdsRepository = {
-        let adController = NativeAdsRepository(identifier: "nativeImageAdController",
-                                               config:RepoConfig.debugNativeConfig())
-        adController.fillRepoAds()
-        return adController
-    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -64,21 +41,44 @@ class MainController: UIViewController {
         interstinalAdBtn.setTitle("Interstinal Ad (loaded:\(loadedInterstinalAdCount))", for: .normal)
         rewardedAdBtn.setTitle("Rewarded Ad (loaded:\(loadedRewardedAdCount))", for: .normal)
     }
+    override func viewDidAppear(_ animated: Bool) {
+        RepositoryManager.shared.fillAllRepositories()
+//        ATTHelper.request{status in
+////            RepositoryManager.shared.fillAllRepositories()
+//        }
+    }
     
     @IBAction func onUserAction (_ sender:UIControl){
         switch sender{
-        case nativeCollectionViewBtn:break
+        case nativeCollectionViewBtn:
+           let vc = CollectionViewNativeAdVC.instantiate()
+            vc.adRepository = RepositoryManager.shared.nativeBannerAdRepo
+            vc.type = .largeBanner
+            navigationController?.pushViewController(vc, animated: true)
+        case nativeBannerCollectionViewBtn:
+           let vc = CollectionViewNativeAdVC.instantiate()
+            vc.adRepository = RepositoryManager.shared.nativeBannerAdRepo
+            vc.type = .banner
+            navigationController?.pushViewController(vc, animated: true)
         case nativeTableViewBtn:break
         case imageNativeAdbtn:
-           let vc =  FullScreenNativeAdController.instantiate(nativeImageAdController)
+           let vc =  FullScreenNativeAdVC.instantiate()
+            vc.adRepository = RepositoryManager.shared.nativeImageAdRepo
            navigationController?.pushViewController(vc, animated: true)
         case VideoNativeAdBtn:
-            let vc =  FullScreenNativeAdController.instantiate(nativeVideoAdController)
+            let vc =  FullScreenNativeAdVC.instantiate()
+            vc.adRepository = RepositoryManager.shared.nativeVideoAdRepo
             navigationController?.pushViewController(vc, animated: true)
         case rewardedAdBtn:
-            rewardedAdsController.presentAd(vc: self)
+            RepositoryManager.shared.rewardedAdsRepo.presentAd(vc: self){
+             [weak self] rewardAd in
+                rewardAd.delegate = self
+            }
         case interstinalAdBtn:
-            interstitialAdsController.presentAd(vc: self)
+            RepositoryManager.shared.interstitialAdsRepo.presentAd(vc: self) {
+             [weak self] interstitialAd in
+                interstitialAd.delegate = self
+            }
         default:break
         }
     }
@@ -107,5 +107,15 @@ extension MainController:AdsRepoObserver{
         }else{
             print("Repo(\(repo.config.adUnitId)) have error:\(String(describing: error))")
         }
+    }
+}
+extension MainController:InterstitialAdWrapperDelegate{
+    func interstitialAd(didRemoveFromRepository ad: InterstitialAdWrapper) {
+        loadedInterstinalAdCount = ad.owner?.adsRepo.count ?? 0
+    }
+}
+extension MainController:RewardAdWrapperDelegate{
+    func rewardAd(didRemoveFromRepository ad: RewardAdWrapper) {
+        loadedRewardedAdCount = ad.owner?.adsRepo.count ?? 0
     }
 }

@@ -1,6 +1,6 @@
 //
 //  InterstitialAdWrapper.swift
-//  AdMobManager
+//  AdRepo
 //
 //  Created by Ali on 9/3/21.
 //
@@ -10,37 +10,52 @@ import GoogleMobileAds
 
 
 public protocol InterstitialAdWrapperDelegate:NSObject {
-    func interstitialAd(didReady ad:InterstitialAdWrapper)
-    func interstitialAd(didOpen ad:InterstitialAdWrapper)
-    func interstitialAd(willClose ad:InterstitialAdWrapper)
-    func interstitialAd(didClose ad:InterstitialAdWrapper)
-    func interstitialAd(didRemoveFromRepository ad:InterstitialAdWrapper)
-    func interstitialAd(onError ad:InterstitialAdWrapper,error:Error?)
-    func interstitialAd(didExpire ad:InterstitialAdWrapper)
+    func interstitialAdWrapper(didReady ad:InterstitialAdWrapper)
+    func interstitialAdWrapper(didOpen ad:InterstitialAdWrapper)
+    func interstitialAdWrapper(willClose ad:InterstitialAdWrapper)
+    func interstitialAdWrapper(didClose ad:InterstitialAdWrapper)
+    func interstitialAdWrapper(didShowCountChanged ad:InterstitialAdWrapper)
+    func interstitialAdWrapper(didRemoveFromRepository ad:InterstitialAdWrapper)
+    func interstitialAdWrapper(onError ad:InterstitialAdWrapper,error:Error?)
+    func interstitialAdWrapper(didExpire ad:InterstitialAdWrapper)
 }
 extension InterstitialAdWrapperDelegate {
-    public func interstitialAd(didReady ad:InterstitialAdWrapper){}
-    public func interstitialAd(didOpen ad:InterstitialAdWrapper){}
-    public func interstitialAd(willClose ad:InterstitialAdWrapper){}
-    public func interstitialAd(didClose ad:InterstitialAdWrapper){}
-    public func interstitialAd(didRemoveFromRepository ad:InterstitialAdWrapper){}
-    public func interstitialAd(onError ad:InterstitialAdWrapper,error:Error?){}
-    public func interstitialAd(didExpire ad:InterstitialAdWrapper){}
+    public func interstitialAdWrapper(didReady ad:InterstitialAdWrapper){}
+    public func interstitialAdWrapper(didOpen ad:InterstitialAdWrapper){}
+    public func interstitialAdWrapper(willClose ad:InterstitialAdWrapper){}
+    public func interstitialAdWrapper(didClose ad:InterstitialAdWrapper){}
+    public func interstitialAdWrapper(didShowCountChanged ad:InterstitialAdWrapper){}
+    public func interstitialAdWrapper(didRemoveFromRepository ad:InterstitialAdWrapper){}
+    public func interstitialAdWrapper(onError ad:InterstitialAdWrapper,error:Error?){}
+    public func interstitialAdWrapper(didExpire ad:InterstitialAdWrapper){}
 }
 
 public class InterstitialAdWrapper:NSObject {
     
     public private(set) var config:RepoConfig
-    public private(set) var loadedAd: GADInterstitialAd?
+    private var loadedAd: GADInterstitialAd?
     public private(set) var loadedDate:TimeInterval? = nil
     public private(set) var isLoading:Bool = false
-    public private(set) var showCount:Int = 0
+    public fileprivate(set) var showCount:Int = 0
     public var isLoaded:Bool {loadedDate != nil}
     public private(set) weak var owner:InterstitialAdsRepository? = nil
     public  weak var delegate:InterstitialAdWrapperDelegate?
     
     private weak var timer:Timer? = nil
-
+    private lazy var listener:InterstitialAdWrapperListener = {
+        InterstitialAdWrapperListener(owner: self)
+    }()
+    
+    public var responseInfo: GADResponseInfo? {
+        get{
+           return self.loadedAd?.responseInfo
+        }
+    }
+    var paidEventHandler: GADPaidEventHandler? {
+        get{self.loadedAd?.paidEventHandler}
+        set{self.loadedAd?.paidEventHandler = newValue}
+    }
+    
     init(owner:InterstitialAdsRepository) {
         self.owner = owner
         self.config = owner.config
@@ -48,40 +63,47 @@ public class InterstitialAdWrapper:NSObject {
     
     func loadAd(){
         guard !isLoading else {return}
-        let request = GADRequest()
         isLoading = true
+        let request = GADRequest()
         GADInterstitialAd.load(withAdUnitID:config.adUnitId,
                                request: request,completionHandler: {[weak self] (ad, error) in
-                                guard let self = self else{return}
-                                self.isLoading = false
-                                if let error = error {
-                                    print("Interstitial Ad failed to load with error: \(error.localizedDescription)")
-                                    self.delegate?.interstitialAd(onError: self, error: error)
-                                    self.owner?.interstitialAd(onError:self,error:error)
-                                    return
-                                }
-                                self.loadedAd = ad
-                                self.loadedDate = Date().timeIntervalSince1970
-                                self.loadedAd?.fullScreenContentDelegate = self
-                                self.delegate?.interstitialAd(didReady: self)
-                                self.owner?.interstitialAd(didReady: self)
-                                self.startExpireInterval()
-                               })
-    }
-    private func startExpireInterval(){
-        timer = Timer.scheduledTimer(withTimeInterval: self.config.expireIntervalTime*1000,
-                                          repeats: false,
-                                          block: {[weak self] timer in
-            print("Interstitial Ad was expire")
-            guard let self = self else {return}
-            self.owner?.interstitialAd(didExpire: self)
-            self.delegate?.interstitialAd(didExpire: self)
+            guard let self = self else{return}
+            self.isLoading = false
+            if let error = error {
+                print("Interstitial Ad failed to load with error: \(error.localizedDescription)")
+                self.delegate?.interstitialAdWrapper(onError: self, error: error)
+                self.owner?.interstitialAdWrapper(onError:self,error:error)
+                return
+            }
+            self.loadedAd = ad
+            self.loadedDate = Date().timeIntervalSince1970
+            self.loadedAd?.fullScreenContentDelegate = self.listener
+            self.delegate?.interstitialAdWrapper(didReady: self)
+            self.owner?.interstitialAdWrapper(didReady: self)
+            self.startExpireInterval()
         })
     }
+    
+    private func startExpireInterval(){
+        timer = Timer.scheduledTimer(withTimeInterval: self.config.expireIntervalTime*1000,
+                                     repeats: false,
+                                     block: {[weak self] timer in
+            print("Interstitial Ad was expire")
+            guard let self = self else {return}
+            self.owner?.interstitialAdWrapper(didExpire: self)
+            self.delegate?.interstitialAdWrapper(didExpire: self)
+        })
+    }
+    
+    func increaseShowCount(){
+        showCount += 1
+        delegate?.interstitialAdWrapper(didShowCountChanged: self)
+    }
+    
     func presentAd(vc:UIViewController){
         
         if isReady(vc: vc)  {
-            loadedAd?.fullScreenContentDelegate = self
+            loadedAd?.fullScreenContentDelegate = listener
             loadedAd?.present(fromRootViewController: vc)
         } else {
             print("Interstitial Ad  wasn't ready")
@@ -112,28 +134,35 @@ extension InterstitialAdWrapper{
         lhs.loadedAd == rhs.loadedAd
     }
 }
-extension InterstitialAdWrapper:GADFullScreenContentDelegate{
-    public func adDidPresentFullScreenContent(_ ad: GADFullScreenPresentingAd) {
+
+private class InterstitialAdWrapperListener:NSObject,GADFullScreenContentDelegate{
+    weak var owner:InterstitialAdWrapper?
+    init(owner:InterstitialAdWrapper) {
+        self.owner = owner
+    }
+    func adDidPresentFullScreenContent(_ ad: GADFullScreenPresentingAd) {
         print("Interstitial Ad  presented.")
-        showCount += 1
-        delegate?.interstitialAd(didOpen: self)
+        guard let owner = owner else {return}
+        owner.delegate?.interstitialAdWrapper(didOpen:  owner)
     }
     /// Tells the delegate that the rewarded ad was dismissed.
-    public func adWillDismissFullScreenContent(_ ad: GADFullScreenPresentingAd) {
+    func adWillDismissFullScreenContent(_ ad: GADFullScreenPresentingAd) {
         print("Interstitial Ad  will dismiss.")
-        delegate?.interstitialAd(willClose: self)
+        guard let owner = owner else {return}
+        owner.delegate?.interstitialAdWrapper(willClose: owner)
     }
-    public func adDidDismissFullScreenContent(_ ad: GADFullScreenPresentingAd) {
+    func adDidDismissFullScreenContent(_ ad: GADFullScreenPresentingAd) {
         print("Interstitial Ad did dismissed.")
-        delegate?.interstitialAd(didClose: self)
-        owner?.interstitialAd(didClose: self)
+        guard let owner = owner else {return}
+        owner.delegate?.interstitialAdWrapper(didClose: owner)
+        owner.owner?.interstitialAdWrapper(didClose: owner)
     }
     /// Tells the delegate that the rewarded ad failed to present.
-    public func ad(_ ad: GADFullScreenPresentingAd,
-                   didFailToPresentFullScreenContentWithError error: Error) {
+    func ad(_ ad: GADFullScreenPresentingAd,
+            didFailToPresentFullScreenContentWithError error: Error) {
         print("Interstitial Ad  failed to present with error: \(error.localizedDescription).")
-        delegate?.interstitialAd(onError: self,error:error)
-        owner?.interstitialAd(onError: self,error:error)
+        guard let owner = owner else {return}
+        owner.delegate?.interstitialAdWrapper(onError: owner,error:error)
+        owner.owner?.interstitialAdWrapper(onError: owner,error:error)
     }
-    
 }

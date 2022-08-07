@@ -1,6 +1,6 @@
 //
-//  RewardAdController.swift
-//  WidgetBox
+//  RewardedAdsRepository.swift
+//  AdRepo
 //
 //  Created by Ali on 9/1/21.
 //
@@ -21,7 +21,7 @@ extension RewardedAdsRepositoryDelegate {
 public class RewardedAdsRepository:NSObject,AdsRepoProtocol{
     let identifier:String
     private var errorHandler:ErrorHandler
-    public private(set) var adsRepo:[RewardAdWrapper] = []
+    public private(set) var adsRepo:[RewardedAdWrapper] = []
     public private(set) var config:RepoConfig
     public var isLoading:Bool {adsRepo.contains(where: {$0.isLoading})}
     public var autoFill:Bool = true
@@ -29,8 +29,9 @@ public class RewardedAdsRepository:NSObject,AdsRepoProtocol{
         didSet{
             if isDisable{
                 errorHandler.cancel()
-                adsRepo.forEach({$0.delegate?.rewardAd(didRemoveFromRepository: $0)})
+                let ads = adsRepo
                 adsRepo.removeAll()
+                ads.forEach({$0.delegate?.rewardedAdWrapper(didRemoveFromRepository: $0)})
             }else{
                 if autoFill {
                     fillRepoAds()
@@ -38,34 +39,64 @@ public class RewardedAdsRepository:NSObject,AdsRepoProtocol{
             }
         }
     }
-   weak var delegate:RewardedAdsRepositoryDelegate? = nil
+    weak var delegate:RewardedAdsRepositoryDelegate? = nil
     
- public init(identifier:String,config:RepoConfig,
-         errorHandlerConfig:ErrorHandlerConfig? = nil,
-         delegate:RewardedAdsRepositoryDelegate? = nil){
-     
+    public init(identifier:String,config:RepoConfig,
+                errorHandlerConfig:ErrorHandlerConfig? = nil,
+                delegate:RewardedAdsRepositoryDelegate? = nil){
+        
         self.identifier = identifier
         self.delegate = delegate
         self.config = config
         self.errorHandler = ErrorHandler(config: errorHandlerConfig)
         super.init()
     }
-  public func fillRepoAds(){
+    public func fillRepoAds(){
         guard !isDisable else{return}
         let loadingAdsCount = adsRepo.filter({$0.isLoading}).count
         let totalAdsNeedCount = config.repoSize-loadingAdsCount
         while adsRepo.count<totalAdsNeedCount{
-            adsRepo.append(RewardAdWrapper(owner: self))
+            adsRepo.append(RewardedAdWrapper(owner: self))
             adsRepo.last?.loadAd()
         }
     }
     
-    public func presentAd(vc:UIViewController,willLoad:((RewardAdWrapper)->Void)? = nil){
+    private func removeAd(ad: RewardedAdWrapper){//call when ad expire
+           adsRepo.removeAll(where: {$0 == ad})
+           ad.delegate?.rewardedAdWrapper(didRemoveFromRepository: ad)
+     }
+    
+    public func validateRepositoryAds(){
+        let now = Date().timeIntervalSince1970
+        let condition:((RewardedAdWrapper) -> Bool) = {
+            [unowned self] in
+            (now-($0.loadedDate ?? now) > config.expireIntervalTime) || $0.showCount>=config.showCountThreshold
+            
+        }
+        
+        let ads = adsRepo.filter(condition)
+        adsRepo.removeAll(where: condition)
+        ads.forEach({$0.delegate?.rewardedAdWrapper(didRemoveFromRepository: $0)})
+    }
+    
+    public func presentAd(vc:UIViewController,willLoad:((RewardedAdWrapper?)->Void)? = nil){
+        validateRepositoryAds()
         let now = Date().timeIntervalSince1970
         guard let adWrapper = adsRepo.min(by: {($0.loadedDate ?? now) < ($1.loadedDate ?? now)})
-        else{return}
+        else{
+            willLoad?(nil)
+            if autoFill{
+                fillRepoAds()
+            }
+            return
+        }
+        adWrapper.increaseShowCount()
         willLoad?(adWrapper)
         adWrapper.presentAd(vc: vc)
+        
+        if autoFill{
+            fillRepoAds()
+        }
     }
     
     public func hasReadyAd(vc:UIViewController)->Bool{
@@ -73,9 +104,9 @@ public class RewardedAdsRepository:NSObject,AdsRepoProtocol{
     }
     
 }
-extension RewardedAdsRepository{
+extension RewardedAdsRepository{//will call from RewardAdWrapper
     
-    func rewardAd(didReady ad:RewardAdWrapper) {
+    func rewardedAdWrapper(didReady ad:RewardedAdWrapper) {
         errorHandler.restart()
         delegate?.rewardedAdsRepository(didReceiveAds:self)
         AdsRepo.default.rewardedAdsRepository(didReceiveAds:self)
@@ -85,31 +116,33 @@ extension RewardedAdsRepository{
         }
     }
     
-    func rewardAd(didClose ad:RewardAdWrapper) {
-        adsRepo.removeAll(where: {$0.showCount>=config.showCountThreshold})
-        ad.delegate?.rewardAd(didRemoveFromRepository: ad)
+    func rewardedAdWrapper(didClose ad:RewardedAdWrapper) {
+        validateRepositoryAds()
         if autoFill {
-           fillRepoAds()
+            fillRepoAds()
         }
     }
     
-    func rewardAd(onError ad:RewardAdWrapper, error: Error?) {
-        adsRepo.removeAll(where: {$0 == ad})
-        ad.delegate?.rewardAd(didRemoveFromRepository: ad)
+    func rewardedAdWrapper(onError ad:RewardedAdWrapper, error: Error?) {
+        removeAd(ad: ad)
         if errorHandler.isRetryAble(error: error),!isLoading{
             if autoFill {
-              self.fillRepoAds()
+                self.fillRepoAds()
             }
         }else{
             delegate?.rewardedAdsRepository(didFinishLoading: self, error: error)
             AdsRepo.default.rewardedAdsRepository(didFinishLoading: self, error: error)
         }
     }
-    func rewardAd(didExpire ad: RewardAdWrapper) {
-        adsRepo.removeAll(where: {$0 == ad})
-        ad.delegate?.rewardAd(didRemoveFromRepository: ad)
+    func rewardedAdWrapper(didExpire ad: RewardedAdWrapper) {
+        removeAd(ad: ad)
         if autoFill {
-           fillRepoAds()
+            fillRepoAds()
         }
+    }
+}
+extension RewardedAdsRepository {
+    static func == (lhs: RewardedAdsRepository, rhs: RewardedAdsRepository) -> Bool{
+        lhs.identifier == rhs.identifier
     }
 }

@@ -40,7 +40,12 @@
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9GH-uo-Ula">
                                 <rect key="frame" x="32" y="205" width="311" height="31"/>
                                 <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" title="Rewarded Ad"/>
+                                <buttonConfiguration key="configuration" style="plain" title="Rewarded Ad" titleAlignment="center"/>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="titleLabel.textAlignment">
+                                        <integer key="value" value="1"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
                                 <connections>
                                     <action selector="onUserAction:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="EJp-Ts-9IY"/>
                                 </connections>
@@ -48,7 +53,12 @@
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tc8-28-Eg9">
                                 <rect key="frame" x="32" y="244" width="311" height="31"/>
                                 <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" title="Full screen Video Native ad"/>
+                                <buttonConfiguration key="configuration" style="plain" title="Full screen Video Native ad" titleAlignment="center"/>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="titleLabel.textAlignment">
+                                        <integer key="value" value="1"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
                                 <connections>
                                     <action selector="onUserAction:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="4GH-hL-dXQ"/>
                                 </connections>
@@ -56,23 +66,25 @@
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="drD-oU-aUj">
                                 <rect key="frame" x="32" y="283" width="311" height="31"/>
                                 <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" title="Full screen Image Native ad"/>
+                                <buttonConfiguration key="configuration" style="plain" title="Full screen Image Native ad" titleAlignment="center"/>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="titleLabel.textAlignment">
+                                        <integer key="value" value="1"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
                                 <connections>
                                     <action selector="onUserAction:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="vU5-iI-NPO"/>
                                 </connections>
                             </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="FQh-7F-KYG">
-                                <rect key="frame" x="24" y="322" width="327" height="31"/>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" title="Native ad in table view"/>
-                                <connections>
-                                    <action selector="onUserAction:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="UBV-U5-6ob"/>
-                                </connections>
-                            </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aoW-2P-e3z">
-                                <rect key="frame" x="32" y="400" width="311" height="31"/>
+                                <rect key="frame" x="32" y="322" width="311" height="31"/>
                                 <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" title="Native ad in collection view"/>
+                                <buttonConfiguration key="configuration" style="plain" title="Native ad in collection view" titleAlignment="center"/>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="titleLabel.textAlignment">
+                                        <integer key="value" value="1"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
                                 <connections>
                                     <action selector="onUserAction:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="jFC-ao-gXR"/>
                                 </connections>
@@ -80,7 +92,12 @@
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Quv-aF-tpw">
                                 <rect key="frame" x="24" y="166" width="327" height="31"/>
                                 <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" title="Interstitial ad"/>
+                                <buttonConfiguration key="configuration" style="plain" title="Interstitial ad" titleAlignment="center"/>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="titleLabel.textAlignment">
+                                        <integer key="value" value="1"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
                                 <connections>
                                     <action selector="onUserAction:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="GMd-nz-xpd"/>
                                 </connections>
@@ -92,49 +109,40 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rCD-Xf-xNz">
-                                <rect key="frame" x="32" y="439" width="311" height="31"/>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" title="Native banner ad in collection view"/>
-                                <connections>
-                                    <action selector="onUserAction:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="aEl-LP-G2r"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="sCz-My-Nw2">
                                 <rect key="frame" x="32" y="361" width="311" height="31"/>
                                 <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" title="Native Banner ad in table view"/>
+                                <buttonConfiguration key="configuration" style="plain" title="Native banner ad in collection view" titleAlignment="center"/>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="titleLabel.textAlignment">
+                                        <integer key="value" value="1"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
                                 <connections>
-                                    <action selector="onUserAction:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="COV-mx-dgj"/>
+                                    <action selector="onUserAction:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="aEl-LP-G2r"/>
                                 </connections>
                             </button>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <constraint firstItem="sCz-My-Nw2" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leadingMargin" constant="16" id="4yW-lO-qHt"/>
                             <constraint firstItem="9GH-uo-Ula" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leadingMargin" constant="16" id="4zf-Od-VIg"/>
                             <constraint firstAttribute="trailingMargin" secondItem="aoW-2P-e3z" secondAttribute="trailing" constant="16" id="A0E-MJ-jr3"/>
-                            <constraint firstItem="sCz-My-Nw2" firstAttribute="top" secondItem="FQh-7F-KYG" secondAttribute="bottom" constant="8" id="As8-m9-4Km"/>
                             <constraint firstItem="tc8-28-Eg9" firstAttribute="top" secondItem="9GH-uo-Ula" secondAttribute="bottom" constant="8" id="BRz-nt-IqU"/>
                             <constraint firstItem="Quv-aF-tpw" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leadingMargin" constant="8" id="EZf-AN-XZx"/>
-                            <constraint firstItem="aoW-2P-e3z" firstAttribute="top" secondItem="sCz-My-Nw2" secondAttribute="bottom" constant="8" id="EZw-W3-Eam"/>
                             <constraint firstAttribute="trailingMargin" secondItem="9GH-uo-Ula" secondAttribute="trailing" constant="16" id="IVM-Xh-4jQ"/>
-                            <constraint firstItem="FQh-7F-KYG" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leadingMargin" constant="8" id="MHD-Op-RSR"/>
                             <constraint firstAttribute="trailingMargin" secondItem="drD-oU-aUj" secondAttribute="trailing" constant="16" id="OHz-4h-3QP"/>
                             <constraint firstItem="tc8-28-Eg9" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leadingMargin" constant="16" id="OLe-vd-5JF"/>
                             <constraint firstAttribute="trailingMargin" secondItem="Quv-aF-tpw" secondAttribute="trailing" constant="8" id="Q9Q-kG-KkH"/>
-                            <constraint firstAttribute="trailingMargin" secondItem="sCz-My-Nw2" secondAttribute="trailing" constant="16" id="RU3-D7-NlL"/>
                             <constraint firstItem="rCD-Xf-xNz" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leadingMargin" constant="16" id="Sce-gR-P1N"/>
                             <constraint firstItem="9GH-uo-Ula" firstAttribute="top" secondItem="Quv-aF-tpw" secondAttribute="bottom" constant="8" id="SrI-AF-o4Q"/>
                             <constraint firstItem="drD-oU-aUj" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leadingMargin" constant="16" id="TN8-du-xrP"/>
                             <constraint firstItem="Quv-aF-tpw" firstAttribute="top" secondItem="isQ-uQ-nRg" secondAttribute="bottom" constant="32" id="a3y-3S-PqO"/>
-                            <constraint firstAttribute="trailingMargin" secondItem="FQh-7F-KYG" secondAttribute="trailing" constant="8" id="akw-an-anp"/>
                             <constraint firstItem="isQ-uQ-nRg" firstAttribute="top" secondItem="jyV-Pf-zRb" secondAttribute="bottom" constant="60" id="cBy-gw-sGP"/>
-                            <constraint firstItem="FQh-7F-KYG" firstAttribute="top" secondItem="drD-oU-aUj" secondAttribute="bottom" constant="8" id="cxD-DN-dgC"/>
                             <constraint firstItem="aoW-2P-e3z" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leadingMargin" constant="16" id="e5d-aX-3Xq"/>
                             <constraint firstAttribute="trailingMargin" secondItem="rCD-Xf-xNz" secondAttribute="trailing" constant="16" id="fgX-jq-cdT"/>
                             <constraint firstItem="rCD-Xf-xNz" firstAttribute="top" secondItem="aoW-2P-e3z" secondAttribute="bottom" constant="8" id="k7f-NK-AGB"/>
                             <constraint firstItem="isQ-uQ-nRg" firstAttribute="centerX" secondItem="kh9-bI-dsS" secondAttribute="centerX" id="nDx-5s-rsy"/>
                             <constraint firstItem="drD-oU-aUj" firstAttribute="top" secondItem="tc8-28-Eg9" secondAttribute="bottom" constant="8" id="rZJ-20-41h"/>
+                            <constraint firstItem="aoW-2P-e3z" firstAttribute="top" secondItem="drD-oU-aUj" secondAttribute="bottom" constant="8" id="tX3-dS-77m"/>
                             <constraint firstAttribute="trailingMargin" secondItem="tc8-28-Eg9" secondAttribute="trailing" constant="16" id="uNH-CC-o1X"/>
                         </constraints>
                     </view>
@@ -144,9 +152,7 @@
                         <outlet property="imageNativeAdbtn" destination="drD-oU-aUj" id="0me-2U-Ouz"/>
                         <outlet property="interstinalAdBtn" destination="Quv-aF-tpw" id="WDX-ni-7Hc"/>
                         <outlet property="nativeBannerCollectionViewBtn" destination="rCD-Xf-xNz" id="Hnk-KZ-w0W"/>
-                        <outlet property="nativeBannerTableViewBtn" destination="sCz-My-Nw2" id="u1W-MT-U79"/>
                         <outlet property="nativeCollectionViewBtn" destination="aoW-2P-e3z" id="PbN-pE-hly"/>
-                        <outlet property="nativeTableViewBtn" destination="FQh-7F-KYG" id="nvd-Z2-etw"/>
                         <outlet property="rewardedAdBtn" destination="9GH-uo-Ula" id="J9O-p3-aKh"/>
                     </connections>
                 </viewController>
@@ -311,17 +317,24 @@
                                     <outlet property="storeView" destination="yF4-UF-gKC" id="trk-A9-h2a"/>
                                 </connections>
                             </view>
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="large" translatesAutoresizingMaskIntoConstraints="NO" id="NXh-U9-pXt">
+                                <rect key="frame" x="169" y="315" width="37" height="37"/>
+                                <color key="color" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </activityIndicatorView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="sM0-ys-m6Y" firstAttribute="centerX" secondItem="S3s-KX-TiV" secondAttribute="centerX" id="432-xh-DNE"/>
                             <constraint firstItem="sM0-ys-m6Y" firstAttribute="top" secondItem="wXp-mT-NDs" secondAttribute="bottom" constant="16" id="89m-VT-PEm"/>
                             <constraint firstAttribute="trailing" secondItem="sM0-ys-m6Y" secondAttribute="trailing" constant="16" id="KdR-yu-0Xs"/>
+                            <constraint firstItem="NXh-U9-pXt" firstAttribute="centerX" secondItem="S3s-KX-TiV" secondAttribute="centerX" id="O8t-FK-bs8"/>
+                            <constraint firstItem="NXh-U9-pXt" firstAttribute="centerY" secondItem="S3s-KX-TiV" secondAttribute="centerY" id="OpG-2Q-JWn"/>
                             <constraint firstItem="LDT-Hb-zNm" firstAttribute="top" secondItem="sM0-ys-m6Y" secondAttribute="bottom" constant="16" id="lQE-2Q-TPF"/>
                             <constraint firstItem="sM0-ys-m6Y" firstAttribute="leading" secondItem="S3s-KX-TiV" secondAttribute="leading" constant="16" id="u8H-0b-y3i"/>
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="activityIndicator" destination="NXh-U9-pXt" id="GzT-Cj-QpJ"/>
                         <outlet property="nativeAdView" destination="sM0-ys-m6Y" id="6Dd-Ux-L6e"/>
                     </connections>
                 </viewController>

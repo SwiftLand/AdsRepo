@@ -8,6 +8,8 @@
 
 import Foundation
 import AdsRepo
+import GoogleMobileAds
+
 class RepositoryManager{
     static let shared = RepositoryManager()
     let interstitialAdsRepo: InterstitialAdsRepository = {
@@ -20,25 +22,20 @@ class RepositoryManager{
     }()
 
     let nativeVideoAdRepo: NativeAdsRepository = {
-       return NativeAdsRepository(identifier: "nativeVideoAdController",
+       return NativeAdsRepository(identifier: "nativeVideoAdRepository",
                                                config:RepoConfig.debugNativeVideoConfig())
     }()
-    let nativeImageAdRepo: NativeAdsRepository = {
-        return NativeAdsRepository(identifier: "nativeImageAdController",
-                                               config:RepoConfig.debugNativeConfig())
+    let nativeAdRepo: NativeAdsRepository = {
+        return NativeAdsRepository(identifier: "nativeImageAdRepository",
+                                   config:RepoConfig.debugNativeConfig())
     }()
 
-    let nativeBannerAdRepo: NativeAdsRepository = {
-        return NativeAdsRepository(identifier: "nativeBannerAdRepo",
-                                               config:RepoConfig.debugNativeConfig())
-    }()
     
     func fillAllRepositories(){
         interstitialAdsRepo.fillRepoAds()
         rewardedAdsRepo.fillRepoAds()
         nativeVideoAdRepo.fillRepoAds()
-        nativeImageAdRepo.fillRepoAds()
-        nativeBannerAdRepo.fillRepoAds()
+        nativeAdRepo.fillRepoAds()
     }
 }
 

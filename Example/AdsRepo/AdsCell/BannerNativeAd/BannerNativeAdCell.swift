@@ -17,38 +17,51 @@ class BannerNativeAdCell:UICollectionViewCell{
     @IBOutlet weak var adView:UIView!
     @IBOutlet weak var adLabel:UILabel!
     @IBOutlet weak var nativeAdView: GADNativeAdView!
-
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+    @IBOutlet weak var showCountLabel:UILabel!
     
     @IBOutlet weak var adIconLeadingConstrian: NSLayoutConstraint!
     @IBOutlet weak var adIconWidthConstrians: NSLayoutConstraint!
-    
 
-    func config(){
-        adLabel.isHidden = true
-        nativeAdView.isHidden = true
+    weak var adRepository:NativeAdsRepository? = nil
+    weak var adWrapper:NativeAdWrapper? = nil {
+        didSet{
+            adWrapper?.delegate = self//<-- weak reference
+            showCountLabel?.text = "show count (\(adWrapper?.showCount ?? 0))"
+        }
     }
     
-    
-    func showNativeAd(_ adController:NativeAdsRepository){
-        self.adController = adController
-        adController.loadAd {[weak self] adWrapper in
+    func showNativeAdIfNeed(){
+        self.adView.isHidden = true
+        adRepository?.loadAd {[weak self] adWrapper in
             if let adWrapper = adWrapper {
-                adWrapper.delegate = self//<-- weak reference
+                self?.adWrapper = adWrapper
                 self?.showNativeAd(adWrapper.loadedAd)
+                self?.hideActivityIndicator()
+            }else{
+                self?.showActivityIndicator()
+                self?.registerCellForAdsRepo()
             }
         }
     }
-
+    
     func registerCellForAdsRepo(){
         AdsRepo.default.addObserver(observer: self)
     }
     func deregisterCellForAdsRepo(){
         AdsRepo.default.removeObserver(observer: self)
     }
-        
+    func showActivityIndicator(){
+        activityIndicator.startAnimating()
+        activityIndicator.isHidden = false
+    }
+    func hideActivityIndicator(){
+        activityIndicator.stopAnimating()
+        activityIndicator.isHidden = true
+    }
+    
     
     private func showNativeAd(_ nativeAd: GADNativeAd) {
-       
         // Populate the native ad view with the native ad assets.
         // The headline is guaranteed to be present in every native ad.
         (nativeAdView.headlineView as? UILabel)?.text = nativeAd.headline
@@ -60,17 +73,17 @@ class BannerNativeAdCell:UICollectionViewCell{
         
         (nativeAdView.callToActionView as? UIButton)?.setTitle(nativeAd.callToAction, for: .normal)
         nativeAdView.callToActionView?.isHidden = nativeAd.callToAction == nil
+        (nativeAdView.iconView as? UIImageView)?.image = nativeAd.icon?.image
         nativeAdView.iconView?.isHidden = nativeAd.icon == nil
         
         if nativeAd.icon != nil{
-            (nativeAdView.iconView as? UIImageView)?.image = nativeAd.icon?.image
             adIconLeadingConstrian.constant = 8
             adIconWidthConstrians.constant = 60
         }else{
             adIconLeadingConstrian.constant = 0
             adIconWidthConstrians.constant = 0
         }
-     
+        
         (nativeAdView.starRatingView as? UIImageView)?.image = imageOfStars(from: nativeAd.starRating)
         nativeAdView.starRatingView?.isHidden = nativeAd.starRating == nil
         
@@ -91,11 +104,9 @@ class BannerNativeAdCell:UICollectionViewCell{
         // required to make the ad clickable.
         // Note: this should always be done after populating the ad views.
         nativeAdView.nativeAd = nativeAd
-        
-        adLabel.isHidden = false
-        nativeAdView.isHidden = false
+        adView.isHidden = false
     }
-
+    
     func imageOfStars(from starRating: NSDecimalNumber?) -> UIImage? {
         guard let rating = starRating?.doubleValue else {
             return nil
@@ -116,17 +127,16 @@ class BannerNativeAdCell:UICollectionViewCell{
 
 extension BannerNativeAdCell:AdsRepoObserver{
     func nativeAdsRepository(didReceive repo: NativeAdsRepository) {
-        guard !isLoaded,let adController = self.adController else {return}
-        showNativeAd(adController)
+        guard !isLoaded else {return}
+        showNativeAdIfNeed()
     }
 }
 
 extension BannerNativeAdCell:NativeAdWrapperDelegate{
-    func nativeAd(didExpire ad: NativeAdWrapper) {
-        if isLoaded ,
-           ad.loadedAd == nativeAdView.nativeAd,
-           let adController = self.adController {
-            showNativeAd(adController)
+    func nativeAdWrapper(didExpire ad: NativeAdWrapper) {
+        guard isLoaded ,ad.loadedAd == nativeAdView.nativeAd else{
+            return
         }
+        showNativeAdIfNeed()
     }
 }

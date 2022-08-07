@@ -1,6 +1,6 @@
 //
 //  InterstitialAdContoller.swift
-//  WidgetBox
+//  AdRepo
 //
 //  Created by ali khajehpour on 10/27/20.
 //
@@ -30,8 +30,9 @@ public class InterstitialAdsRepository:NSObject,AdsRepoProtocol{
         didSet{
             if isDisable{
                 errorHandler.cancel()
-                adsRepo.forEach({$0.delegate?.interstitialAd(didRemoveFromRepository: $0)}) 
+                let ads = adsRepo
                 adsRepo.removeAll()
+                ads.forEach({$0.delegate?.interstitialAdWrapper(didRemoveFromRepository: $0)})
             }else{
                 if autoFill {
                     fillRepoAds()
@@ -51,6 +52,24 @@ public class InterstitialAdsRepository:NSObject,AdsRepoProtocol{
         super.init()
     }
     
+    public func validateRepositoryAds(){
+        let now = Date().timeIntervalSince1970
+        let condition:((InterstitialAdWrapper) -> Bool) = {
+            [unowned self] in
+            (now-($0.loadedDate ?? now) > config.expireIntervalTime) || $0.showCount>=config.showCountThreshold
+            
+        }
+        
+        let ads = adsRepo.filter(condition)
+        adsRepo.removeAll(where: condition)
+        ads.forEach({$0.delegate?.interstitialAdWrapper(didRemoveFromRepository: $0)})
+    }
+    
+    private func removeAd(ad: InterstitialAdWrapper){//call when ad expire
+        adsRepo.removeAll(where: {$0 == ad})
+        ad.delegate?.interstitialAdWrapper(didRemoveFromRepository: ad)
+    }
+    
     public func fillRepoAds(){
         guard !isDisable else{return}
         let loadingAdsCount = adsRepo.filter({$0.isLoading}).count
@@ -61,23 +80,37 @@ public class InterstitialAdsRepository:NSObject,AdsRepoProtocol{
         }
     }
     
-    public func presentAd(vc:UIViewController,willLoad:((InterstitialAdWrapper)->Void)? = nil){
+    public func presentAd(vc:UIViewController,willLoad:((InterstitialAdWrapper?)->Void)? = nil){
+        validateRepositoryAds()
         let now = Date().timeIntervalSince1970
         guard let adWrapper = adsRepo.min(by: {($0.loadedDate ?? now) < ($1.loadedDate ?? now)})
-        else{return}
+        else{
+            willLoad?(nil)
+            if autoFill{
+                fillRepoAds()
+            }
+            return
+        }
+        adWrapper.increaseShowCount()
         willLoad?(adWrapper)
         adWrapper.presentAd(vc: vc)
+        
+        if autoFill{
+            fillRepoAds()
+        }
     }
     
     public func hasReadyAd(vc:UIViewController)->Bool{
+        validateRepositoryAds()
         return  adsRepo.first(where: {$0.isReady(vc: vc)}) != nil
     }
     
 }
 
 extension InterstitialAdsRepository{
+    //will call from InterstitialAdWrapper
     
-    func interstitialAd(didReady ad:InterstitialAdWrapper) {
+    func interstitialAdWrapper(didReady ad:InterstitialAdWrapper) {
         errorHandler.restart()
         delegate?.interstitialAdsRepository(didReceive: self)
         AdsRepo.default.interstitialAdsRepository(didReceive: self)
@@ -87,17 +120,12 @@ extension InterstitialAdsRepository{
         }
     }
     
-    func interstitialAd(didClose ad:InterstitialAdWrapper) {
-        adsRepo.removeAll(where: {$0.showCount>=config.showCountThreshold})
-        ad.delegate?.interstitialAd(didRemoveFromRepository: ad)
-        if autoFill {
-            fillRepoAds()
-        }
+    func interstitialAdWrapper(didClose ad:InterstitialAdWrapper) {
+        removeAd(ad: ad)
     }
     
-    func interstitialAd(onError ad:InterstitialAdWrapper, error: Error?) {
-        adsRepo.removeAll(where: {$0 == ad})
-        ad.delegate?.interstitialAd(didRemoveFromRepository: ad)
+    func interstitialAdWrapper(onError ad:InterstitialAdWrapper, error: Error?) {
+        removeAd(ad: ad)
         if errorHandler.isRetryAble(error: error),!isLoading{
             fillRepoAds()
         }else{
@@ -105,12 +133,17 @@ extension InterstitialAdsRepository{
             AdsRepo.default.interstitialAdsRepository(didFinishLoading: self, error: error)
         }
     }
-    func interstitialAd(didExpire ad: InterstitialAdWrapper) {
-        adsRepo.removeAll(where: {$0 == ad})
-        ad.delegate?.interstitialAd(didRemoveFromRepository: ad)
+    func interstitialAdWrapper(didExpire ad: InterstitialAdWrapper) {
+        removeAd(ad: ad)
         if autoFill {
             fillRepoAds()
         }
+    }
+}
+
+extension InterstitialAdsRepository {
+    static func == (lhs: InterstitialAdsRepository, rhs: InterstitialAdsRepository) -> Bool{
+        lhs.identifier == rhs.identifier
     }
 }
 

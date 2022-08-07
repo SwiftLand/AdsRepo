@@ -1,6 +1,6 @@
 //
-//  Observer.swift
-//  AdMobManager
+//  AdRepoObserver.swift
+//  AdRepo
 //
 //  Created by Ali on 9/3/21.
 //
@@ -9,16 +9,11 @@ import Foundation
 
 public protocol AdsRepoDelegate:RewardedAdsRepositoryDelegate,
                                 NativeAdsRepositoryDelegate,
-                                InterstitialAdsRepositoryDelegate {
-    
-
-}
+                                InterstitialAdsRepositoryDelegate {}
 
 public protocol AdsRepoObserver:AdsRepoDelegate {
     var observerId:String{get}
 }
-
-
 
 protocol AdsRepoObservable {
     var observers : [Weak<AdsRepoObserver>] { get set }

@@ -33,17 +33,21 @@ public class NativeAdsRepository:NSObject,AdsRepoProtocol{
     public  var isDisable:Bool = false{
         didSet{
             if isDisable{
+                let ads = adsRepo
                 adsRepo.removeAll()
-                stopLoading()
+                ads.forEach({$0.delegate?.nativeAdWrapper(didRemoveFromRepository: $0)})
             }else{
                 fillRepoAds()
             }
         }
     }
     
-    var hasReadyAd:Bool{
-        validateRepositoryAds()
+    var hasAd:Bool{
         return adsRepo.count > 0
+    }
+    
+    var hasUnvalidAd:Bool{
+        return adsRepo.contains(where: notValidAdCondition)
     }
     
     weak var delegate:NativeAdsRepositoryDelegate? = nil

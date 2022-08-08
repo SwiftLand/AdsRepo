@@ -53,6 +53,11 @@ public class NativeAdsRepository:NSObject,AdsRepoProtocol{
         AdLoaderListener(owner: self)
     }()
     
+    private let notValidAdCondition:((NativeAdWrapper) -> Bool) = {
+        (Date().timeIntervalSince1970-$0.loadedDate > $0.config.expireIntervalTime) || $0.showCount>=$0.config.showCountThreshold
+        
+    }
+    
     public init(identifier:String,config:RepoConfig,
                 errorHandlerConfig:ErrorHandlerConfig? = nil,
                 delegate:NativeAdsRepositoryDelegate? = nil){
@@ -98,7 +103,9 @@ public class NativeAdsRepository:NSObject,AdsRepoProtocol{
     @discardableResult
     public func fillRepoAds()->Bool{
         guard !isDisable else {return false}
-        guard adsRepo.count<config.repoSize else {return false}
+        
+        guard adsRepo.count == 0 || adsRepo.contains(where: notValidAdCondition)
+        else {return false}
         
         guard !(adLoader?.isLoading ?? false) else{return false}
         
@@ -109,7 +116,6 @@ public class NativeAdsRepository:NSObject,AdsRepoProtocol{
     
     public func loadAd(loadFromRepo:@escaping ((NativeAdWrapper?)->Void)){
         
-        validateRepositoryAds()
         guard autoFill,adsRepo.count>0 else {
             loadFromRepo(nil)
             fillRepoAds()
@@ -122,15 +128,8 @@ public class NativeAdsRepository:NSObject,AdsRepoProtocol{
     }
     
     public func validateRepositoryAds(){
-        let now = Date().timeIntervalSince1970
-        let condition:((NativeAdWrapper) -> Bool) = {
-            [unowned self] in
-            (now-$0.loadedDate > config.expireIntervalTime) || $0.showCount>=config.showCountThreshold
-            
-        }
-        
-        let ads = adsRepo.filter(condition)
-        adsRepo.removeAll(where: condition)
+        let ads = adsRepo.filter(notValidAdCondition)
+        adsRepo.removeAll(where: notValidAdCondition)
         ads.forEach({$0.removeFromRepository()})
     }
     
@@ -140,7 +139,6 @@ public class NativeAdsRepository:NSObject,AdsRepoProtocol{
     }
     
     func notifyAdChange(){
-        validateRepositoryAds()
         if autoFill{
             fillRepoAds()
         }
@@ -170,6 +168,7 @@ private class AdLoaderListener:NSObject,GADNativeAdLoaderDelegate{
     public func adLoaderDidFinishLoading(_ adLoader: GADAdLoader) {
         print("Native AdLoader","DidFinishLoading")
         guard let owner = owner else {return}
+        owner.validateRepositoryAds()
         if !owner.autoFill || !owner.fillRepoAds(){
             owner.delegate?.nativeAdsRepository(didFinishLoading:owner,error:nil)
             AdsRepo.default.nativeAdsRepository(didFinishLoading:owner,error:nil)

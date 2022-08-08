@@ -42,6 +42,11 @@ public class InterstitialAdsRepository:NSObject,AdsRepoProtocol{
     }
     weak var delegate:InterstitialAdsRepositoryDelegate? = nil
     
+    let notValidCondition:((InterstitialAdWrapper) -> Bool) = {
+        let now = Date().timeIntervalSince1970
+        return (now-($0.loadedDate ?? now) > $0.config.expireIntervalTime) || $0.showCount>=$0.config.showCountThreshold
+    }
+    
     public init(identifier:String,config:RepoConfig,
                 errorHandlerConfig:ErrorHandlerConfig? = nil,
                 delegate:InterstitialAdsRepositoryDelegate? = nil){
@@ -53,15 +58,8 @@ public class InterstitialAdsRepository:NSObject,AdsRepoProtocol{
     }
     
     public func validateRepositoryAds(){
-        let now = Date().timeIntervalSince1970
-        let condition:((InterstitialAdWrapper) -> Bool) = {
-            [unowned self] in
-            (now-($0.loadedDate ?? now) > config.expireIntervalTime) || $0.showCount>=config.showCountThreshold
-            
-        }
-        
-        let ads = adsRepo.filter(condition)
-        adsRepo.removeAll(where: condition)
+        let ads = adsRepo.filter(notValidCondition)
+        adsRepo.removeAll(where: notValidCondition)
         ads.forEach({$0.delegate?.interstitialAdWrapper(didRemoveFromRepository: $0)})
     }
     
@@ -74,7 +72,8 @@ public class InterstitialAdsRepository:NSObject,AdsRepoProtocol{
         guard !isDisable else{return}
         let loadingAdsCount = adsRepo.filter({$0.isLoading}).count
         let totalAdsNeedCount = config.repoSize-loadingAdsCount
-        while adsRepo.count<totalAdsNeedCount{
+        
+        while adsRepo.count<totalAdsNeedCount {
             adsRepo.append(InterstitialAdWrapper(owner: self))
             adsRepo.last?.loadAd()
         }

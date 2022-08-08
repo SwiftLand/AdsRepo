@@ -41,6 +41,11 @@ public class RewardedAdsRepository:NSObject,AdsRepoProtocol{
     }
     weak var delegate:RewardedAdsRepositoryDelegate? = nil
     
+    let notValidCondition:((RewardedAdWrapper) -> Bool) = {
+        let now = Date().timeIntervalSince1970
+        return (now-($0.loadedDate ?? now) > $0.config.expireIntervalTime) || $0.showCount>=$0.config.showCountThreshold
+    }
+    
     public init(identifier:String,config:RepoConfig,
                 errorHandlerConfig:ErrorHandlerConfig? = nil,
                 delegate:RewardedAdsRepositoryDelegate? = nil){
@@ -67,15 +72,8 @@ public class RewardedAdsRepository:NSObject,AdsRepoProtocol{
      }
     
     public func validateRepositoryAds(){
-        let now = Date().timeIntervalSince1970
-        let condition:((RewardedAdWrapper) -> Bool) = {
-            [unowned self] in
-            (now-($0.loadedDate ?? now) > config.expireIntervalTime) || $0.showCount>=config.showCountThreshold
-            
-        }
-        
-        let ads = adsRepo.filter(condition)
-        adsRepo.removeAll(where: condition)
+        let ads = adsRepo.filter(notValidCondition)
+        adsRepo.removeAll(where: notValidCondition)
         ads.forEach({$0.delegate?.rewardedAdWrapper(didRemoveFromRepository: $0)})
     }
     

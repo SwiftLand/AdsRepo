@@ -8,6 +8,7 @@
 
 import UIKit
 import AdsRepo
+import AppTrackingTransparency
 class MainController: UIViewController {
     
     var loadedInterstinalAdCount = 0{
@@ -59,10 +60,9 @@ class MainController: UIViewController {
         
     }
     override func viewDidAppear(_ animated: Bool) {
-        RepositoryManager.shared.fillAllRepositories()
-//        ATTHelper.request{status in
-////            RepositoryManager.shared.fillAllRepositories()
-//        }
+        ATTHelper.request{status in
+            RepositoryManager.shared.fillAllRepositories()
+        }
     }
     
     @IBAction func onUserAction (_ sender:UIControl){

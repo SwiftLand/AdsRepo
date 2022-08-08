@@ -51,6 +51,7 @@ public class NativeAdWrapper:NSObject{
     internal func increaseShowCount(){
         showCount += 1
         delegate?.nativeAdWrapper(didShowCountChanged: self)
+        owner?.notifyAdChange()
     }
     
     internal func removeFromRepository(){//call when ad expire

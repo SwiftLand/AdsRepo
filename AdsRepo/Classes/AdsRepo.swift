@@ -11,7 +11,7 @@ protocol AdsRepoProtocol {}
 
 public class AdsRepo:NSObject{
     public static let `default` = AdsRepo()
-    var observers:[Weak<AdsRepoObserver>] = []
+    var observers:[Weak<AdsRepoDelegate>] = []
 }
 
 extension AdsRepo:AdsRepoDelegate{
@@ -51,15 +51,11 @@ extension AdsRepo:AdsRepoDelegate{
 
 extension AdsRepo:AdsRepoObservable{
     
-    public func addObserver(observer: AdsRepoObserver) {
+    public func addObserver(observer: AdsRepoDelegate) {
         observers.append(Weak(observer))
     }
     
-    public func removeObserver(observer: AdsRepoObserver) {
-        observers.removeAll(where: {$0.value?.observerId  == observer.observerId})
-    }
-    
-    public func removeObserver(observerId: String) {
-        observers.removeAll(where: {$0.value?.observerId == observerId})
+    public func removeObserver(observer: AdsRepoDelegate) {
+        observers.removeAll(where: {$0.value  === observer})
     }
 }

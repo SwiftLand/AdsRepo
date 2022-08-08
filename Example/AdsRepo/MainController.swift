@@ -10,7 +10,6 @@ import UIKit
 import AdsRepo
 class MainController: UIViewController {
     
-    var observerId: String =  "\(NSStringFromClass(MainController.self))"
     var loadedInterstinalAdCount = 0{
         didSet{
             interstinalAdBtn.setTitle("Interstinal Ad (loaded:\(loadedInterstinalAdCount))", for: .normal)
@@ -100,7 +99,7 @@ class MainController: UIViewController {
         }
     }
 }
-extension MainController:AdsRepoObserver{
+extension MainController:AdsRepoDelegate{
     
     func interstitialAdsRepository(didReceive repo: InterstitialAdsRepository) {
         loadedInterstinalAdCount = repo.adsRepo.count

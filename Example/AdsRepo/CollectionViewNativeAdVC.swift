@@ -17,42 +17,32 @@ class CollectionViewNativeAdVC:UICollectionViewController{
     }
     weak var adRepository:NativeAdsRepository? = nil
     var type:AdType = .banner
-    var itemCount = 0
     
     override func viewWillAppear(_ animated: Bool) {
         self.collectionView?.register(UINib(nibName: "BannerNativeAdCell", bundle: nil), forCellWithReuseIdentifier: "BannerNativeAdCell")
         self.collectionView?.register(UINib(nibName: "NativeAdCell", bundle: nil), forCellWithReuseIdentifier: "NativeAdCell")
-        
-        itemCount = 1000
-        collectionView?.reloadData()
-        collectionView?.layoutIfNeeded()
+        AdsRepo.default.addObserver(observer: self)
+    }
+    override func viewWillDisappear(_ animated: Bool) {
+        AdsRepo.default.removeObserver(observer: self)
     }
 }
 
 extension CollectionViewNativeAdVC{
-    
+    override func numberOfSections(in collectionView: UICollectionView) -> Int {
+        return 100
+    }
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return itemCount
+        return section%2 == 0 ? 1 : 10
     }
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if (indexPath.item%9 == 0){
+        if (indexPath.section%2 == 0){
             switch type{
             case .banner:
-                let cell =  collectionView.dequeueReusableCell(withReuseIdentifier: "BannerNativeAdCell", for: indexPath) as! BannerNativeAdCell
-                if let adRepository = adRepository{
-                    cell.adRepository = adRepository
-                }
-                return cell
+                return collectionView.dequeueReusableCell(withReuseIdentifier: "BannerNativeAdCell", for: indexPath) as! BannerNativeAdCell
             case .largeBanner:
-                let cell =  collectionView.dequeueReusableCell(withReuseIdentifier: "NativeAdCell", for: indexPath) as! NativeAdCell
-                
-                cell.mediaViewWidthConstrians.constant = collectionView.bounds.width-16//<-margins
-                
-                if let adRepository = adRepository{
-                    cell.adRepository = adRepository
-                }
-                return cell
+                return collectionView.dequeueReusableCell(withReuseIdentifier: "NativeAdCell", for: indexPath) as! NativeAdCell
             }
         }else{
             let cell =  collectionView.dequeueReusableCell(withReuseIdentifier: "SimpleCell", for: indexPath)
@@ -70,30 +60,23 @@ extension CollectionViewNativeAdVC{
     override func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
         switch cell {
         case let adCell as BannerNativeAdCell:
-            adCell.showNativeAdIfNeed()
+            adRepository?.loadAd {adWrapper in
+                adCell.adWrapper = adWrapper
+            }
         case let adCell as NativeAdCell:
-            adCell.showNativeAdIfNeed()
+            adRepository?.loadAd {adWrapper in
+                adCell.adWrapper = adWrapper
+            }
         default:break
         }
         
-    }
-    override func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        
-        switch cell {
-        case let adCell as BannerNativeAdCell:
-            adCell.deregisterCellForAdsRepo()
-        case let adCell as NativeAdCell:
-            adCell.deregisterCellForAdsRepo()
-        default:break
-            
-        }
     }
 }
 
 extension CollectionViewNativeAdVC:UICollectionViewDelegateFlowLayout{
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        if (indexPath.item%9 == 0){
+        if (indexPath.section%2 == 0){
             if type == .banner {
                 return CGSize(width:collectionView.bounds.width, height: 200)
             }else if type == .largeBanner{
@@ -102,5 +85,33 @@ extension CollectionViewNativeAdVC:UICollectionViewDelegateFlowLayout{
         }
         return CGSize(width:collectionView.bounds.width*0.44, height: 100)
         
+    }
+}
+
+extension CollectionViewNativeAdVC:AdsRepoDelegate{
+    func nativeAdsRepository(didFinishLoading repo: NativeAdsRepository, error: Error?) {
+        
+        if let error = error {
+            print("❗️","have error in loading",error)
+            return
+        }
+        
+        guard repo == adRepository else {return}
+        
+        collectionView?.visibleCells.forEach{
+            cell in
+            if let adCell = cell as? NativeAdCell,
+               adCell.adWrapper == nil || !adCell.adWrapper!.isValid{
+                adRepository?.loadAd {adWrapper in
+                    adCell.adWrapper = adWrapper
+                }
+            }
+            if let adCell = cell as? BannerNativeAdCell,
+                adCell.adWrapper == nil || !adCell.adWrapper!.isValid {
+                adRepository?.loadAd {adWrapper in
+                    adCell.adWrapper = adWrapper
+                }
+            }
+        }
     }
 }

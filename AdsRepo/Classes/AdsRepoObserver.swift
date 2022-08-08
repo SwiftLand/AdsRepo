@@ -11,15 +11,10 @@ public protocol AdsRepoDelegate:RewardedAdsRepositoryDelegate,
                                 NativeAdsRepositoryDelegate,
                                 InterstitialAdsRepositoryDelegate {}
 
-public protocol AdsRepoObserver:AdsRepoDelegate {
-    var observerId:String{get}
-}
-
 protocol AdsRepoObservable {
-    var observers : [Weak<AdsRepoObserver>] { get set }
-    func addObserver(observer: AdsRepoObserver)
-    func removeObserver(observer: AdsRepoObserver)
-    func removeObserver(observerId: String)
+    var observers : [Weak<AdsRepoDelegate>] { get set }
+    func addObserver(observer: AdsRepoDelegate)
+    func removeObserver(observer: AdsRepoDelegate)
 }
 
 struct Weak<T> {

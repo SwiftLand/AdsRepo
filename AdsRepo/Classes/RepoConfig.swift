@@ -35,9 +35,18 @@ public struct RepoConfig{
         self.isUMPDisabled = isUMPDisabled
     }
     
+    public static let App_Open_ID =   "ca-app-pub-3940256099942544/5662855259"
+    public static let Banner_ID  = "ca-app-pub-3940256099942544/2934735716"
+    public static let Interstitial_ID =   "ca-app-pub-3940256099942544/4411468910"
+    public static let Interstitial_Video_ID   = "ca-app-pub-3940256099942544/5135589807"
+    public static let Rewarded_ID  =  "ca-app-pub-3940256099942544/1712485313"
+    public static let Rewarded_Interstitial_ID  = "ca-app-pub-3940256099942544/6978759866"
+    public static let Native_Advanced_ID   = "ca-app-pub-3940256099942544/3986624511"
+    public static let Native_Advanced_Video_ID = "ca-app-pub-3940256099942544/2521693316"
+    
     public static func debugInterstitialConfig(isUMPDisabled: Bool = false,size:Int = 2) -> RepoConfig {
         RepoConfig(
-            adUnitId: "ca-app-pub-3940256099942544/4411468910",
+            adUnitId:RepoConfig.Interstitial_ID,
             repoSize: size,
             showCountThreshold: 1,
             isTaggedForChildDirectedTreatment: nil,
@@ -47,7 +56,7 @@ public struct RepoConfig{
     }
     public static func debugInterstitialVideoConfig(isUMPDisabled: Bool = false,size:Int = 2) -> RepoConfig {
         RepoConfig(
-            adUnitId: "ca-app-pub-3940256099942544/5135589807",
+            adUnitId: RepoConfig.Interstitial_Video_ID,
             repoSize: size,
             showCountThreshold: 1,
             isTaggedForChildDirectedTreatment: nil,
@@ -57,7 +66,7 @@ public struct RepoConfig{
     }
     public  static func debugRewardedConfig(isUMPDisabled: Bool = false,size:Int = 2) -> RepoConfig {
         RepoConfig(
-            adUnitId: "ca-app-pub-3940256099942544/1712485313",
+            adUnitId: RepoConfig.Rewarded_ID,
             repoSize: size,
             showCountThreshold: 1,
             isTaggedForChildDirectedTreatment: nil,
@@ -67,7 +76,7 @@ public struct RepoConfig{
     }
     public static func debugRewardedInterstitialConfig(isUMPDisabled: Bool = false,size:Int = 2) -> RepoConfig {
         RepoConfig(
-            adUnitId: "ca-app-pub-3940256099942544/6978759866",
+            adUnitId: RepoConfig.Rewarded_Interstitial_ID,
             repoSize: size,
             showCountThreshold: 1,
             isTaggedForChildDirectedTreatment: nil,
@@ -77,7 +86,7 @@ public struct RepoConfig{
     }
     public static func debugNativeVideoConfig(isUMPDisabled: Bool = false,size:Int = 2) -> RepoConfig {
         RepoConfig(
-            adUnitId: "ca-app-pub-3940256099942544/2521693316",
+            adUnitId:RepoConfig.Native_Advanced_Video_ID,
             repoSize: size,
             showCountThreshold: 3,
             isTaggedForChildDirectedTreatment: nil,
@@ -87,7 +96,7 @@ public struct RepoConfig{
     }
     public static func debugNativeConfig(isUMPDisabled: Bool = false,size:Int = 2) -> RepoConfig {
         RepoConfig(
-            adUnitId: "ca-app-pub-3940256099942544/3986624511",
+            adUnitId: RepoConfig.Native_Advanced_ID,
             repoSize: size,
             showCountThreshold: 3,
             isTaggedForChildDirectedTreatment: nil,

@@ -45,7 +45,18 @@ public class RewardedAdWrapper:NSObject{
     public var isLoaded:Bool {loadedDate != nil}
     public weak var delegate:RewardedAdWrapperDelegate?
     
-    private weak var timer:Timer? = nil
+    private lazy var timer: DispatchSourceTimer = {
+        let t = DispatchSource.makeTimerSource(queue:DispatchQueue.main)
+        t.schedule(deadline: .now() +  config.expireIntervalTime)
+        t.setEventHandler(handler: { [weak self] in
+            print("Interstitial Ad was expire")
+            guard let self = self else {return}
+            self.owner?.rewardedAdWrapper(didExpire: self)
+            self.delegate?.rewardedAdWrapper(didExpire: self)
+        })
+        return t
+    }()
+    
     private lazy var listener = {
         RewardAdWrapperListener(owner: self)
     }()
@@ -73,20 +84,9 @@ public class RewardedAdWrapper:NSObject{
             self.loadedAd?.fullScreenContentDelegate = self.listener
             self.delegate?.rewardedAdWrapper(didReady: self)
             self.owner?.rewardedAdWrapper(didReady: self)
-            self.startExpireInterval()
+            self.timer.resume()
         })
         
-    }
-    
-    private func startExpireInterval(){
-        timer = Timer.scheduledTimer(withTimeInterval: self.config.expireIntervalTime*1000,
-                                     repeats: false,
-                                     block: {[weak self]  timer in
-            guard let self = self else {return}
-            print("Rewarded Ad was expire")
-            self.delegate?.rewardedAdWrapper(didExpire: self)
-            self.owner?.rewardedAdWrapper(didExpire: self)
-        })
     }
     
     func increaseShowCount(){
@@ -124,12 +124,11 @@ public class RewardedAdWrapper:NSObject{
         isRewardRecived = true
         delegate?.rewardedAdWrapper(didReward: self, reward: Double(truncating: amount))
     }
-    private func stopTime(){
-        timer?.invalidate()
-        timer = nil
-    }
+  
     deinit {
-        stopTime()
+        if isLoaded {
+            timer.cancel()
+        }
         print("deinit","Rewarded AdWrapper")
     }
 }

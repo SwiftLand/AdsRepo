@@ -41,7 +41,18 @@ public class InterstitialAdWrapper:NSObject {
     public private(set) weak var owner:InterstitialAdsRepository? = nil
     public  weak var delegate:InterstitialAdWrapperDelegate?
     
-    private weak var timer:Timer? = nil
+    private lazy var timer: DispatchSourceTimer = {
+        let t = DispatchSource.makeTimerSource(queue:DispatchQueue.main)
+        t.schedule(deadline: .now() +  config.expireIntervalTime)
+        t.setEventHandler(handler: { [weak self] in
+            print("Interstitial Ad was expire")
+            guard let self = self else {return}
+            self.owner?.interstitialAdWrapper(didExpire: self)
+            self.delegate?.interstitialAdWrapper(didExpire: self)
+        })
+        return t
+    }()
+    
     private lazy var listener:InterstitialAdWrapperListener = {
         InterstitialAdWrapperListener(owner: self)
     }()
@@ -80,20 +91,10 @@ public class InterstitialAdWrapper:NSObject {
             self.loadedAd?.fullScreenContentDelegate = self.listener
             self.delegate?.interstitialAdWrapper(didReady: self)
             self.owner?.interstitialAdWrapper(didReady: self)
-            self.startExpireInterval()
+            self.timer.resume()
         })
     }
     
-    private func startExpireInterval(){
-        timer = Timer.scheduledTimer(withTimeInterval: self.config.expireIntervalTime*1000,
-                                     repeats: false,
-                                     block: {[weak self] timer in
-            print("Interstitial Ad was expire")
-            guard let self = self else {return}
-            self.owner?.interstitialAdWrapper(didExpire: self)
-            self.delegate?.interstitialAdWrapper(didExpire: self)
-        })
-    }
     
     func increaseShowCount(){
         showCount += 1
@@ -119,12 +120,11 @@ public class InterstitialAdWrapper:NSObject {
             return false
         }
     }
-    private func stopTime(){
-        timer?.invalidate()
-        timer = nil
-    }
+    
     deinit {
-        stopTime()
+        if isLoaded {
+            timer.cancel()
+        }
         print("deinit","Interstitial AdWrapper")
     }
 }

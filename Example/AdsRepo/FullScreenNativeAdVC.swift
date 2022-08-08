@@ -13,7 +13,6 @@ import GoogleMobileAds
 
 class FullScreenNativeAdVC: UIViewController {
     
-    var observerId: String = UUID().uuidString
     var isLoaded:Bool {nativeAdView.nativeAd != nil}
     @IBOutlet weak var nativeAdView: GADNativeAdView!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
@@ -122,7 +121,7 @@ class FullScreenNativeAdVC: UIViewController {
 }
 
 
-extension FullScreenNativeAdVC:AdsRepoObserver{
+extension FullScreenNativeAdVC:AdsRepoDelegate{
     func nativeAdsRepository(didReceive repo: NativeAdsRepository) {
         guard !isLoaded,let adController = self.adRepository else {return}
         showNativeAd(adController)

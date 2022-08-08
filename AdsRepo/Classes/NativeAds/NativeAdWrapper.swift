@@ -20,7 +20,7 @@ extension NativeAdWrapperDelegate {
 }
 
 public class NativeAdWrapper:NSObject{
-    public private(set) var repoConfig:RepoConfig
+    public private(set) var config:RepoConfig
     public private(set) var loadedAd: GADNativeAd
     public private(set) var loadedDate:TimeInterval = Date().timeIntervalSince1970
     public private(set) var showCount:Int = 0
@@ -28,45 +28,42 @@ public class NativeAdWrapper:NSObject{
     public  weak var delegate:NativeAdWrapperDelegate? = nil
     public var isValid:Bool = true
     
-    private weak var timer:Timer? = nil
-    init(loadedAd: GADNativeAd,owner:NativeAdsRepository) {
-        self.repoConfig = owner.config
-        self.loadedAd = loadedAd
-        super.init()
-        self.owner = owner
-        startExpireInterval()
-    }
-    
-    private func startExpireInterval(){
-        timer = Timer.scheduledTimer(withTimeInterval: repoConfig.expireIntervalTime*1000,
-                                     repeats: false,
-                                     block: {[weak self]  timer in
-            
+    private lazy var timer: DispatchSourceTimer = {
+        let t = DispatchSource.makeTimerSource(queue:DispatchQueue.main)
+        t.schedule(deadline: .now() +  config.expireIntervalTime)
+        t.setEventHandler(handler: { [weak self] in
             guard let self = self else {return}
             print("Native Ad was expire")
             self.delegate?.nativeAdWrapper(didExpire: self)
             self.owner?.notifyAdChange()
         })
+        return t
+    }()
+    
+    init(loadedAd: GADNativeAd,owner:NativeAdsRepository) {
+        self.config = owner.config
+        self.loadedAd = loadedAd
+        super.init()
+        self.owner = owner
+        timer.resume()
     }
     
-    public func increaseShowCount(){
+    internal func increaseShowCount(){
         showCount += 1
         delegate?.nativeAdWrapper(didShowCountChanged: self)
-        owner?.notifyAdChange()
     }
     
-    func removeFromRepository(){//call when ad expire
+    internal func removeFromRepository(){//call when ad expire
          isValid = false
+         timer.cancel()
          delegate?.nativeAdWrapper(didRemoveFromRepository: self)
     }
     
     deinit {
-        timer?.invalidate()
-        timer = nil
+        timer.cancel()
         print("deinit","Native Ad")
     }
 }
-
 extension NativeAdWrapper{
     static func == (lhs: NativeAdWrapper, rhs: NativeAdWrapper) -> Bool{
         lhs.loadedAd == rhs.loadedAd

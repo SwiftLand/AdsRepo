@@ -1,26 +1,27 @@
 //
-//  RewardedAdsRepositorySpec.swift
+//  InterstitialAdRepositorySpec.swift
 //  AdsRepo-Unit-Tests
 //
 //  Created by Ali on 8/8/22.
 //
 import Foundation
+import GoogleMobileAds
 @testable import AdsRepo
 import Quick
 import Nimble
 
-class RewardedAdsRepositorySpec: QuickSpec {
+class InterstitialAdRepositorySpec: QuickSpec {
     
     override func spec() {
-        var repo:RewardedAdsRepository!
-        var delegate:RewardedAdsRepositoryDelegate!
+        var repo:InterstitialAdRepository!
+        var delegate:InterstitialAdRepositoryDelegate!
         var adCreator:AdCreatorMock!
         
-        describe("RewardedAdsRepositorySpec"){
+        describe("InterstitialAdRepository"){
             
             beforeEach {
-                repo = RewardedAdsRepository(config: RepoConfig.debugRewardedConfig())
-                delegate = RewardedAdsRepositoryDelegateMock()
+                repo = InterstitialAdRepository(config: RepoConfig.debugInterstitialConfig())
+                delegate = InterstitialAdRepositoryDelegateMock()
                 repo.delegate = delegate
                 adCreator = AdCreatorMock()
                 repo.adCreator = adCreator
@@ -35,8 +36,8 @@ class RewardedAdsRepositorySpec: QuickSpec {
                     
                     //MARK: Assertation
                     expect(repo.adsRepo.count).to(equal(0))
-                    for mock in adCreator.rewardedAdMocks{
-                        expect(mock.rewardedAdWrapperDidRemoveFromRepositoryCallsCount).to(equal(1))
+                    for mock in adCreator.interstitialAdMocks{
+                        expect(mock.interstitialAdWrapperDidRemoveFromRepositoryCallsCount).to(equal(1))
                     }
                     
                 }
@@ -51,8 +52,8 @@ class RewardedAdsRepositorySpec: QuickSpec {
                     //MARK: Assertation
                     expect(repo.adsRepo.count).to(equal(repo.config.repoSize))
                     
-                    for mock in adCreator.rewardedAdMocks{
-                        expect(mock.rewardedAdWrapperDidReadyCallsCount).to(equal(1))
+                    for mock in adCreator.interstitialAdMocks{
+                        expect(mock.interstitialAdWrapperDidReadyCallsCount).to(equal(1))
                     }
                 }
             }
@@ -86,8 +87,8 @@ class RewardedAdsRepositorySpec: QuickSpec {
                     
                     //MARK: Assertation
                     expect(repo.adsRepo.count).to(equal(0))
-                    for mock in adCreator.rewardedAdMocks{
-                        expect(mock.rewardedAdWrapperDidRemoveFromRepositoryCallsCount).to(equal(1))
+                    for mock in adCreator.interstitialAdMocks{
+                        expect(mock.interstitialAdWrapperDidRemoveFromRepositoryCallsCount).to(equal(1))
                     }
                     
                 }
@@ -101,8 +102,8 @@ class RewardedAdsRepositorySpec: QuickSpec {
                 //MARK: Assertation
                 expect(repo.adsRepo.count).to(equal(repo.config.repoSize))
                 
-                for mock in adCreator.rewardedAdMocks{
-                    expect(mock.rewardedAdWrapperDidReadyCallsCount).to(equal(1))
+                for mock in adCreator.interstitialAdMocks{
+                    expect(mock.interstitialAdWrapperDidReadyCallsCount).to(equal(1))
                 }
             }
             context("when call presentAd"){
@@ -110,36 +111,36 @@ class RewardedAdsRepositorySpec: QuickSpec {
                     //MARK: Preparation
                     repo.fillRepoAds()
                     //MARK: Testing
-                    var _adWrapper:RewardedAdWrapper? = nil
-                    var _ad:FakeRewardedAdMock? = nil
+                    var _adWrapper:InterstitialAdWrapper? = nil
+                    var _ad:FakeInterstitialAdMock? = nil
                     
                     repo.presentAd(vc: UIViewController()){ad in
                         _adWrapper = ad
-                        _ad = _adWrapper?.loadedAd as? FakeRewardedAdMock
+                        _ad = _adWrapper?.loadedAd as? FakeInterstitialAdMock
                         
-                        _ad?.presentFromRootViewControllerUserDidEarnRewardHandlerClosure = {vc,earnHandler in
+                        _ad?.presentFromRootViewControllerClosure = {vc in
                             _ad?.underlyingFullScreenContentDelegate?.adDidPresentFullScreenContent?(_ad!)
                         }
                     }
                     //MARK: Assertation
-                    let delegateMock = adCreator.rewardedAdMocks.first(where: {$0 == _adWrapper?.delegate})
+                    let delegateMock = adCreator.interstitialAdMocks.first(where: {$0 == _adWrapper?.delegate})
                     expect(_adWrapper).toNot(beNil())
                     expect(_ad).toNot(beNil())
                     expect(_adWrapper?.showCount).to(equal(1))
-                    expect(delegateMock?.rewardedAdWrapperDidReadyCallsCount).to(equal(1))
-                    expect(delegateMock?.rewardedAdWrapperDidOpenCallsCount).to(equal(1))
-                    expect(delegateMock?.rewardedAdWrapperDidShowCountChangedCallsCount).to(equal(1))
-                    expect(_ad?.presentFromRootViewControllerUserDidEarnRewardHandlerCallsCount).to(equal(1))
+                    expect(delegateMock?.interstitialAdWrapperDidReadyCallsCount).to(equal(1))
+                    expect(delegateMock?.interstitialAdWrapperDidOpenCallsCount).to(equal(1))
+                    expect(delegateMock?.interstitialAdWrapperDidShowCountChangedCallsCount).to(equal(1))
+                    expect(_ad?.presentFromRootViewControllerCallsCount).to(equal(1))
                 }
                 
                 it("if empty"){
                     //MARK: Testing
-                    var _adWrapper:RewardedAdWrapper? = nil
-                    var _ad:FakeRewardedAdMock? = nil
+                    var _adWrapper:InterstitialAdWrapper? = nil
+                    var _ad:FakeInterstitialAdMock? = nil
                     
                     repo.presentAd(vc: UIViewController()){ad in
                         _adWrapper = ad
-                        _ad = _adWrapper?.loadedAd as? FakeRewardedAdMock
+                        _ad = _adWrapper?.loadedAd as? FakeInterstitialAdMock
                     }
                     //MARK: Assertation
                     expect(_adWrapper).to(beNil())

@@ -7,9 +7,9 @@
 
 import Foundation
 
-public protocol AdsRepoDelegate:RewardedAdsRepositoryDelegate,
-                                NativeAdsRepositoryDelegate,
-                                InterstitialAdsRepositoryDelegate {}
+public protocol AdsRepoDelegate:RewardedAdRepositoryDelegate,
+                                NativeAdRepositoryDelegate,
+                                InterstitialAdRepositoryDelegate {}
 
 protocol AdsRepoObservable {
     var observers : [Weak<AdsRepoDelegate>] { get set }

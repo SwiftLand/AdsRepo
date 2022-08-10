@@ -15,7 +15,7 @@ class CollectionViewNativeAdVC:UICollectionViewController{
         case banner
         case largeBanner
     }
-    weak var adRepository:NativeAdsRepository? = nil
+    weak var adRepository:NativeAdRepository? = nil
     var type:AdType = .banner
     
     override func viewWillAppear(_ animated: Bool) {
@@ -89,7 +89,7 @@ extension CollectionViewNativeAdVC:UICollectionViewDelegateFlowLayout{
 }
 
 extension CollectionViewNativeAdVC:AdsRepoDelegate{
-    func nativeAdsRepository(didFinishLoading repo: NativeAdsRepository, error: Error?) {
+    func nativeAdRepository(didFinishLoading repo: NativeAdRepository, error: Error?) {
         
         if let error = error {
             print("❗️","have error in loading",error)

@@ -12,7 +12,7 @@ import AdsRepo
 class BannerNativeAdCell:UICollectionViewCell{
     var observerId: String = UUID().uuidString
     var isLoaded:Bool {nativeAdView.nativeAd != nil}
-    weak var adController:NativeAdsRepository? = nil
+    weak var adController:NativeAdRepository? = nil
     
     @IBOutlet weak var adView:UIView!
     @IBOutlet weak var nativeAdView: GADNativeAdView!

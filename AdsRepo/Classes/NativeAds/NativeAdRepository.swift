@@ -1,5 +1,5 @@
 //
-//  NativeAdsRepository.swift
+//  NativeAdRepository.swift
 //  AdRepo
 //
 //  Created by Ali on 9/2/21.
@@ -8,15 +8,15 @@
 import Foundation
 import GoogleMobileAds
 
-public protocol NativeAdsRepositoryDelegate:NSObject{
-    func nativeAdsRepository(didReceive repo:NativeAdsRepository)
-    func nativeAdsRepository(didFinishLoading repo:NativeAdsRepository,error:Error?)
+public protocol NativeAdRepositoryDelegate:NSObject{
+    func nativeAdRepository(didReceive repo:NativeAdRepository)
+    func nativeAdRepository(didFinishLoading repo:NativeAdRepository,error:Error?)
 }
-extension NativeAdsRepositoryDelegate{
-    public func nativeAdsRepository(didReceive repo:NativeAdsRepository){}
-    public func nativeAdsRepository(didFinishLoading repo:NativeAdsRepository,error:Error?){}
+extension NativeAdRepositoryDelegate{
+    public func nativeAdRepository(didReceive repo:NativeAdRepository){}
+    public func nativeAdRepository(didFinishLoading repo:NativeAdRepository,error:Error?){}
 }
-public class NativeAdsRepository:NSObject,AdsRepoProtocol{
+public class NativeAdRepository:NSObject,AdsRepoProtocol{
     
     internal var errorHandler:ErrorHandler = ErrorHandler()
     internal var adCreator:ADCreatorProtocol = ADCreator()
@@ -51,7 +51,7 @@ public class NativeAdsRepository:NSObject,AdsRepoProtocol{
         return adsRepo.contains(where: notValidAdCondition)
     }
     
-    weak var delegate:NativeAdsRepositoryDelegate? = nil
+    weak var delegate:NativeAdRepositoryDelegate? = nil
     private var adLoader: GADAdLoader?
     private var onCompleteLoading:(()->Void)? = nil
     private lazy var listener:AdLoaderListener = {
@@ -65,7 +65,7 @@ public class NativeAdsRepository:NSObject,AdsRepoProtocol{
     
     public init(config:RepoConfig,
                 errorHandlerConfig:ErrorHandlerConfig? = nil,
-                delegate:NativeAdsRepositoryDelegate? = nil){
+                delegate:NativeAdRepositoryDelegate? = nil){
         
         self.delegate = delegate
         self.config = config
@@ -158,8 +158,8 @@ public class NativeAdsRepository:NSObject,AdsRepoProtocol{
 }
 
 private class AdLoaderListener:NSObject,GADNativeAdLoaderDelegate{
-    weak var owner:NativeAdsRepository?
-    init(owner:NativeAdsRepository) {
+    weak var owner:NativeAdRepository?
+    init(owner:NativeAdRepository) {
         self.owner = owner
     }
     func adLoader(_ adLoader: GADAdLoader, didReceive nativeAd: GADNativeAd) {
@@ -167,8 +167,8 @@ private class AdLoaderListener:NSObject,GADNativeAdLoaderDelegate{
         guard let owner = owner else {return}
         
         owner.adsRepo.append(NativeAdWrapper(loadedAd: nativeAd,owner: owner))
-        owner.delegate?.nativeAdsRepository(didReceive: owner)
-        AdsRepo.default.nativeAdsRepository(didReceive: owner)
+        owner.delegate?.nativeAdRepository(didReceive: owner)
+        AdsRepo.default.nativeAdRepository(didReceive: owner)
     }
     
     func adLoaderDidFinishLoading(_ adLoader: GADAdLoader) {
@@ -176,8 +176,8 @@ private class AdLoaderListener:NSObject,GADNativeAdLoaderDelegate{
         guard let owner = owner else {return}
         owner.validateRepositoryAds()
         if !owner.autoFill || !owner.fillRepoAds(){
-            owner.delegate?.nativeAdsRepository(didFinishLoading:owner,error:nil)
-            AdsRepo.default.nativeAdsRepository(didFinishLoading:owner,error:nil)
+            owner.delegate?.nativeAdRepository(didFinishLoading:owner,error:nil)
+            AdsRepo.default.nativeAdRepository(didFinishLoading:owner,error:nil)
         }
     }
     
@@ -190,8 +190,8 @@ private class AdLoaderListener:NSObject,GADNativeAdLoaderDelegate{
                 owner.fillRepoAds()
             }
         }else{
-            owner.delegate?.nativeAdsRepository(didFinishLoading:owner, error: error)
-            AdsRepo.default.nativeAdsRepository(didFinishLoading:owner, error: error)
+            owner.delegate?.nativeAdRepository(didFinishLoading:owner, error: error)
+            AdsRepo.default.nativeAdRepository(didFinishLoading:owner, error: error)
         }
     }
 }

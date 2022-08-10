@@ -41,7 +41,7 @@ public class RewardedAdWrapper:NSObject{
     public internal(set) var showCount:Int = 0
     public private(set) var isRewardRecived:Bool = false
     public private(set) var config:RepoConfig
-    public private(set) weak var owner:RewardedAdsRepository? = nil
+    public private(set) weak var owner:RewardedAdRepository? = nil
     public var isLoaded:Bool {loadedDate != nil}
     public weak var delegate:RewardedAdWrapperDelegate?
     
@@ -63,7 +63,7 @@ public class RewardedAdWrapper:NSObject{
     private lazy var listener = {
         RewardAdWrapperListener(owner: self)
     }()
-    init(owner:RewardedAdsRepository) {
+    init(owner:RewardedAdRepository) {
         self.owner = owner
         self.config = owner.config
     }

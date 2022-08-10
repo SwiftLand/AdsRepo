@@ -24,7 +24,7 @@ public class NativeAdWrapper:NSObject{
     public private(set) var loadedAd: GADNativeAd
     public private(set) var loadedDate:TimeInterval = Date().timeIntervalSince1970
     public private(set) var showCount:Int = 0
-    public private(set) weak var owner:NativeAdsRepository? = nil
+    public private(set) weak var owner:NativeAdRepository? = nil
     public  weak var delegate:NativeAdWrapperDelegate? = nil
     public private(set) var isValid:Bool = true
     
@@ -40,7 +40,7 @@ public class NativeAdWrapper:NSObject{
         return t
     }()
     
-    init(loadedAd: GADNativeAd,owner:NativeAdsRepository) {
+    init(loadedAd: GADNativeAd,owner:NativeAdRepository) {
         self.config = owner.config
         self.loadedAd = loadedAd
         super.init()

@@ -101,10 +101,10 @@ class MainController: UIViewController {
 }
 extension MainController:AdsRepoDelegate{
     
-    func interstitialAdsRepository(didReceive repo: InterstitialAdsRepository) {
+    func interstitialAdRepository(didReceive repo: InterstitialAdRepository) {
         loadedInterstinalAdCount = repo.adsRepo.count
     }
-    func interstitialAdsRepository(didFinishLoading repo: InterstitialAdsRepository, error: Error?) {
+    func interstitialAdRepository(didFinishLoading repo: InterstitialAdRepository, error: Error?) {
         if error == nil{
             print("Repo(\(repo.config.adUnitId)) is full, count:\(repo.adsRepo.count)")
         }else{
@@ -113,11 +113,11 @@ extension MainController:AdsRepoDelegate{
         
     }
     
-    func rewardedAdsRepository(didReceiveAds repo: RewardedAdsRepository) {
+    func rewardedAdRepository(didReceiveAds repo: RewardedAdRepository) {
         loadedRewardedAdCount =  repo.adsRepo.count
     }
     
-    func rewardedAdsRepository(didFinishLoading repo: RewardedAdsRepository, error: Error?) {
+    func rewardedAdRepository(didFinishLoading repo: RewardedAdRepository, error: Error?) {
         if error == nil{
             print("Repo(\(repo.config.adUnitId)) is full, count:\(repo.adsRepo.count)")
         }else{
@@ -125,7 +125,7 @@ extension MainController:AdsRepoDelegate{
         }
     }
     
-    func nativeAdsRepository(didReceive repo: NativeAdsRepository) {
+    func nativeAdRepository(didReceive repo: NativeAdRepository) {
         if repo == RepositoryManager.shared.nativeAdRepo{
             loadedNativeAdCount = repo.adsRepo.count
         }

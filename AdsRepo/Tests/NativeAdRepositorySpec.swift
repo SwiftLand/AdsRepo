@@ -1,5 +1,5 @@
 //
-//  NativeAdsRepositorySpec.swift
+//  NativeAdRepositorySpec.swift
 //  AdsRepo-Unit-Tests
 //
 //  Created by Ali on 8/8/22.
@@ -10,11 +10,11 @@ import Foundation
 import Quick
 import Nimble
 
-class NativeAdsRepositorySpec: QuickSpec {
+class NativeAdRepositorySpec: QuickSpec {
     
     
     override func spec() {
-        describe("NativeAdsRepositorySpec"){
+        describe("NativeAdRepositorySpec"){
             context("when isDisable"){
                 it("true"){
                     //MARK: TODO

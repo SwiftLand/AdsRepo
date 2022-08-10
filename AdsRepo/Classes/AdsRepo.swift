@@ -15,36 +15,36 @@ public class AdsRepo:NSObject{
 }
 
 extension AdsRepo:AdsRepoDelegate{
-    public func interstitialAdsRepository(didReceive repo:InterstitialAdsRepository){
+    public func interstitialAdRepository(didReceive repo:InterstitialAdRepository){
         for ob in observers {
-            ob.value?.interstitialAdsRepository(didReceive: repo)
+            ob.value?.interstitialAdRepository(didReceive: repo)
         }
     }
-    public func interstitialAdsRepository(didFinishLoading repo:InterstitialAdsRepository,error:Error?){
+    public func interstitialAdRepository(didFinishLoading repo:InterstitialAdRepository,error:Error?){
         for ob in observers {
-            ob.value?.interstitialAdsRepository(didFinishLoading: repo,error:error)
-        }
-    }
-    
-    public func rewardedAdsRepository(didReceiveAds repo:RewardedAdsRepository){
-        for ob in observers {
-            ob.value?.rewardedAdsRepository(didReceiveAds: repo)
-        }
-    }
-    public func rewardedAdsRepository(didFinishLoading repo:RewardedAdsRepository,error:Error?){
-        for ob in observers {
-            ob.value?.rewardedAdsRepository(didFinishLoading: repo,error:error)
+            ob.value?.interstitialAdRepository(didFinishLoading: repo,error:error)
         }
     }
     
-    public func nativeAdsRepository(didReceive repo:NativeAdsRepository){
+    public func rewardedAdRepository(didReceiveAds repo:RewardedAdRepository){
         for ob in observers {
-            ob.value?.nativeAdsRepository(didReceive: repo)
+            ob.value?.rewardedAdRepository(didReceiveAds: repo)
         }
     }
-    public func nativeAdsRepository(didFinishLoading repo:NativeAdsRepository,error:Error?){
+    public func rewardedAdRepository(didFinishLoading repo:RewardedAdRepository,error:Error?){
         for ob in observers {
-            ob.value?.nativeAdsRepository(didFinishLoading: repo,error:error)
+            ob.value?.rewardedAdRepository(didFinishLoading: repo,error:error)
+        }
+    }
+    
+    public func nativeAdRepository(didReceive repo:NativeAdRepository){
+        for ob in observers {
+            ob.value?.nativeAdRepository(didReceive: repo)
+        }
+    }
+    public func nativeAdRepository(didFinishLoading repo:NativeAdRepository,error:Error?){
+        for ob in observers {
+            ob.value?.nativeAdRepository(didFinishLoading: repo,error:error)
         }
     }
 }

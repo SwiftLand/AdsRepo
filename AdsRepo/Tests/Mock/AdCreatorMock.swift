@@ -14,7 +14,7 @@ class AdCreatorMock:ADCreatorProtocol{
     var rewardedAdMocks:[RewardedAdWrapperDelegateMock] = []
     var nativeAdMocks:[RewardedAdWrapperDelegateMock] = []
     
-    func createAd(owner: InterstitialAdsRepository) -> InterstitialAdWrapper {
+    func createAd(owner: InterstitialAdRepository) -> InterstitialAdWrapper {
         let ad = InterstitialAdWrapper(owner: owner)
         ad.adLoader = FakeInterstitialAdMock.self
         let mock = InterstitialAdWrapperDelegateMock()
@@ -23,7 +23,7 @@ class AdCreatorMock:ADCreatorProtocol{
         return ad
     }
     
-    func createAd(owner: RewardedAdsRepository) -> RewardedAdWrapper {
+    func createAd(owner: RewardedAdRepository) -> RewardedAdWrapper {
         let ad = RewardedAdWrapper(owner: owner)
         ad.adLoader = FakeRewardedAdMock.self
         let mock = RewardedAdWrapperDelegateMock()
@@ -32,13 +32,15 @@ class AdCreatorMock:ADCreatorProtocol{
         return ad
     }
     
-    func createAd(loadedAd: GADNativeAd,owner: NativeAdsRepository) -> NativeAdWrapper {
+    func createAd(loadedAd: GADNativeAd,owner: NativeAdRepository) -> NativeAdWrapper {
         let ad = NativeAdWrapper(loadedAd: loadedAd,owner: owner)
         return ad
     }
     
     func clearMocks(){
         interstitialAdMocks.removeAll()
+        rewardedAdMocks.removeAll()
+        nativeAdMocks.removeAll()
     }
     
 }

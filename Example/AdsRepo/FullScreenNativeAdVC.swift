@@ -16,7 +16,7 @@ class FullScreenNativeAdVC: UIViewController {
     var isLoaded:Bool {nativeAdView.nativeAd != nil}
     @IBOutlet weak var nativeAdView: GADNativeAdView!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
-    weak var adRepository:NativeAdsRepository? = nil
+    weak var adRepository:NativeAdRepository? = nil
     
     override func viewWillAppear(_ animated: Bool) {
         nativeAdView.isHidden = true
@@ -36,7 +36,7 @@ class FullScreenNativeAdVC: UIViewController {
         activityIndicator.stopAnimating()
         activityIndicator.isHidden = true
     }
-    func showNativeAd(_ adController:NativeAdsRepository){
+    func showNativeAd(_ adController:NativeAdRepository){
         self.adRepository = adController
         adController.loadAd {[weak self] adWrapper in
             if let adWrapper = adWrapper {
@@ -122,7 +122,7 @@ class FullScreenNativeAdVC: UIViewController {
 
 
 extension FullScreenNativeAdVC:AdsRepoDelegate{
-    func nativeAdsRepository(didReceive repo: NativeAdsRepository) {
+    func nativeAdRepository(didReceive repo: NativeAdRepository) {
         guard !isLoaded,let adController = self.adRepository else {return}
         showNativeAd(adController)
     }

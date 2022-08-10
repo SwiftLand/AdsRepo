@@ -38,7 +38,7 @@ public class InterstitialAdWrapper:NSObject {
     public internal(set) var showCount:Int = 0
     public private(set) var isLoading:Bool = false
     public var isLoaded:Bool {loadedDate != nil}
-    public private(set) weak var owner:InterstitialAdsRepository? = nil
+    public private(set) weak var owner:InterstitialAdRepository? = nil
     public  weak var delegate:InterstitialAdWrapperDelegate?
     
     internal var adLoader = GADInterstitialAd.self //<-- Use in testing
@@ -70,7 +70,7 @@ public class InterstitialAdWrapper:NSObject {
         set{self.loadedAd?.paidEventHandler = newValue}
     }
     
-    init(owner:InterstitialAdsRepository) {
+    init(owner:InterstitialAdRepository) {
         self.owner = owner
         self.config = owner.config
     }

@@ -8,17 +8,17 @@
 import Foundation
 import GoogleMobileAds
 
-public protocol RewardedAdsRepositoryDelegate:NSObject {
-    func rewardedAdsRepository(didReceiveAds repo:RewardedAdsRepository)
-    func rewardedAdsRepository(didFinishLoading repo:RewardedAdsRepository,error:Error?)
+public protocol RewardedAdRepositoryDelegate:NSObject {
+    func rewardedAdRepository(didReceiveAds repo:RewardedAdRepository)
+    func rewardedAdRepository(didFinishLoading repo:RewardedAdRepository,error:Error?)
 }
 
-extension RewardedAdsRepositoryDelegate {
-    public func rewardedAdsRepository(didReceiveAds repo:RewardedAdsRepository){}
-    public func rewardedAdsRepository(didFinishLoading repo:RewardedAdsRepository,error:Error?){}
+extension RewardedAdRepositoryDelegate {
+    public func rewardedAdRepository(didReceiveAds repo:RewardedAdRepository){}
+    public func rewardedAdRepository(didFinishLoading repo:RewardedAdRepository,error:Error?){}
 }
 
-public class RewardedAdsRepository:NSObject,AdsRepoProtocol{
+public class RewardedAdRepository:NSObject,AdsRepoProtocol{
     
     internal var errorHandler:ErrorHandler = ErrorHandler()
     internal var adCreator:ADCreatorProtocol = ADCreator()
@@ -41,7 +41,7 @@ public class RewardedAdsRepository:NSObject,AdsRepoProtocol{
             }
         }
     }
-    weak var delegate:RewardedAdsRepositoryDelegate? = nil
+    weak var delegate:RewardedAdRepositoryDelegate? = nil
     
     let notValidCondition:((RewardedAdWrapper) -> Bool) = {
         return ($0.now-($0.loadedDate ?? $0.now) > $0.config.expireIntervalTime) || $0.showCount>=$0.config.showCountThreshold
@@ -49,7 +49,7 @@ public class RewardedAdsRepository:NSObject,AdsRepoProtocol{
     
     public init(config:RepoConfig,
                 errorHandlerConfig:ErrorHandlerConfig? = nil,
-                delegate:RewardedAdsRepositoryDelegate? = nil){
+                delegate:RewardedAdRepositoryDelegate? = nil){
         
         self.delegate = delegate
         self.config = config
@@ -103,15 +103,15 @@ public class RewardedAdsRepository:NSObject,AdsRepoProtocol{
     }
     
 }
-extension RewardedAdsRepository{//will call from RewardAdWrapper
+extension RewardedAdRepository{//will call from RewardAdWrapper
     
     func rewardedAdWrapper(didReady ad:RewardedAdWrapper) {
         errorHandler.restart()
-        delegate?.rewardedAdsRepository(didReceiveAds:self)
-        AdsRepo.default.rewardedAdsRepository(didReceiveAds:self)
+        delegate?.rewardedAdRepository(didReceiveAds:self)
+        AdsRepo.default.rewardedAdRepository(didReceiveAds:self)
         if !adsRepo.contains(where: {!$0.isLoaded}){
-            delegate?.rewardedAdsRepository(didFinishLoading: self, error: nil)
-            AdsRepo.default.rewardedAdsRepository(didFinishLoading: self, error: nil)
+            delegate?.rewardedAdRepository(didFinishLoading: self, error: nil)
+            AdsRepo.default.rewardedAdRepository(didFinishLoading: self, error: nil)
         }
     }
     
@@ -129,8 +129,8 @@ extension RewardedAdsRepository{//will call from RewardAdWrapper
                 self.fillRepoAds()
             }
         }else{
-            delegate?.rewardedAdsRepository(didFinishLoading: self, error: error)
-            AdsRepo.default.rewardedAdsRepository(didFinishLoading: self, error: error)
+            delegate?.rewardedAdRepository(didFinishLoading: self, error: error)
+            AdsRepo.default.rewardedAdRepository(didFinishLoading: self, error: error)
         }
     }
     func rewardedAdWrapper(didExpire ad: RewardedAdWrapper) {

@@ -8,17 +8,17 @@
 import Foundation
 import GoogleMobileAds
 
-public protocol InterstitialAdsRepositoryDelegate:NSObject {
-    func interstitialAdsRepository(didReceive repo:InterstitialAdsRepository)
-    func interstitialAdsRepository(didFinishLoading repo:InterstitialAdsRepository,error:Error?)
+public protocol InterstitialAdRepositoryDelegate:NSObject {
+    func interstitialAdRepository(didReceive repo:InterstitialAdRepository)
+    func interstitialAdRepository(didFinishLoading repo:InterstitialAdRepository,error:Error?)
 }
 
-extension InterstitialAdsRepositoryDelegate {
-    public func interstitialAdsRepository(didReceive repo:InterstitialAdsRepository){}
-    public func interstitialAdsRepository(didFinishLoading repo:InterstitialAdsRepository,error:Error?){}
+extension InterstitialAdRepositoryDelegate {
+    public func interstitialAdRepository(didReceive repo:InterstitialAdRepository){}
+    public func interstitialAdRepository(didFinishLoading repo:InterstitialAdRepository,error:Error?){}
 }
 
-public class InterstitialAdsRepository:NSObject,AdsRepoProtocol{
+public class InterstitialAdRepository:NSObject,AdsRepoProtocol{
     
     internal var errorHandler:ErrorHandler = ErrorHandler()
     internal var adCreator:ADCreatorProtocol = ADCreator()
@@ -41,7 +41,7 @@ public class InterstitialAdsRepository:NSObject,AdsRepoProtocol{
             }
         }
     }
-    weak var delegate:InterstitialAdsRepositoryDelegate? = nil
+    weak var delegate:InterstitialAdRepositoryDelegate? = nil
     
     let notValidCondition:((InterstitialAdWrapper) -> Bool) = {
         
@@ -50,7 +50,7 @@ public class InterstitialAdsRepository:NSObject,AdsRepoProtocol{
     
     public init(config:RepoConfig,
                 errorHandlerConfig:ErrorHandlerConfig? = nil,
-                delegate:InterstitialAdsRepositoryDelegate? = nil){
+                delegate:InterstitialAdRepositoryDelegate? = nil){
         
         self.config = config
         self.delegate = delegate
@@ -110,16 +110,16 @@ public class InterstitialAdsRepository:NSObject,AdsRepoProtocol{
     
 }
 
-extension InterstitialAdsRepository{
+extension InterstitialAdRepository{
     //will call from InterstitialAdWrapper
     
     func interstitialAdWrapper(didReady ad:InterstitialAdWrapper) {
         errorHandler.restart()
-        delegate?.interstitialAdsRepository(didReceive: self)
-        AdsRepo.default.interstitialAdsRepository(didReceive: self)
+        delegate?.interstitialAdRepository(didReceive: self)
+        AdsRepo.default.interstitialAdRepository(didReceive: self)
         if !adsRepo.contains(where: {!$0.isLoaded}){
-            delegate?.interstitialAdsRepository(didFinishLoading: self, error: nil)
-            AdsRepo.default.interstitialAdsRepository(didFinishLoading: self, error: nil)
+            delegate?.interstitialAdRepository(didFinishLoading: self, error: nil)
+            AdsRepo.default.interstitialAdRepository(didFinishLoading: self, error: nil)
         }
     }
     
@@ -132,8 +132,8 @@ extension InterstitialAdsRepository{
         if errorHandler.isRetryAble(error: error),!isLoading{
             fillRepoAds()
         }else{
-            delegate?.interstitialAdsRepository(didFinishLoading: self, error: error)
-            AdsRepo.default.interstitialAdsRepository(didFinishLoading: self, error: error)
+            delegate?.interstitialAdRepository(didFinishLoading: self, error: error)
+            AdsRepo.default.interstitialAdRepository(didFinishLoading: self, error: error)
         }
     }
     func interstitialAdWrapper(didExpire ad: InterstitialAdWrapper) {

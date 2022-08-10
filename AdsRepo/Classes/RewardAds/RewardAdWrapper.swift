@@ -35,15 +35,18 @@ extension RewardedAdWrapperDelegate {
 
 public class RewardedAdWrapper:NSObject{
     
-    private(set) var loadedAd: GADRewardedAd?
+    var loadedAd: GADRewardedAd?
     public private(set) var loadedDate:TimeInterval? = nil
     public private(set) var isLoading:Bool = false
-    public fileprivate(set) var showCount:Int = 0
+    public internal(set) var showCount:Int = 0
     public private(set) var isRewardRecived:Bool = false
     public private(set) var config:RepoConfig
     public private(set) weak var owner:RewardedAdsRepository? = nil
     public var isLoaded:Bool {loadedDate != nil}
     public weak var delegate:RewardedAdWrapperDelegate?
+    
+    internal var adLoader = GADRewardedAd.self//<-- Use in testing
+    internal var now:TimeInterval = {Date().timeIntervalSince1970}()
     
     private lazy var timer: DispatchSourceTimer = {
         let t = DispatchSource.makeTimerSource(queue:DispatchQueue.main)
@@ -69,7 +72,7 @@ public class RewardedAdWrapper:NSObject{
         guard !isLoading else {return}
         let request = GADRequest()
         isLoading = true
-        GADRewardedAd.load(withAdUnitID:config.adUnitId,
+        adLoader.load(withAdUnitID:config.adUnitId,
                            request: request,completionHandler: {[weak self] (ad, error) in
             guard let self = self else{return}
             self.isLoading = false
@@ -132,12 +135,6 @@ public class RewardedAdWrapper:NSObject{
         print("deinit","Rewarded AdWrapper")
     }
 }
-extension RewardedAdWrapper{
-    static func == (lhs: RewardedAdWrapper, rhs: RewardedAdWrapper) -> Bool{
-        lhs.loadedAd == rhs.loadedAd
-    }
-}
-
 
 private class RewardAdWrapperListener:NSObject,GADFullScreenContentDelegate{
     weak var owner:RewardedAdWrapper?
@@ -147,7 +144,6 @@ private class RewardAdWrapperListener:NSObject,GADFullScreenContentDelegate{
     func adDidPresentFullScreenContent(_ ad: GADFullScreenPresentingAd) {
         print("Rewarded ad presented.")
         guard let owner = owner else {return}
-        owner.showCount += 1
         owner.delegate?.rewardedAdWrapper(didOpen: owner)
     }
     /// Tells the delegate that the rewarded ad was dismissed.

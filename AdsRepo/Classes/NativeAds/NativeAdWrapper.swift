@@ -26,7 +26,7 @@ public class NativeAdWrapper:NSObject{
     public private(set) var showCount:Int = 0
     public private(set) weak var owner:NativeAdsRepository? = nil
     public  weak var delegate:NativeAdWrapperDelegate? = nil
-    public var isValid:Bool = true
+    public private(set) var isValid:Bool = true
     
     private lazy var timer: DispatchSourceTimer = {
         let t = DispatchSource.makeTimerSource(queue:DispatchQueue.main)
@@ -63,10 +63,5 @@ public class NativeAdWrapper:NSObject{
     deinit {
         timer.cancel()
         print("deinit","Native Ad")
-    }
-}
-extension NativeAdWrapper{
-    static func == (lhs: NativeAdWrapper, rhs: NativeAdWrapper) -> Bool{
-        lhs.loadedAd == rhs.loadedAd
     }
 }

@@ -18,8 +18,9 @@ extension NativeAdsRepositoryDelegate{
 }
 public class NativeAdsRepository:NSObject,AdsRepoProtocol{
     
-    public let identifier:String
-    fileprivate var errorHandler:ErrorHandler
+    internal var errorHandler:ErrorHandler = ErrorHandler()
+    internal var adCreator:ADCreatorProtocol = ADCreator()
+    
     public private(set) var config:RepoConfig
     private weak var rootVC:UIViewController? = nil
     public fileprivate(set) var adsRepo:[NativeAdWrapper] = []
@@ -62,14 +63,15 @@ public class NativeAdsRepository:NSObject,AdsRepoProtocol{
         
     }
     
-    public init(identifier:String,config:RepoConfig,
+    public init(config:RepoConfig,
                 errorHandlerConfig:ErrorHandlerConfig? = nil,
                 delegate:NativeAdsRepositoryDelegate? = nil){
         
-        self.identifier = identifier
         self.delegate = delegate
         self.config = config
-        self.errorHandler = ErrorHandler(config: errorHandlerConfig)
+        if let eConfig = errorHandlerConfig{
+            self.errorHandler = ErrorHandler(config:eConfig)
+        }
         super.init()
     }
     
@@ -160,7 +162,7 @@ private class AdLoaderListener:NSObject,GADNativeAdLoaderDelegate{
     init(owner:NativeAdsRepository) {
         self.owner = owner
     }
-    public func adLoader(_ adLoader: GADAdLoader, didReceive nativeAd: GADNativeAd) {
+    func adLoader(_ adLoader: GADAdLoader, didReceive nativeAd: GADNativeAd) {
         print("Native AdLoader","did Receive ads")
         guard let owner = owner else {return}
         
@@ -169,7 +171,7 @@ private class AdLoaderListener:NSObject,GADNativeAdLoaderDelegate{
         AdsRepo.default.nativeAdsRepository(didReceive: owner)
     }
     
-    public func adLoaderDidFinishLoading(_ adLoader: GADAdLoader) {
+    func adLoaderDidFinishLoading(_ adLoader: GADAdLoader) {
         print("Native AdLoader","DidFinishLoading")
         guard let owner = owner else {return}
         owner.validateRepositoryAds()
@@ -179,7 +181,7 @@ private class AdLoaderListener:NSObject,GADNativeAdLoaderDelegate{
         }
     }
     
-    public func adLoader(_ adLoader: GADAdLoader, didFailToReceiveAdWithError error: Error) {
+    func adLoader(_ adLoader: GADAdLoader, didFailToReceiveAdWithError error: Error) {
         print("Native AdLoader","error:",error)
         guard let owner = owner else {return}
         
@@ -191,10 +193,5 @@ private class AdLoaderListener:NSObject,GADNativeAdLoaderDelegate{
             owner.delegate?.nativeAdsRepository(didFinishLoading:owner, error: error)
             AdsRepo.default.nativeAdsRepository(didFinishLoading:owner, error: error)
         }
-    }
-}
-extension NativeAdsRepository {
-    static func == (lhs: NativeAdsRepository, rhs: NativeAdsRepository) -> Bool{
-        lhs.identifier == rhs.identifier
     }
 }

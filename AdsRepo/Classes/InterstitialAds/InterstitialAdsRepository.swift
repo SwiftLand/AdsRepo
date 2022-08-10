@@ -20,8 +20,9 @@ extension InterstitialAdsRepositoryDelegate {
 
 public class InterstitialAdsRepository:NSObject,AdsRepoProtocol{
     
-    public let identifier:String
-    private var errorHandler:ErrorHandler
+    internal var errorHandler:ErrorHandler = ErrorHandler()
+    internal var adCreator:ADCreatorProtocol = ADCreator()
+    
     public var isLoading:Bool {adsRepo.contains(where: {$0.isLoading})}
     public private(set) var adsRepo:[InterstitialAdWrapper] = []
     public private(set) var config:RepoConfig
@@ -43,17 +44,21 @@ public class InterstitialAdsRepository:NSObject,AdsRepoProtocol{
     weak var delegate:InterstitialAdsRepositoryDelegate? = nil
     
     let notValidCondition:((InterstitialAdWrapper) -> Bool) = {
-        let now = Date().timeIntervalSince1970
-        return (now-($0.loadedDate ?? now) > $0.config.expireIntervalTime) || $0.showCount>=$0.config.showCountThreshold
+        
+        return ($0.now-($0.loadedDate ?? $0.now) > $0.config.expireIntervalTime) || $0.showCount>=$0.config.showCountThreshold
     }
     
-    public init(identifier:String,config:RepoConfig,
+    public init(config:RepoConfig,
                 errorHandlerConfig:ErrorHandlerConfig? = nil,
                 delegate:InterstitialAdsRepositoryDelegate? = nil){
-        self.identifier = identifier
+        
         self.config = config
         self.delegate = delegate
-        self.errorHandler = ErrorHandler(config:errorHandlerConfig)
+        
+        if let eConfig = errorHandlerConfig{
+            self.errorHandler = ErrorHandler(config:eConfig)
+        }
+        
         super.init()
     }
     
@@ -74,15 +79,14 @@ public class InterstitialAdsRepository:NSObject,AdsRepoProtocol{
         let totalAdsNeedCount = config.repoSize-loadingAdsCount
         
         while adsRepo.count<totalAdsNeedCount {
-            adsRepo.append(InterstitialAdWrapper(owner: self))
+            adsRepo.append(adCreator.createAd(owner: self))
             adsRepo.last?.loadAd()
         }
     }
     
     public func presentAd(vc:UIViewController,willLoad:((InterstitialAdWrapper?)->Void)? = nil){
         validateRepositoryAds()
-        let now = Date().timeIntervalSince1970
-        guard let adWrapper = adsRepo.min(by: {($0.loadedDate ?? now) < ($1.loadedDate ?? now)})
+        guard let adWrapper = adsRepo.min(by: {$0.showCount < $1.showCount})
         else{
             willLoad?(nil)
             if autoFill{
@@ -139,10 +143,3 @@ extension InterstitialAdsRepository{
         }
     }
 }
-
-extension InterstitialAdsRepository {
-    static func == (lhs: InterstitialAdsRepository, rhs: InterstitialAdsRepository) -> Bool{
-        lhs.identifier == rhs.identifier
-    }
-}
-

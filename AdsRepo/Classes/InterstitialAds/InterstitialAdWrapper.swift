@@ -32,14 +32,17 @@ extension InterstitialAdWrapperDelegate {
 
 public class InterstitialAdWrapper:NSObject {
     
+    var loadedAd: GADInterstitialAd?
     public private(set) var config:RepoConfig
-    private var loadedAd: GADInterstitialAd?
-    public private(set) var loadedDate:TimeInterval? = nil
+    public internal(set) var loadedDate:TimeInterval? = nil
+    public internal(set) var showCount:Int = 0
     public private(set) var isLoading:Bool = false
-    public fileprivate(set) var showCount:Int = 0
     public var isLoaded:Bool {loadedDate != nil}
     public private(set) weak var owner:InterstitialAdsRepository? = nil
     public  weak var delegate:InterstitialAdWrapperDelegate?
+    
+    internal var adLoader = GADInterstitialAd.self //<-- Use in testing
+    internal var now:TimeInterval = {Date().timeIntervalSince1970}()
     
     private lazy var timer: DispatchSourceTimer = {
         let t = DispatchSource.makeTimerSource(queue:DispatchQueue.main)
@@ -76,7 +79,7 @@ public class InterstitialAdWrapper:NSObject {
         guard !isLoading else {return}
         isLoading = true
         let request = GADRequest()
-        GADInterstitialAd.load(withAdUnitID:config.adUnitId,
+        adLoader.load(withAdUnitID:config.adUnitId,
                                request: request,completionHandler: {[weak self] (ad, error) in
             guard let self = self else{return}
             self.isLoading = false
@@ -126,12 +129,6 @@ public class InterstitialAdWrapper:NSObject {
             timer.cancel()
         }
         print("deinit","Interstitial AdWrapper")
-    }
-}
-
-extension InterstitialAdWrapper{
-    static func == (lhs: InterstitialAdWrapper, rhs: InterstitialAdWrapper) -> Bool{
-        lhs.loadedAd == rhs.loadedAd
     }
 }
 

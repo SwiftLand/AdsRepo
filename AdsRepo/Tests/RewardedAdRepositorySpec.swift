@@ -19,7 +19,7 @@ class RewardedAdRepositorySpec: QuickSpec {
         describe("RewardedAdRepositorySpec"){
             
             beforeEach {
-                repo = RewardedAdRepository(config: RepoConfig.debugRewardedConfig())
+                repo = RewardedAdRepository(config: RepositoryConfig.debugRewardedConfig())
                 delegate = RewardedAdRepositoryDelegateMock()
                 repo.delegate = delegate
                 adCreator = AdCreatorMock()
@@ -49,7 +49,7 @@ class RewardedAdRepositorySpec: QuickSpec {
                     repo.isDisable = false
                     
                     //MARK: Assertation
-                    expect(repo.adsRepo.count).to(equal(repo.config.repoSize))
+                    expect(repo.adsRepo.count).to(equal(repo.config.size))
                     
                     for mock in adCreator.rewardedAdMocks{
                         expect(mock.rewardedAdWrapperDidReadyCallsCount).to(equal(1))
@@ -99,7 +99,7 @@ class RewardedAdRepositorySpec: QuickSpec {
                 repo.fillRepoAds()
                 
                 //MARK: Assertation
-                expect(repo.adsRepo.count).to(equal(repo.config.repoSize))
+                expect(repo.adsRepo.count).to(equal(repo.config.size))
                 
                 for mock in adCreator.rewardedAdMocks{
                     expect(mock.rewardedAdWrapperDidReadyCallsCount).to(equal(1))
@@ -146,7 +146,7 @@ class RewardedAdRepositorySpec: QuickSpec {
                     expect(_ad).to(beNil())
                     
                     //auto fill is active
-                    expect(repo.adsRepo.count).to(equal(repo.config.repoSize))
+                    expect(repo.adsRepo.count).to(equal(repo.config.size))
                     for mock in adCreator.interstitialAdMocks{
                         expect(mock.interstitialAdWrapperDidReadyCallsCount).to(equal(1))
                     }
@@ -166,7 +166,7 @@ class RewardedAdRepositorySpec: QuickSpec {
                     expect(repo.hasReadyAd(vc: UIViewController())).to(beFalse())
                 }
             }
-            it("if get an error"){
+            context("when get an error"){
                 //MARK: TODO
             }
         }

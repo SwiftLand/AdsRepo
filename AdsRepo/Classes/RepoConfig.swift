@@ -1,5 +1,5 @@
 //
-//  RepoConfig.swift
+//  RepositoryConfig.swift
 //  AdsRepo
 //
 //  Created by Ali on 9/4/21.
@@ -7,10 +7,10 @@
 
 import Foundation
 
-public struct RepoConfig{
+public struct RepositoryConfig{
     
     public let adUnitId:String
-    public let repoSize:Int
+    public let size:Int
     public let expireIntervalTime:TimeInterval
     public let showCountThreshold:Int
     public let isTaggedForChildDirectedTreatment: Bool?// COPPA
@@ -19,7 +19,7 @@ public struct RepoConfig{
      
    public init(
         adUnitId:String,
-        repoSize:Int,
+        size:Int,
         expireIntervalTime:TimeInterval = 120,//second
         showCountThreshold:Int = 1,
         isTaggedForChildDirectedTreatment: Bool?  = nil ,
@@ -27,7 +27,7 @@ public struct RepoConfig{
         isUMPDisabled: Bool? = nil ) {
         
         self.adUnitId = adUnitId
-        self.repoSize = repoSize
+        self.size = size
         self.showCountThreshold = showCountThreshold
         self.expireIntervalTime = expireIntervalTime
         self.isTaggedForChildDirectedTreatment = isTaggedForChildDirectedTreatment
@@ -44,60 +44,60 @@ public struct RepoConfig{
     public static let Native_Advanced_ID   = "ca-app-pub-3940256099942544/3986624511"
     public static let Native_Advanced_Video_ID = "ca-app-pub-3940256099942544/2521693316"
     
-    public static func debugInterstitialConfig(isUMPDisabled: Bool = false,size:Int = 2) -> RepoConfig {
-        RepoConfig(
-            adUnitId:RepoConfig.Interstitial_ID,
-            repoSize: size,
+    public static func debugInterstitialConfig(isUMPDisabled: Bool = false,size:Int = 2) -> RepositoryConfig {
+        RepositoryConfig(
+            adUnitId:RepositoryConfig.Interstitial_ID,
+            size: size,
             showCountThreshold: 1,
             isTaggedForChildDirectedTreatment: nil,
             isTaggedForUnderAgeOfConsent: false,
             isUMPDisabled: isUMPDisabled
         )
     }
-    public static func debugInterstitialVideoConfig(isUMPDisabled: Bool = false,size:Int = 2) -> RepoConfig {
-        RepoConfig(
-            adUnitId: RepoConfig.Interstitial_Video_ID,
-            repoSize: size,
+    public static func debugInterstitialVideoConfig(isUMPDisabled: Bool = false,size:Int = 2) -> RepositoryConfig {
+        RepositoryConfig(
+            adUnitId: RepositoryConfig.Interstitial_Video_ID,
+            size: size,
             showCountThreshold: 1,
             isTaggedForChildDirectedTreatment: nil,
             isTaggedForUnderAgeOfConsent: false,
             isUMPDisabled: isUMPDisabled
         )
     }
-    public  static func debugRewardedConfig(isUMPDisabled: Bool = false,size:Int = 2) -> RepoConfig {
-        RepoConfig(
-            adUnitId: RepoConfig.Rewarded_ID,
-            repoSize: size,
+    public  static func debugRewardedConfig(isUMPDisabled: Bool = false,size:Int = 2) -> RepositoryConfig {
+        RepositoryConfig(
+            adUnitId: RepositoryConfig.Rewarded_ID,
+            size: size,
             showCountThreshold: 1,
             isTaggedForChildDirectedTreatment: nil,
             isTaggedForUnderAgeOfConsent: false,
             isUMPDisabled: isUMPDisabled
         )
     }
-    public static func debugRewardedInterstitialConfig(isUMPDisabled: Bool = false,size:Int = 2) -> RepoConfig {
-        RepoConfig(
-            adUnitId: RepoConfig.Rewarded_Interstitial_ID,
-            repoSize: size,
+    public static func debugRewardedInterstitialConfig(isUMPDisabled: Bool = false,size:Int = 2) -> RepositoryConfig {
+        RepositoryConfig(
+            adUnitId: RepositoryConfig.Rewarded_Interstitial_ID,
+            size: size,
             showCountThreshold: 1,
             isTaggedForChildDirectedTreatment: nil,
             isTaggedForUnderAgeOfConsent: false,
             isUMPDisabled: isUMPDisabled
         )
     }
-    public static func debugNativeVideoConfig(isUMPDisabled: Bool = false,size:Int = 2) -> RepoConfig {
-        RepoConfig(
-            adUnitId:RepoConfig.Native_Advanced_Video_ID,
-            repoSize: size,
+    public static func debugNativeVideoConfig(isUMPDisabled: Bool = false,size:Int = 2) -> RepositoryConfig {
+        RepositoryConfig(
+            adUnitId:RepositoryConfig.Native_Advanced_Video_ID,
+            size: size,
             showCountThreshold: 3,
             isTaggedForChildDirectedTreatment: nil,
             isTaggedForUnderAgeOfConsent: false,
             isUMPDisabled: isUMPDisabled
         )
     }
-    public static func debugNativeConfig(isUMPDisabled: Bool = false,size:Int = 2) -> RepoConfig {
-        RepoConfig(
-            adUnitId: RepoConfig.Native_Advanced_ID,
-            repoSize: size,
+    public static func debugNativeConfig(isUMPDisabled: Bool = false,size:Int = 2) -> RepositoryConfig {
+        RepositoryConfig(
+            adUnitId: RepositoryConfig.Native_Advanced_ID,
+            size: size,
             showCountThreshold: 3,
             isTaggedForChildDirectedTreatment: nil,
             isTaggedForUnderAgeOfConsent: false,

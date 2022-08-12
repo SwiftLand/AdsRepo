@@ -20,7 +20,7 @@ class InterstitialAdRepositorySpec: QuickSpec {
         describe("InterstitialAdRepository"){
             
             beforeEach {
-                repo = InterstitialAdRepository(config: RepoConfig.debugInterstitialConfig())
+                repo = InterstitialAdRepository(config: RepositoryConfig.debugInterstitialConfig())
                 delegate = InterstitialAdRepositoryDelegateMock()
                 repo.delegate = delegate
                 adCreator = AdCreatorMock()
@@ -50,7 +50,7 @@ class InterstitialAdRepositorySpec: QuickSpec {
                     repo.isDisable = false
                     
                     //MARK: Assertation
-                    expect(repo.adsRepo.count).to(equal(repo.config.repoSize))
+                    expect(repo.adsRepo.count).to(equal(repo.config.size))
                     
                     for mock in adCreator.interstitialAdMocks{
                         expect(mock.interstitialAdWrapperDidReadyCallsCount).to(equal(1))
@@ -100,7 +100,7 @@ class InterstitialAdRepositorySpec: QuickSpec {
                 repo.fillRepoAds()
                 
                 //MARK: Assertation
-                expect(repo.adsRepo.count).to(equal(repo.config.repoSize))
+                expect(repo.adsRepo.count).to(equal(repo.config.size))
                 
                 for mock in adCreator.interstitialAdMocks{
                     expect(mock.interstitialAdWrapperDidReadyCallsCount).to(equal(1))
@@ -114,7 +114,7 @@ class InterstitialAdRepositorySpec: QuickSpec {
                     var _adWrapper:InterstitialAdWrapper? = nil
                     var _ad:FakeInterstitialAdMock? = nil
                     
-                    repo.presentAd(vc: UIViewController()){ad in
+                    let hasAd = repo.presentAd(vc: UIViewController()){ad in
                         _adWrapper = ad
                         _ad = _adWrapper?.loadedAd as? FakeInterstitialAdMock
                         
@@ -124,6 +124,8 @@ class InterstitialAdRepositorySpec: QuickSpec {
                     }
                     //MARK: Assertation
                     let delegateMock = adCreator.interstitialAdMocks.first(where: {$0 == _adWrapper?.delegate})
+                    
+                    expect(hasAd).to(beTrue())
                     expect(_adWrapper).toNot(beNil())
                     expect(_ad).toNot(beNil())
                     expect(_adWrapper?.showCount).to(equal(1))
@@ -138,16 +140,17 @@ class InterstitialAdRepositorySpec: QuickSpec {
                     var _adWrapper:InterstitialAdWrapper? = nil
                     var _ad:FakeInterstitialAdMock? = nil
                     
-                    repo.presentAd(vc: UIViewController()){ad in
+                    let hasAd = repo.presentAd(vc: UIViewController()){ad in
                         _adWrapper = ad
                         _ad = _adWrapper?.loadedAd as? FakeInterstitialAdMock
                     }
                     //MARK: Assertation
+                    expect(hasAd).to(beFalse())
                     expect(_adWrapper).to(beNil())
                     expect(_ad).to(beNil())
                     
                     //auto fill is active
-                    expect(repo.adsRepo.count).to(equal(repo.config.repoSize))
+                    expect(repo.adsRepo.count).to(equal(repo.config.size))
                     for mock in adCreator.interstitialAdMocks{
                         expect(mock.interstitialAdWrapperDidReadyCallsCount).to(equal(1))
                     }
@@ -167,7 +170,7 @@ class InterstitialAdRepositorySpec: QuickSpec {
                     expect(repo.hasReadyAd(vc: UIViewController())).to(beFalse())
                 }
             }
-            it("if get an error"){
+            context("when get an error"){
                 //MARK: TODO
             }
         }

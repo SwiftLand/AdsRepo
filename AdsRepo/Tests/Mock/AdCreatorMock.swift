@@ -9,10 +9,10 @@ import Foundation
 import GoogleMobileAds
 @testable import AdsRepo
 
-class AdCreatorMock:ADCreatorProtocol{
+class AdCreatorMock:AdCreatorProtocol{
     var interstitialAdMocks:[InterstitialAdWrapperDelegateMock] = []
     var rewardedAdMocks:[RewardedAdWrapperDelegateMock] = []
-    var nativeAdMocks:[RewardedAdWrapperDelegateMock] = []
+    var nativeAdMocks:[NativeAdWrapperDelegateMock] = []
     
     func createAd(owner: InterstitialAdRepository) -> InterstitialAdWrapper {
         let ad = InterstitialAdWrapper(owner: owner)
@@ -34,6 +34,9 @@ class AdCreatorMock:ADCreatorProtocol{
     
     func createAd(loadedAd: GADNativeAd,owner: NativeAdRepository) -> NativeAdWrapper {
         let ad = NativeAdWrapper(loadedAd: loadedAd,owner: owner)
+        let mock = NativeAdWrapperDelegateMock()
+        ad.delegate = mock
+        nativeAdMocks.append(mock)
         return ad
     }
     

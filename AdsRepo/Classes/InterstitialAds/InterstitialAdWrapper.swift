@@ -33,10 +33,11 @@ extension InterstitialAdWrapperDelegate {
 public class InterstitialAdWrapper:NSObject {
     
     var loadedAd: GADInterstitialAd?
-    public private(set) var config:RepoConfig
+    public private(set) var config:RepositoryConfig
     public internal(set) var loadedDate:TimeInterval? = nil
     public internal(set) var showCount:Int = 0
     public private(set) var isLoading:Bool = false
+    public var isPresenting:Bool{listener.isPresenting}
     public var isLoaded:Bool {loadedDate != nil}
     public private(set) weak var owner:InterstitialAdRepository? = nil
     public  weak var delegate:InterstitialAdWrapperDelegate?
@@ -91,7 +92,6 @@ public class InterstitialAdWrapper:NSObject {
             }
             self.loadedAd = ad
             self.loadedDate = Date().timeIntervalSince1970
-            self.loadedAd?.fullScreenContentDelegate = self.listener
             self.delegate?.interstitialAdWrapper(didReady: self)
             self.owner?.interstitialAdWrapper(didReady: self)
             self.timer.resume()
@@ -134,22 +134,26 @@ public class InterstitialAdWrapper:NSObject {
 
 private class InterstitialAdWrapperListener:NSObject,GADFullScreenContentDelegate{
     weak var owner:InterstitialAdWrapper?
+    private(set) var isPresenting:Bool = false
     init(owner:InterstitialAdWrapper) {
         self.owner = owner
     }
     func adDidPresentFullScreenContent(_ ad: GADFullScreenPresentingAd) {
         print("Interstitial Ad  presented.")
+        isPresenting = true
         guard let owner = owner else {return}
         owner.delegate?.interstitialAdWrapper(didOpen:  owner)
     }
     /// Tells the delegate that the rewarded ad was dismissed.
     func adWillDismissFullScreenContent(_ ad: GADFullScreenPresentingAd) {
         print("Interstitial Ad  will dismiss.")
+        isPresenting = true
         guard let owner = owner else {return}
         owner.delegate?.interstitialAdWrapper(willClose: owner)
     }
     func adDidDismissFullScreenContent(_ ad: GADFullScreenPresentingAd) {
         print("Interstitial Ad did dismissed.")
+        isPresenting = false
         guard let owner = owner else {return}
         owner.delegate?.interstitialAdWrapper(didClose: owner)
         owner.owner?.interstitialAdWrapper(didClose: owner)
@@ -158,6 +162,7 @@ private class InterstitialAdWrapperListener:NSObject,GADFullScreenContentDelegat
     func ad(_ ad: GADFullScreenPresentingAd,
             didFailToPresentFullScreenContentWithError error: Error) {
         print("Interstitial Ad  failed to present with error: \(error.localizedDescription).")
+        isPresenting = false
         guard let owner = owner else {return}
         owner.delegate?.interstitialAdWrapper(onError: owner,error:error)
         owner.owner?.interstitialAdWrapper(onError: owner,error:error)

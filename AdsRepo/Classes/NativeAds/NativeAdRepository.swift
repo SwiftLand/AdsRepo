@@ -19,9 +19,10 @@ extension NativeAdRepositoryDelegate{
 public class NativeAdRepository:NSObject,AdsRepoProtocol{
     
     internal var errorHandler:ErrorHandler = ErrorHandler()
-    internal var adCreator:ADCreatorProtocol = ADCreator()
+    internal var adCreator:AdCreatorProtocol = AdCreator()
+    internal var adLoaderCreator:AdLoaderCreatorProtocol = AdLoaderCreator()
     
-    public private(set) var config:RepoConfig
+    public private(set) var config:RepositoryConfig
     private weak var rootVC:UIViewController? = nil
     public fileprivate(set) var adsRepo:[NativeAdWrapper] = []
     public private(set) var adLoaderOptions: [GADAdLoaderOptions]?
@@ -43,10 +44,18 @@ public class NativeAdRepository:NSObject,AdsRepoProtocol{
         }
     }
     
+    private let notValidAdCondition:((NativeAdWrapper) -> Bool) = {
+        print("notValidAdCondition",$0.now,$0.loadedDate,$0.config.expireIntervalTime,$0.now-$0.loadedDate > $0.config.expireIntervalTime,$0.showCount>=$0.config.showCountThreshold)
+        return ($0.now-$0.loadedDate > $0.config.expireIntervalTime) || $0.showCount>=$0.config.showCountThreshold
+        
+    }
+    
     var hasAd:Bool{
         return adsRepo.count > 0
     }
-    
+    var hasValidAd:Bool{
+        return adsRepo.contains(where: {!notValidAdCondition($0)})
+    }
     var hasUnvalidAd:Bool{
         return adsRepo.contains(where: notValidAdCondition)
     }
@@ -58,12 +67,9 @@ public class NativeAdRepository:NSObject,AdsRepoProtocol{
         AdLoaderListener(owner: self)
     }()
     
-    private let notValidAdCondition:((NativeAdWrapper) -> Bool) = {
-        (Date().timeIntervalSince1970-$0.loadedDate > $0.config.expireIntervalTime) || $0.showCount>=$0.config.showCountThreshold
-        
-    }
     
-    public init(config:RepoConfig,
+    
+    public init(config:RepositoryConfig,
                 errorHandlerConfig:ErrorHandlerConfig? = nil,
                 delegate:NativeAdRepositoryDelegate? = nil){
         
@@ -91,18 +97,16 @@ public class NativeAdRepository:NSObject,AdsRepoProtocol{
         //multiAdOption have to control from repository
         adLoaderOptions.removeAll(where:{$0 is GADMultipleAdsAdLoaderOptions})
         let multiAdOption = GADMultipleAdsAdLoaderOptions()
-        multiAdOption.numberOfAds = config.repoSize - adsRepo.count
+        multiAdOption.numberOfAds = config.size - adsRepo.count
         adLoaderOptions.append(multiAdOption)
         
         
         let vc = rootVC ?? UIApplication.shared.keyWindow?.rootViewController
         // Create GADAdLoader
-        adLoader = GADAdLoader(
-            adUnitID:config.adUnitId,
-            rootViewController: vc,
-            adTypes: adTypes ?? [.native],
-            options: adLoaderOptions
-        )
+        adLoader = adLoaderCreator.create(adUnitId: config.adUnitId,
+                                          rootViewController: vc,
+                                          adLoaderOptions: adLoaderOptions,
+                                          adTypes: adTypes)
         // Set the GADAdLoader delegate
         adLoader?.delegate = listener
     }
@@ -110,7 +114,7 @@ public class NativeAdRepository:NSObject,AdsRepoProtocol{
     public func fillRepoAds()->Bool{
         guard !isDisable else {return false}
         
-        guard adsRepo.count == 0 || adsRepo.contains(where: notValidAdCondition)
+        guard adsRepo.count < config.size || adsRepo.contains(where: notValidAdCondition)
         else {return false}
         
         guard !(adLoader?.isLoading ?? false) else{return false}
@@ -120,17 +124,20 @@ public class NativeAdRepository:NSObject,AdsRepoProtocol{
         return true
     }
     
-    public func loadAd(loadFromRepo:@escaping ((NativeAdWrapper?)->Void)){
+    @discardableResult
+    public func loadAd(loadFromRepo:@escaping ((NativeAdWrapper?)->Void))->Bool{
         
         guard autoFill,adsRepo.count>0 else {
             loadFromRepo(nil)
             fillRepoAds()
-            return
+            return false
         }
         
         let ad = adsRepo.min(by: {$0.showCount<$1.showCount})
         ad?.increaseShowCount()
         loadFromRepo(ad)
+        notifyAdChange()
+        return true
     }
     
     public func validateRepositoryAds(){
@@ -166,7 +173,7 @@ private class AdLoaderListener:NSObject,GADNativeAdLoaderDelegate{
         print("Native AdLoader","did Receive ads")
         guard let owner = owner else {return}
         
-        owner.adsRepo.append(NativeAdWrapper(loadedAd: nativeAd,owner: owner))
+        owner.adsRepo.append(owner.adCreator.createAd(loadedAd: nativeAd,owner: owner))
         owner.delegate?.nativeAdRepository(didReceive: owner)
         AdsRepo.default.nativeAdRepository(didReceive: owner)
     }

@@ -21,10 +21,10 @@ extension RewardedAdRepositoryDelegate {
 public class RewardedAdRepository:NSObject,AdsRepoProtocol{
     
     internal var errorHandler:ErrorHandler = ErrorHandler()
-    internal var adCreator:ADCreatorProtocol = ADCreator()
+    internal var adCreator:AdCreatorProtocol = AdCreator()
     
     public internal(set) var adsRepo:[RewardedAdWrapper] = []
-    public private(set) var config:RepoConfig
+    public private(set) var config:RepositoryConfig
     public var isLoading:Bool {adsRepo.contains(where: {$0.isLoading})}
     public var autoFill:Bool = true
     public var isDisable:Bool = false{
@@ -46,8 +46,10 @@ public class RewardedAdRepository:NSObject,AdsRepoProtocol{
     let notValidCondition:((RewardedAdWrapper) -> Bool) = {
         return ($0.now-($0.loadedDate ?? $0.now) > $0.config.expireIntervalTime) || $0.showCount>=$0.config.showCountThreshold
     }
-    
-    public init(config:RepoConfig,
+    var hasValidAd:Bool{
+        adsRepo.contains(where: {!notValidCondition($0)})
+    }
+    public init(config:RepositoryConfig,
                 errorHandlerConfig:ErrorHandlerConfig? = nil,
                 delegate:RewardedAdRepositoryDelegate? = nil){
         
@@ -61,8 +63,10 @@ public class RewardedAdRepository:NSObject,AdsRepoProtocol{
     public func fillRepoAds(){
         guard !isDisable else{return}
         let loadingAdsCount = adsRepo.filter({$0.isLoading}).count
-        let totalAdsNeedCount = config.repoSize-loadingAdsCount
-        while adsRepo.count<totalAdsNeedCount{
+        let notValidAdsCount = adsRepo.filter(notValidCondition).count
+        let totalAdsNeedCount = (config.size - loadingAdsCount) + notValidAdsCount
+        
+        while adsRepo.count<totalAdsNeedCount {
             adsRepo.append(adCreator.createAd(owner: self))
             adsRepo.last?.loadAd()
         }
@@ -78,16 +82,15 @@ public class RewardedAdRepository:NSObject,AdsRepoProtocol{
         adsRepo.removeAll(where: notValidCondition)
         ads.forEach({$0.delegate?.rewardedAdWrapper(didRemoveFromRepository: $0)})
     }
-    
-    public func presentAd(vc:UIViewController,willLoad:((RewardedAdWrapper?)->Void)? = nil){
-        validateRepositoryAds()
+    @discardableResult
+    public func presentAd(vc:UIViewController,willLoad:((RewardedAdWrapper?)->Void)? = nil)->Bool{
         guard let adWrapper = adsRepo.min(by: {$0.showCount < $1.showCount})
         else{
             willLoad?(nil)
             if autoFill{
                 fillRepoAds()
             }
-            return
+            return false
         }
         adWrapper.increaseShowCount()
         willLoad?(adWrapper)
@@ -96,6 +99,7 @@ public class RewardedAdRepository:NSObject,AdsRepoProtocol{
         if autoFill{
             fillRepoAds()
         }
+        return true
     }
     
     public func hasReadyAd(vc:UIViewController)->Bool{
@@ -107,6 +111,9 @@ extension RewardedAdRepository{//will call from RewardAdWrapper
     
     func rewardedAdWrapper(didReady ad:RewardedAdWrapper) {
         errorHandler.restart()
+        if let ad = adsRepo.first(where: {notValidCondition($0) && !$0.isPresenting}) {
+            removeAd(ad: ad)
+        }
         delegate?.rewardedAdRepository(didReceiveAds:self)
         AdsRepo.default.rewardedAdRepository(didReceiveAds:self)
         if !adsRepo.contains(where: {!$0.isLoaded}){
@@ -116,9 +123,8 @@ extension RewardedAdRepository{//will call from RewardAdWrapper
     }
     
     func rewardedAdWrapper(didClose ad:RewardedAdWrapper) {
-        validateRepositoryAds()
-        if autoFill {
-            fillRepoAds()
+        if let ad = adsRepo.first(where: notValidCondition) {
+            removeAd(ad: ad)
         }
     }
     
@@ -134,7 +140,6 @@ extension RewardedAdRepository{//will call from RewardAdWrapper
         }
     }
     func rewardedAdWrapper(didExpire ad: RewardedAdWrapper) {
-        removeAd(ad: ad)
         if autoFill {
             fillRepoAds()
         }

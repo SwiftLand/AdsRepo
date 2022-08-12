@@ -7,13 +7,13 @@
 
 import Foundation
 import GoogleMobileAds
-protocol ADCreatorProtocol{
+protocol AdCreatorProtocol{
     func createAd(owner:InterstitialAdRepository)->InterstitialAdWrapper
     func createAd(owner:RewardedAdRepository)->RewardedAdWrapper
     func createAd(loadedAd: GADNativeAd,owner: NativeAdRepository)->NativeAdWrapper
 }
 
-class ADCreator:ADCreatorProtocol{
+class AdCreator:AdCreatorProtocol{
     func createAd(owner: RewardedAdRepository) -> RewardedAdWrapper {
         return RewardedAdWrapper(owner: owner)
     }

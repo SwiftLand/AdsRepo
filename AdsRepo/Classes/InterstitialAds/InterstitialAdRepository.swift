@@ -21,11 +21,11 @@ extension InterstitialAdRepositoryDelegate {
 public class InterstitialAdRepository:NSObject,AdsRepoProtocol{
     
     internal var errorHandler:ErrorHandler = ErrorHandler()
-    internal var adCreator:ADCreatorProtocol = ADCreator()
+    internal var adCreator:AdCreatorProtocol = AdCreator()
     
     public var isLoading:Bool {adsRepo.contains(where: {$0.isLoading})}
     public private(set) var adsRepo:[InterstitialAdWrapper] = []
-    public private(set) var config:RepoConfig
+    public private(set) var config:RepositoryConfig
     public var autoFill:Bool = true
     public var isDisable:Bool = false{
         didSet{
@@ -42,13 +42,16 @@ public class InterstitialAdRepository:NSObject,AdsRepoProtocol{
         }
     }
     weak var delegate:InterstitialAdRepositoryDelegate? = nil
-    
+
     let notValidCondition:((InterstitialAdWrapper) -> Bool) = {
         
         return ($0.now-($0.loadedDate ?? $0.now) > $0.config.expireIntervalTime) || $0.showCount>=$0.config.showCountThreshold
     }
     
-    public init(config:RepoConfig,
+    var hasValidAd:Bool{
+        adsRepo.contains(where: {!notValidCondition($0)})
+    }
+    public init(config:RepositoryConfig,
                 errorHandlerConfig:ErrorHandlerConfig? = nil,
                 delegate:InterstitialAdRepositoryDelegate? = nil){
         
@@ -76,23 +79,23 @@ public class InterstitialAdRepository:NSObject,AdsRepoProtocol{
     public func fillRepoAds(){
         guard !isDisable else{return}
         let loadingAdsCount = adsRepo.filter({$0.isLoading}).count
-        let totalAdsNeedCount = config.repoSize-loadingAdsCount
+        let notValidAdsCount = adsRepo.filter(notValidCondition).count
+        let totalAdsNeedCount = (config.size - loadingAdsCount) + notValidAdsCount
         
         while adsRepo.count<totalAdsNeedCount {
             adsRepo.append(adCreator.createAd(owner: self))
             adsRepo.last?.loadAd()
         }
     }
-    
-    public func presentAd(vc:UIViewController,willLoad:((InterstitialAdWrapper?)->Void)? = nil){
-        validateRepositoryAds()
+    @discardableResult
+    public func presentAd(vc:UIViewController,willLoad:((InterstitialAdWrapper?)->Void)? = nil)->Bool{
         guard let adWrapper = adsRepo.min(by: {$0.showCount < $1.showCount})
         else{
             willLoad?(nil)
             if autoFill{
                 fillRepoAds()
             }
-            return
+            return false
         }
         adWrapper.increaseShowCount()
         willLoad?(adWrapper)
@@ -101,10 +104,10 @@ public class InterstitialAdRepository:NSObject,AdsRepoProtocol{
         if autoFill{
             fillRepoAds()
         }
+        return true
     }
-    
+
     public func hasReadyAd(vc:UIViewController)->Bool{
-        validateRepositoryAds()
         return  adsRepo.first(where: {$0.isReady(vc: vc)}) != nil
     }
     
@@ -115,6 +118,9 @@ extension InterstitialAdRepository{
     
     func interstitialAdWrapper(didReady ad:InterstitialAdWrapper) {
         errorHandler.restart()
+        if let ad = adsRepo.first(where: {notValidCondition($0) && !$0.isPresenting}) {
+            removeAd(ad: ad)
+        }
         delegate?.interstitialAdRepository(didReceive: self)
         AdsRepo.default.interstitialAdRepository(didReceive: self)
         if !adsRepo.contains(where: {!$0.isLoaded}){
@@ -124,7 +130,9 @@ extension InterstitialAdRepository{
     }
     
     func interstitialAdWrapper(didClose ad:InterstitialAdWrapper) {
-        removeAd(ad: ad)
+        if let ad = adsRepo.first(where: notValidCondition) {
+            removeAd(ad: ad)
+        }
     }
     
     func interstitialAdWrapper(onError ad:InterstitialAdWrapper, error: Error?) {
@@ -137,7 +145,6 @@ extension InterstitialAdRepository{
         }
     }
     func interstitialAdWrapper(didExpire ad: InterstitialAdWrapper) {
-        removeAd(ad: ad)
         if autoFill {
             fillRepoAds()
         }

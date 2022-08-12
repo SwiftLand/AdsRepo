@@ -20,13 +20,15 @@ extension NativeAdWrapperDelegate {
 }
 
 public class NativeAdWrapper:NSObject{
-    public private(set) var config:RepoConfig
+    public private(set) var config:RepositoryConfig
     public private(set) var loadedAd: GADNativeAd
     public private(set) var loadedDate:TimeInterval = Date().timeIntervalSince1970
-    public private(set) var showCount:Int = 0
+    public internal(set) var showCount:Int = 0
     public private(set) weak var owner:NativeAdRepository? = nil
     public  weak var delegate:NativeAdWrapperDelegate? = nil
     public private(set) var isValid:Bool = true
+    
+    internal var now:TimeInterval = {Date().timeIntervalSince1970}()
     
     private lazy var timer: DispatchSourceTimer = {
         let t = DispatchSource.makeTimerSource(queue:DispatchQueue.main)
@@ -51,7 +53,6 @@ public class NativeAdWrapper:NSObject{
     internal func increaseShowCount(){
         showCount += 1
         delegate?.nativeAdWrapper(didShowCountChanged: self)
-        owner?.notifyAdChange()
     }
     
     internal func removeFromRepository(){//call when ad expire

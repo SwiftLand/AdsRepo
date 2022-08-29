@@ -8,17 +8,6 @@
 import Foundation
 import GoogleMobileAds
 
-public protocol NativeAdWrapperDelegate:NSObject {
-    func nativeAdWrapper(didRemoveFromRepository ad:NativeAdWrapper)
-    func nativeAdWrapper(didShowCountChanged ad:NativeAdWrapper)
-    func nativeAdWrapper(didExpire ad:NativeAdWrapper)
-}
-extension NativeAdWrapperDelegate {
-    public func nativeAdWrapper(didRemoveFromRepository ad:NativeAdWrapper){}
-    public func nativeAdWrapper(didShowCountChanged ad:NativeAdWrapper){}
-    public func nativeAdWrapper(didExpire ad:NativeAdWrapper){}
-}
-
 public class NativeAdWrapper:NSObject{
     public private(set) var config:RepositoryConfig
     public private(set) var loadedAd: GADNativeAd

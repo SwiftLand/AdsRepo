@@ -8,15 +8,6 @@
 import Foundation
 import GoogleMobileAds
 
-public protocol InterstitialAdRepositoryDelegate:NSObject {
-    func interstitialAdRepository(didReceive repo:InterstitialAdRepository)
-    func interstitialAdRepository(didFinishLoading repo:InterstitialAdRepository,error:Error?)
-}
-
-extension InterstitialAdRepositoryDelegate {
-    public func interstitialAdRepository(didReceive repo:InterstitialAdRepository){}
-    public func interstitialAdRepository(didFinishLoading repo:InterstitialAdRepository,error:Error?){}
-}
 
 public class InterstitialAdRepository:NSObject,AdsRepoProtocol{
     
@@ -126,6 +117,7 @@ public class InterstitialAdRepository:NSObject,AdsRepoProtocol{
     }
     
 }
+
 
 extension InterstitialAdRepository:InterstitialAdOwnerDelegate{
     

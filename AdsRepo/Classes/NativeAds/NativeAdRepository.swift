@@ -8,14 +8,7 @@
 import Foundation
 import GoogleMobileAds
 
-public protocol NativeAdRepositoryDelegate:NSObject{
-    func nativeAdRepository(didReceive repo:NativeAdRepository)
-    func nativeAdRepository(didFinishLoading repo:NativeAdRepository,error:Error?)
-}
-extension NativeAdRepositoryDelegate{
-    public func nativeAdRepository(didReceive repo:NativeAdRepository){}
-    public func nativeAdRepository(didFinishLoading repo:NativeAdRepository,error:Error?){}
-}
+
 public class NativeAdRepository:NSObject,AdsRepoProtocol{
     
     internal var errorHandler:ErrorHandler = ErrorHandler()

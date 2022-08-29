@@ -8,15 +8,6 @@
 import Foundation
 import GoogleMobileAds
 
-public protocol RewardedAdRepositoryDelegate:NSObject {
-    func rewardedAdRepository(didReceiveAds repo:RewardedAdRepository)
-    func rewardedAdRepository(didFinishLoading repo:RewardedAdRepository,error:Error?)
-}
-
-extension RewardedAdRepositoryDelegate {
-    public func rewardedAdRepository(didReceiveAds repo:RewardedAdRepository){}
-    public func rewardedAdRepository(didFinishLoading repo:RewardedAdRepository,error:Error?){}
-}
 
 public class RewardedAdRepository:NSObject,AdsRepoProtocol{
     
@@ -122,6 +113,8 @@ public class RewardedAdRepository:NSObject,AdsRepoProtocol{
     }
     
 }
+
+
 extension RewardedAdRepository:RewardedAdOwnerDelegate{
     
     func adWrapper(didReady ad:RewardedAdWrapper) {

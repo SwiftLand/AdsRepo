@@ -33,29 +33,18 @@ extension InterstitialAdWrapperDelegate {
 public class InterstitialAdWrapper:NSObject {
     
     var loadedAd: GADInterstitialAd?
+    public private(set) var state:AdState = .waiting
     public private(set) var config:RepositoryConfig
     public internal(set) var loadedDate:TimeInterval? = nil
     public internal(set) var showCount:Int = 0
-    public private(set) var isLoading:Bool = false
     public var isPresenting:Bool{listener.isPresenting}
-    public var isLoaded:Bool {loadedDate != nil}
     public private(set) weak var owner:InterstitialAdRepository? = nil
     public  weak var delegate:InterstitialAdWrapperDelegate?
     
     internal var adLoader = GADInterstitialAd.self //<-- Use in testing
     internal var now:TimeInterval = {Date().timeIntervalSince1970}()
     
-    private lazy var timer: DispatchSourceTimer = {
-        let t = DispatchSource.makeTimerSource(queue:DispatchQueue.main)
-        t.schedule(deadline: .now() +  config.expireIntervalTime)
-        t.setEventHandler(handler: { [weak self] in
-            print("Interstitial Ad was expire")
-            guard let self = self else {return}
-            self.owner?.interstitialAdWrapper(didExpire: self)
-            self.delegate?.interstitialAdWrapper(didExpire: self)
-        })
-        return t
-    }()
+    private var timer: DispatchSourceTimer? = nil
     
     private lazy var listener:InterstitialAdWrapperListener = {
         InterstitialAdWrapperListener(owner: self)
@@ -63,7 +52,7 @@ public class InterstitialAdWrapper:NSObject {
     
     public var responseInfo: GADResponseInfo? {
         get{
-           return self.loadedAd?.responseInfo
+            return self.loadedAd?.responseInfo
         }
     }
     var paidEventHandler: GADPaidEventHandler? {
@@ -77,27 +66,40 @@ public class InterstitialAdWrapper:NSObject {
     }
     
     func loadAd(){
-        guard !isLoading else {return}
-        isLoading = true
+        guard state == .waiting else {return}
+        state = .loading
         let request = GADRequest()
         adLoader.load(withAdUnitID:config.adUnitId,
-                               request: request,completionHandler: {[weak self] (ad, error) in
+                      request: request,completionHandler: {[weak self] (ad, error) in
             guard let self = self else{return}
-            self.isLoading = false
+         
             if let error = error {
                 print("Interstitial Ad failed to load with error: \(error.localizedDescription)")
+                self.state = .error
                 self.delegate?.interstitialAdWrapper(onError: self, error: error)
                 self.owner?.interstitialAdWrapper(onError:self,error:error)
                 return
             }
             self.loadedAd = ad
             self.loadedDate = Date().timeIntervalSince1970
+            self.initialExpireTimer()
+            self.timer?.resume()
+            self.state = .loaded
             self.delegate?.interstitialAdWrapper(didReady: self)
             self.owner?.interstitialAdWrapper(didReady: self)
-            self.timer.resume()
         })
     }
     
+    func initialExpireTimer() {
+        timer = DispatchSource.makeTimerSource(queue:DispatchQueue.main)
+        timer?.schedule(deadline: .now() +  config.expireIntervalTime)
+        timer?.setEventHandler(handler: { [weak self] in
+            print("Interstitial Ad was expire")
+            guard let self = self else {return}
+            self.owner?.interstitialAdWrapper(didExpire: self)
+            self.delegate?.interstitialAdWrapper(didExpire: self)
+        })
+    }
     
     func increaseShowCount(){
         showCount += 1
@@ -125,9 +127,7 @@ public class InterstitialAdWrapper:NSObject {
     }
     
     deinit {
-        if isLoaded {
-            timer.cancel()
-        }
+        timer?.cancel()
         print("deinit","Interstitial AdWrapper")
     }
 }

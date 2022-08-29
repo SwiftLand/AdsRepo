@@ -36,49 +36,51 @@ extension RewardedAdWrapperDelegate {
 public class RewardedAdWrapper:NSObject{
     
     var loadedAd: GADRewardedAd?
+    public private(set) var state:AdState = .waiting
     public private(set) var loadedDate:TimeInterval? = nil
-    public private(set) var isLoading:Bool = false
     public var isPresenting:Bool{listener.isPresenting}
     public internal(set) var showCount:Int = 0
     public private(set) var isRewardReceived:Bool = false
     public private(set) var config:RepositoryConfig
     public private(set) weak var owner:RewardedAdRepository? = nil
-    public var isLoaded:Bool {loadedDate != nil}
     public weak var delegate:RewardedAdWrapperDelegate?
     
     internal var adLoader = GADRewardedAd.self//<-- Use in testing
     internal var now:TimeInterval = {Date().timeIntervalSince1970}()
     
-    private lazy var timer: DispatchSourceTimer = {
-        let t = DispatchSource.makeTimerSource(queue:DispatchQueue.main)
-        t.schedule(deadline: .now() +  config.expireIntervalTime)
-        t.setEventHandler(handler: { [weak self] in
-            print("Interstitial Ad was expire")
-            guard let self = self else {return}
-            self.owner?.rewardedAdWrapper(didExpire: self)
-            self.delegate?.rewardedAdWrapper(didExpire: self)
-        })
-        return t
-    }()
+    private var timer: DispatchSourceTimer? = nil
     
     private lazy var listener = {
         RewardAdWrapperListener(owner: self)
     }()
+    
+    public var responseInfo: GADResponseInfo? {
+        get{
+            return self.loadedAd?.responseInfo
+        }
+    }
+    
+    var paidEventHandler: GADPaidEventHandler? {
+        get{self.loadedAd?.paidEventHandler}
+        set{self.loadedAd?.paidEventHandler = newValue}
+    }
+    
     init(owner:RewardedAdRepository) {
         self.owner = owner
         self.config = owner.config
     }
     
     func loadAd(){
-        guard !isLoading else {return}
+        guard state == .waiting else {return}
+        state = .loading
         let request = GADRequest()
-        isLoading = true
         adLoader.load(withAdUnitID:config.adUnitId,
                            request: request,completionHandler: {[weak self] (ad, error) in
             guard let self = self else{return}
-            self.isLoading = false
+           
             if let error = error {
                 print("Rewarded ad failed to load with error: \(error.localizedDescription)")
+                self.state = .error
                 self.delegate?.rewardedAdWrapper(onError:self,error:error)
                 self.owner?.rewardedAdWrapper(onError:self,error:error)
                 return
@@ -86,11 +88,25 @@ public class RewardedAdWrapper:NSObject{
             self.loadedAd = ad
             self.loadedDate = Date().timeIntervalSince1970
             self.loadedAd?.fullScreenContentDelegate = self.listener
+            self.initialExpireTimer()
+            self.timer?.resume()
+            self.state = .loaded
             self.delegate?.rewardedAdWrapper(didReady: self)
             self.owner?.rewardedAdWrapper(didReady: self)
-            self.timer.resume()
+         
         })
         
+    }
+    
+    func initialExpireTimer() {
+        timer = DispatchSource.makeTimerSource(queue:DispatchQueue.main)
+        timer?.schedule(deadline: .now() +  config.expireIntervalTime)
+        timer?.setEventHandler(handler: { [weak self] in
+            print("Interstitial Ad was expire")
+            guard let self = self else {return}
+            self.owner?.rewardedAdWrapper(didExpire: self)
+            self.delegate?.rewardedAdWrapper(didExpire: self)
+        })
     }
     
     func increaseShowCount(){
@@ -130,9 +146,7 @@ public class RewardedAdWrapper:NSObject{
     }
   
     deinit {
-        if isLoaded {
-            timer.cancel()
-        }
+        timer?.cancel()
         print("deinit","Rewarded AdWrapper")
     }
 }

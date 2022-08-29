@@ -14,9 +14,12 @@ class AdCreatorMock:AdCreatorProtocol{
     var rewardedAdMocks:[RewardedAdWrapperDelegateMock] = []
     var nativeAdMocks:[NativeAdWrapperDelegateMock] = []
     
+    var responseError:NSError? = nil
+    
     func createAd(owner: InterstitialAdRepository) -> InterstitialAdWrapper {
         let ad = InterstitialAdWrapper(owner: owner)
         ad.adLoader = FakeInterstitialAdMock.self
+        FakeInterstitialAdMock.error = responseError
         let mock = InterstitialAdWrapperDelegateMock()
         ad.delegate = mock
         interstitialAdMocks.append(mock)
@@ -26,6 +29,7 @@ class AdCreatorMock:AdCreatorProtocol{
     func createAd(owner: RewardedAdRepository) -> RewardedAdWrapper {
         let ad = RewardedAdWrapper(owner: owner)
         ad.adLoader = FakeRewardedAdMock.self
+        FakeRewardedAdMock.error = responseError
         let mock = RewardedAdWrapperDelegateMock()
         ad.delegate = mock
         rewardedAdMocks.append(mock)

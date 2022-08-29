@@ -9,13 +9,22 @@ import Foundation
 import GoogleMobileAds
 
 public struct ErrorHandlerConfig{
-    public var delayBetweenRetries = 5// second
-    public var maxRetryCount = 20
+    public static let defaultDelayBetweenRetyies:Int = 5
+    public static let defaultMaxRetryCount:Int = 20
+    
+    public var delayBetweenRetries = ErrorHandlerConfig.defaultDelayBetweenRetyies// second
+    public var maxRetryCount = ErrorHandlerConfig.defaultMaxRetryCount
 }
 
-
-class ErrorHandler  {
+protocol ErrorHandlerProtocol{
     typealias RetryClosure = ()->Void
+    var config:ErrorHandlerConfig{get}
+    func isRetryAble(error: Error?,retryClosure:RetryClosure?)->Bool
+    func restart()
+    func cancel()
+}
+
+class ErrorHandler:ErrorHandlerProtocol  {
     let config:ErrorHandlerConfig
     private(set) var currentRetryCount = 0
     private var lastWorkItem:DispatchWorkItem?  = nil

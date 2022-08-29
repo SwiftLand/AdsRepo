@@ -107,9 +107,17 @@ class FakeRewardedAdMock: GADRewardedAd {
         presentFromRootViewControllerUserDidEarnRewardHandlerReceivedInvocations.append((rootViewController: rootViewController, userDidEarnRewardHandler: userDidEarnRewardHandler))
         presentFromRootViewControllerUserDidEarnRewardHandlerClosure?(rootViewController, userDidEarnRewardHandler)
     }
-    static let error:NSError? = nil
+    
+    //MARK: - load
+    static var error:NSError? = nil
     override class func load(withAdUnitID adUnitID: String, request: GADRequest?, completionHandler: @escaping GADRewardedAdLoadCompletionHandler) {
-            let ad = FakeRewardedAdMock()
+        guard error == nil else{
+            DispatchQueue.main.async {completionHandler(nil,error)}
+            return
+        }
+        let ad = FakeRewardedAdMock()
+        DispatchQueue.main.async {
             completionHandler(ad,error)
         }
     }
+}

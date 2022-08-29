@@ -12,6 +12,8 @@ import UIKit
 public protocol RewardedAdWrapperDelegate:NSObject {
     func rewardedAdWrapper(didReady ad:RewardedAdWrapper)
     func rewardedAdWrapper(didOpen ad:RewardedAdWrapper)
+    func rewardedAdWrapper(didRecordClick ad:RewardedAdWrapper)
+    func rewardedAdWrapper(didRecordImpression ad:RewardedAdWrapper)
     func rewardedAdWrapper(willClose ad:RewardedAdWrapper)
     func rewardedAdWrapper(didClose ad:RewardedAdWrapper)
     func rewardedAdWrapper(didShowCountChanged ad:RewardedAdWrapper)
@@ -23,6 +25,8 @@ public protocol RewardedAdWrapperDelegate:NSObject {
 extension RewardedAdWrapperDelegate {
     public func rewardedAdWrapper(didReady ad:RewardedAdWrapper){}
     public func rewardedAdWrapper(didOpen ad:RewardedAdWrapper){}
+    public func rewardedAdWrapper(didRecordClick ad:RewardedAdWrapper){}
+    public func rewardedAdWrapper(didRecordImpression ad:RewardedAdWrapper){}
     public func rewardedAdWrapper(willClose ad:RewardedAdWrapper){}
     public func rewardedAdWrapper(didClose ad:RewardedAdWrapper){}
     public func rewardedAdWrapper(didShowCountChanged ad:RewardedAdWrapper){}
@@ -32,10 +36,23 @@ extension RewardedAdWrapperDelegate {
     public func rewardedAdWrapper(didExpire ad:RewardedAdWrapper){}
 }
 
+public class GADRewardedAdWrapper:GADRewardedAd{
+  
+    internal weak var _fullScreenContentDelegate:GADFullScreenContentDelegate?
+    
+    public override var fullScreenContentDelegate: GADFullScreenContentDelegate?{
+        get { return _fullScreenContentDelegate }
+        set{ _fullScreenContentDelegate = newValue }
+    }
+}
 
 public class RewardedAdWrapper:NSObject{
     
-    var loadedAd: GADRewardedAd?
+    private var _loadedAd: GADRewardedAd?
+    public var loadedAd:GADRewardedAdWrapper?{
+        return _loadedAd as? GADRewardedAdWrapper
+    }
+    
     public private(set) var state:AdState = .waiting
     public private(set) var loadedDate:TimeInterval? = nil
     public var isPresenting:Bool{listener.isPresenting}
@@ -54,17 +71,7 @@ public class RewardedAdWrapper:NSObject{
         RewardAdWrapperListener(owner: self)
     }()
     
-    public var responseInfo: GADResponseInfo? {
-        get{
-            return self.loadedAd?.responseInfo
-        }
-    }
-    
-    var paidEventHandler: GADPaidEventHandler? {
-        get{self.loadedAd?.paidEventHandler}
-        set{self.loadedAd?.paidEventHandler = newValue}
-    }
-    
+   
     init(owner:RewardedAdRepository) {
         self.owner = owner
         self.config = owner.config
@@ -85,9 +92,8 @@ public class RewardedAdWrapper:NSObject{
                 self.owner?.rewardedAdWrapper(onError:self,error:error)
                 return
             }
-            self.loadedAd = ad
+            self._loadedAd = ad
             self.loadedDate = Date().timeIntervalSince1970
-            self.loadedAd?.fullScreenContentDelegate = self.listener
             self.initialExpireTimer()
             self.timer?.resume()
             self.state = .loaded
@@ -117,8 +123,8 @@ public class RewardedAdWrapper:NSObject{
     func presentAd(vc:UIViewController){
         
         if isReady(vc: vc)  {
-            loadedAd?.fullScreenContentDelegate = listener
-            loadedAd?.present(fromRootViewController: vc,
+            _loadedAd?.fullScreenContentDelegate = listener
+            _loadedAd?.present(fromRootViewController: vc,
                               userDidEarnRewardHandler: {self.onReceivedReward()})
         } else {
             print("Rewarded Ad wasn't ready")
@@ -126,9 +132,9 @@ public class RewardedAdWrapper:NSObject{
     }
     
     func isReady(vc:UIViewController)->Bool{
-        guard loadedAd != nil else{return false}
+        guard _loadedAd != nil else{return false}
         do{
-            try self.loadedAd?.canPresent(fromRootViewController: vc)
+            try self._loadedAd?.canPresent(fromRootViewController: vc)
             return true
         }catch{
             return false
@@ -136,7 +142,7 @@ public class RewardedAdWrapper:NSObject{
     }
     
     private func onReceivedReward (){
-        guard let rewardedAd = loadedAd ,rewardedAd.adReward.amount != 0 else {
+        guard let rewardedAd = _loadedAd ,rewardedAd.adReward.amount != 0 else {
             return
         }
         let amount = rewardedAd.adReward.amount
@@ -157,6 +163,16 @@ private class RewardAdWrapperListener:NSObject,GADFullScreenContentDelegate{
     init(owner:RewardedAdWrapper) {
         self.owner = owner
     }
+    func adDidRecordClick(_ ad: GADFullScreenPresentingAd) {
+        guard let owner = owner else {return}
+        owner.loadedAd?._fullScreenContentDelegate?.adDidRecordClick?(ad)
+        owner.delegate?.rewardedAdWrapper(didRecordClick: owner)
+    }
+    func adDidRecordImpression(_ ad: GADFullScreenPresentingAd) {
+        guard let owner = owner else {return}
+        owner.loadedAd?._fullScreenContentDelegate?.adDidRecordImpression?(ad)
+        owner.delegate?.rewardedAdWrapper(didRecordImpression: owner)
+    }
     func adDidPresentFullScreenContent(_ ad: GADFullScreenPresentingAd) {
         print("Rewarded ad presented.")
         isPresenting = true
@@ -168,6 +184,7 @@ private class RewardAdWrapperListener:NSObject,GADFullScreenContentDelegate{
         print("Rewarded ad will dismiss.")
         isPresenting = true
         guard let owner = owner else {return}
+        owner.loadedAd?._fullScreenContentDelegate?.adDidPresentFullScreenContent?(ad)
         owner.delegate?.rewardedAdWrapper(willClose: owner)
     }
     func adDidDismissFullScreenContent(_ ad: GADFullScreenPresentingAd) {
@@ -175,6 +192,7 @@ private class RewardAdWrapperListener:NSObject,GADFullScreenContentDelegate{
         isPresenting = false
         guard let owner = owner else {return}
         owner.owner?.rewardedAdWrapper(didClose: owner)
+        owner.loadedAd?._fullScreenContentDelegate?.adDidDismissFullScreenContent?(ad)
         owner.delegate?.rewardedAdWrapper(didClose: owner)
     }
     /// Tells the delegate that the rewarded ad failed to present.

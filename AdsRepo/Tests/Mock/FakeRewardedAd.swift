@@ -34,7 +34,7 @@ import AppKit
 
 
 
-class FakeRewardedAdMock: GADRewardedAd {
+class FakeRewardedAdMock: GADRewardedAdWrapper {
     override var adUnitID: String {
         get { return underlyingAdUnitID }
         set(value) { underlyingAdUnitID = value }

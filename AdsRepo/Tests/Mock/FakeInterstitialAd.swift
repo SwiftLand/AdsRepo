@@ -34,7 +34,7 @@ import AppKit
 
 
 
-class FakeInterstitialAdMock: GADInterstitialAd {
+class FakeInterstitialAdMock: GADInterstitialAdWrapper {
     override var adUnitID: String {
         get { return underlyingAdUnitID }
         set { underlyingAdUnitID = newValue }

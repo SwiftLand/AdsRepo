@@ -9,6 +9,12 @@ import Foundation
 import GoogleMobileAds
 import UIKit
 
+internal protocol RewardedAdOwnerDelegate:NSObject{
+    func adWrapper(didReady ad:RewardedAdWrapper)
+    func adWrapper(didClose ad:RewardedAdWrapper)
+    func adWrapper(onError ad:RewardedAdWrapper, error: Error?)
+    func adWrapper(didExpire ad: RewardedAdWrapper)
+}
 public protocol RewardedAdWrapperDelegate:NSObject {
     func rewardedAdWrapper(didReady ad:RewardedAdWrapper)
     func rewardedAdWrapper(didOpen ad:RewardedAdWrapper)
@@ -62,6 +68,7 @@ public class RewardedAdWrapper:NSObject{
     public private(set) weak var owner:RewardedAdRepository? = nil
     public weak var delegate:RewardedAdWrapperDelegate?
     
+    internal weak var ownerDelegate:RewardedAdOwnerDelegate? = nil
     internal var adLoader = GADRewardedAd.self//<-- Use in testing
     internal var now:TimeInterval = {Date().timeIntervalSince1970}()
     
@@ -74,6 +81,7 @@ public class RewardedAdWrapper:NSObject{
    
     init(owner:RewardedAdRepository) {
         self.owner = owner
+        self.ownerDelegate = owner
         self.config = owner.config
     }
     
@@ -89,7 +97,7 @@ public class RewardedAdWrapper:NSObject{
                 print("Rewarded ad failed to load with error: \(error.localizedDescription)")
                 self.state = .error
                 self.delegate?.rewardedAdWrapper(onError:self,error:error)
-                self.owner?.rewardedAdWrapper(onError:self,error:error)
+                self.ownerDelegate?.adWrapper(onError:self,error:error)
                 return
             }
             self._loadedAd = ad
@@ -98,7 +106,7 @@ public class RewardedAdWrapper:NSObject{
             self.timer?.resume()
             self.state = .loaded
             self.delegate?.rewardedAdWrapper(didReady: self)
-            self.owner?.rewardedAdWrapper(didReady: self)
+            self.ownerDelegate?.adWrapper(didReady: self)
          
         })
         
@@ -110,8 +118,8 @@ public class RewardedAdWrapper:NSObject{
         timer?.setEventHandler(handler: { [weak self] in
             print("Interstitial Ad was expire")
             guard let self = self else {return}
-            self.owner?.rewardedAdWrapper(didExpire: self)
             self.delegate?.rewardedAdWrapper(didExpire: self)
+            self.ownerDelegate?.adWrapper(didExpire: self)
         })
     }
     
@@ -177,31 +185,32 @@ private class RewardAdWrapperListener:NSObject,GADFullScreenContentDelegate{
         print("Rewarded ad presented.")
         isPresenting = true
         guard let owner = owner else {return}
-        owner.delegate?.rewardedAdWrapper(didOpen: owner)
+        owner.loadedAd?._fullScreenContentDelegate?.adDidPresentFullScreenContent?(ad)
+        owner.delegate?.rewardedAdWrapper(didOpen:  owner)
     }
     /// Tells the delegate that the rewarded ad was dismissed.
     func adWillDismissFullScreenContent(_ ad: GADFullScreenPresentingAd) {
         print("Rewarded ad will dismiss.")
         isPresenting = true
         guard let owner = owner else {return}
-        owner.loadedAd?._fullScreenContentDelegate?.adDidPresentFullScreenContent?(ad)
+        owner.loadedAd?._fullScreenContentDelegate?.adWillDismissFullScreenContent?(ad)
         owner.delegate?.rewardedAdWrapper(willClose: owner)
     }
     func adDidDismissFullScreenContent(_ ad: GADFullScreenPresentingAd) {
         print("Rewarded ad dismissed.")
         isPresenting = false
         guard let owner = owner else {return}
-        owner.owner?.rewardedAdWrapper(didClose: owner)
         owner.loadedAd?._fullScreenContentDelegate?.adDidDismissFullScreenContent?(ad)
         owner.delegate?.rewardedAdWrapper(didClose: owner)
+        owner.ownerDelegate?.adWrapper(didClose: owner)
     }
     /// Tells the delegate that the rewarded ad failed to present.
     func ad(_ ad: GADFullScreenPresentingAd,
-                   didFailToPresentFullScreenContentWithError error: Error) {
-        print("Rewarded ad failed to present with error: \(error.localizedDescription).")
+            didFailToPresentFullScreenContentWithError error: Error) {
+        print("Rewarded Ad  failed to present with error: \(error.localizedDescription).")
         isPresenting = false
         guard let owner = owner else {return}
-        owner.owner?.rewardedAdWrapper(onError: owner,error:error)
+        owner.loadedAd?._fullScreenContentDelegate?.ad?(ad,didFailToPresentFullScreenContentWithError: error)
         owner.delegate?.rewardedAdWrapper(onError: owner,error:error)
     }
 }

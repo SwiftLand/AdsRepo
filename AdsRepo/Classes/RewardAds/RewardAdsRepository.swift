@@ -122,9 +122,9 @@ public class RewardedAdRepository:NSObject,AdsRepoProtocol{
     }
     
 }
-extension RewardedAdRepository{//will call from RewardAdWrapper
+extension RewardedAdRepository:RewardedAdOwnerDelegate{
     
-    func rewardedAdWrapper(didReady ad:RewardedAdWrapper) {
+    func adWrapper(didReady ad:RewardedAdWrapper) {
         errorHandler.restart()
         if let ad = adsRepo.first(where: {notValidCondition($0) && !$0.isPresenting}) {
             removeAd(ad: ad)
@@ -137,13 +137,13 @@ extension RewardedAdRepository{//will call from RewardAdWrapper
         }
     }
     
-    func rewardedAdWrapper(didClose ad:RewardedAdWrapper) {
+    func adWrapper(didClose ad:RewardedAdWrapper) {
         if let ad = adsRepo.first(where: notValidCondition) {
             removeAd(ad: ad)
         }
     }
     
-    func rewardedAdWrapper(onError ad:RewardedAdWrapper, error: Error?) {
+    func adWrapper(onError ad:RewardedAdWrapper, error: Error?) {
         removeAd(ad: ad)
         let isRetryAble = errorHandler.isRetryAble(error: error){[weak self] in
             self?.fillRepoAds()//add new ads but not load them
@@ -157,7 +157,7 @@ extension RewardedAdRepository{//will call from RewardAdWrapper
             AdsRepo.default.rewardedAdRepository(didFinishLoading: self, error: error)
         }
     }
-    func rewardedAdWrapper(didExpire ad: RewardedAdWrapper) {
+    func adWrapper(didExpire ad: RewardedAdWrapper) {
         if autoFill {
             fillRepoAds()
         }

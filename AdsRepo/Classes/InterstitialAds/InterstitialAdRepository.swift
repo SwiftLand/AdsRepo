@@ -127,10 +127,9 @@ public class InterstitialAdRepository:NSObject,AdsRepoProtocol{
     
 }
 
-extension InterstitialAdRepository{
-    //will call from InterstitialAdWrapper
+extension InterstitialAdRepository:InterstitialAdOwnerDelegate{
     
-    func interstitialAdWrapper(didReady ad:InterstitialAdWrapper) {
+    func adWrapper(didReady ad:InterstitialAdWrapper) {
         errorHandler.restart()
         if let ad = adsRepo.first(where: {notValidCondition($0) && !$0.isPresenting}) {
             removeAd(ad: ad)
@@ -144,13 +143,13 @@ extension InterstitialAdRepository{
         }
     }
     
-    func interstitialAdWrapper(didClose ad:InterstitialAdWrapper) {
+    func adWrapper(didClose ad:InterstitialAdWrapper) {
         if let ad = adsRepo.first(where: notValidCondition) {
             removeAd(ad: ad)
         }
     }
     
-    func interstitialAdWrapper(onError ad:InterstitialAdWrapper, error: Error?) {
+    func adWrapper(onError ad:InterstitialAdWrapper, error: Error?) {
         removeAd(ad: ad)
         let isRetryAble = errorHandler.isRetryAble(error: error){[weak self] in
             self?.fillRepoAds()//add new ads but not load them
@@ -165,7 +164,7 @@ extension InterstitialAdRepository{
         }
         
     }
-    func interstitialAdWrapper(didExpire ad: InterstitialAdWrapper) {
+    func adWrapper(didExpire ad: InterstitialAdWrapper) {
         if autoFill {
             fillRepoAds()
         }

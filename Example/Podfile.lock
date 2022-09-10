@@ -1,33 +1,33 @@
 PODS:
   - AdsRepo (0.1.0):
-    - Google-Mobile-Ads-SDK
+    - Google-Mobile-Ads-SDK (~> 9.10.0)
   - AdsRepo/Tests (0.1.0):
-    - Google-Mobile-Ads-SDK
+    - Google-Mobile-Ads-SDK (~> 9.10.0)
     - Nimble
     - Quick
-  - Google-Mobile-Ads-SDK (8.13.0):
-    - GoogleAppMeasurement (< 9.0, >= 7.0)
+  - Google-Mobile-Ads-SDK (9.10.0):
+    - GoogleAppMeasurement (< 10.0, >= 7.0)
     - GoogleUserMessagingPlatform (>= 1.1)
-  - GoogleAppMeasurement (8.15.0):
-    - GoogleAppMeasurement/AdIdSupport (= 8.15.0)
+  - GoogleAppMeasurement (9.5.0):
+    - GoogleAppMeasurement/AdIdSupport (= 9.5.0)
     - GoogleUtilities/AppDelegateSwizzler (~> 7.7)
     - GoogleUtilities/MethodSwizzler (~> 7.7)
     - GoogleUtilities/Network (~> 7.7)
     - "GoogleUtilities/NSData+zlib (~> 7.7)"
-    - nanopb (~> 2.30908.0)
-  - GoogleAppMeasurement/AdIdSupport (8.15.0):
-    - GoogleAppMeasurement/WithoutAdIdSupport (= 8.15.0)
+    - nanopb (< 2.30910.0, >= 2.30908.0)
+  - GoogleAppMeasurement/AdIdSupport (9.5.0):
+    - GoogleAppMeasurement/WithoutAdIdSupport (= 9.5.0)
     - GoogleUtilities/AppDelegateSwizzler (~> 7.7)
     - GoogleUtilities/MethodSwizzler (~> 7.7)
     - GoogleUtilities/Network (~> 7.7)
     - "GoogleUtilities/NSData+zlib (~> 7.7)"
-    - nanopb (~> 2.30908.0)
-  - GoogleAppMeasurement/WithoutAdIdSupport (8.15.0):
+    - nanopb (< 2.30910.0, >= 2.30908.0)
+  - GoogleAppMeasurement/WithoutAdIdSupport (9.5.0):
     - GoogleUtilities/AppDelegateSwizzler (~> 7.7)
     - GoogleUtilities/MethodSwizzler (~> 7.7)
     - GoogleUtilities/Network (~> 7.7)
     - "GoogleUtilities/NSData+zlib (~> 7.7)"
-    - nanopb (~> 2.30908.0)
+    - nanopb (< 2.30910.0, >= 2.30908.0)
   - GoogleUserMessagingPlatform (2.0.0)
   - GoogleUtilities/AppDelegateSwizzler (7.7.0):
     - GoogleUtilities/Environment
@@ -46,11 +46,11 @@ PODS:
   - "GoogleUtilities/NSData+zlib (7.7.0)"
   - GoogleUtilities/Reachability (7.7.0):
     - GoogleUtilities/Logger
-  - nanopb (2.30908.0):
-    - nanopb/decode (= 2.30908.0)
-    - nanopb/encode (= 2.30908.0)
-  - nanopb/decode (2.30908.0)
-  - nanopb/encode (2.30908.0)
+  - nanopb (2.30909.0):
+    - nanopb/decode (= 2.30909.0)
+    - nanopb/encode (= 2.30909.0)
+  - nanopb/decode (2.30909.0)
+  - nanopb/encode (2.30909.0)
   - Nimble (10.0.0)
   - PromisesObjC (2.1.1)
   - Quick (5.0.1)
@@ -77,16 +77,16 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  AdsRepo: 2ed9022b85f1009ebf6025bd985c37a79ed8bfe1
-  Google-Mobile-Ads-SDK: 05e5d68bb42a61b2e5bef336a52789785605aa22
-  GoogleAppMeasurement: 4c19f031220c72464d460c9daa1fb5d1acce958e
+  AdsRepo: 5c626125dd0b5de5c6cce8179b7f9252ec9a04e0
+  Google-Mobile-Ads-SDK: eb398023f0d97cdd259b171052f1eb433de00c87
+  GoogleAppMeasurement: 6ee231473fbd75c11221dfce489894334024eead
   GoogleUserMessagingPlatform: ab890ce5f6620f293a21b6bdd82e416a2c73aeca
   GoogleUtilities: e0913149f6b0625b553d70dae12b49fc62914fd1
-  nanopb: a0ba3315591a9ae0a16a309ee504766e90db0c96
+  nanopb: b552cce312b6c8484180ef47159bc0f65a1f0431
   Nimble: 5316ef81a170ce87baf72dd961f22f89a602ff84
   PromisesObjC: ab77feca74fa2823e7af4249b8326368e61014cb
   Quick: 749aa754fd1e7d984f2000fe051e18a3a9809179
 
-PODFILE CHECKSUM: 78ffda1942475a4381b6ce5b8ec0ae89f56cf492
+PODFILE CHECKSUM: cf8b4a06f77b31240d1007165f87e0ca9371fcfb
 
 COCOAPODS: 1.11.3

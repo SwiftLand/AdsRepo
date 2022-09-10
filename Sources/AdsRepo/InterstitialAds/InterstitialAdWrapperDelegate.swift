@@ -8,7 +8,7 @@
 import Foundation
 public protocol InterstitialAdWrapperDelegate:NSObject {
     func interstitialAdWrapper(didReady ad:InterstitialAdWrapper)
-    func interstitialAdWrapper(didOpen ad:InterstitialAdWrapper)
+    func interstitialAdWrapper(willOpen ad:InterstitialAdWrapper)
     func interstitialAdWrapper(didRecordClick ad:InterstitialAdWrapper)
     func interstitialAdWrapper(didRecordImpression ad:InterstitialAdWrapper)
     func interstitialAdWrapper(willClose ad:InterstitialAdWrapper)
@@ -20,7 +20,7 @@ public protocol InterstitialAdWrapperDelegate:NSObject {
 }
 extension InterstitialAdWrapperDelegate {
     public func interstitialAdWrapper(didReady ad:InterstitialAdWrapper){}
-    public func interstitialAdWrapper(didOpen ad:InterstitialAdWrapper){}
+    public func interstitialAdWrapper(willOpen ad:InterstitialAdWrapper){}
     public func interstitialAdWrapper(didRecordClick ad:InterstitialAdWrapper){}
     public func interstitialAdWrapper(didRecordImpression ad:InterstitialAdWrapper){}
     public func interstitialAdWrapper(willClose ad:InterstitialAdWrapper){}

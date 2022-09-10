@@ -9,7 +9,7 @@ import Foundation
 
 public protocol RewardedAdWrapperDelegate:NSObject {
     func rewardedAdWrapper(didReady ad:RewardedAdWrapper)
-    func rewardedAdWrapper(didOpen ad:RewardedAdWrapper)
+    func rewardedAdWrapper(willOpen ad:RewardedAdWrapper)
     func rewardedAdWrapper(didRecordClick ad:RewardedAdWrapper)
     func rewardedAdWrapper(didRecordImpression ad:RewardedAdWrapper)
     func rewardedAdWrapper(willClose ad:RewardedAdWrapper)
@@ -22,7 +22,7 @@ public protocol RewardedAdWrapperDelegate:NSObject {
 }
 extension RewardedAdWrapperDelegate {
     public func rewardedAdWrapper(didReady ad:RewardedAdWrapper){}
-    public func rewardedAdWrapper(didOpen ad:RewardedAdWrapper){}
+    public func rewardedAdWrapper(willOpen ad:RewardedAdWrapper){}
     public func rewardedAdWrapper(didRecordClick ad:RewardedAdWrapper){}
     public func rewardedAdWrapper(didRecordImpression ad:RewardedAdWrapper){}
     public func rewardedAdWrapper(willClose ad:RewardedAdWrapper){}

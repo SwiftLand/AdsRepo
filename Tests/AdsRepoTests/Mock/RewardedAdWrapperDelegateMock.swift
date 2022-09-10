@@ -54,19 +54,19 @@ class RewardedAdWrapperDelegateMock:NSObject, RewardedAdWrapperDelegate {
 
     //MARK: - rewardedAdWrapper
 
-    var rewardedAdWrapperDidOpenCallsCount = 0
-    var rewardedAdWrapperDidOpenCalled: Bool {
-        return rewardedAdWrapperDidOpenCallsCount > 0
+    var rewardedAdWrapperWillOpenCallsCount = 0
+    var rewardedAdWrapperWillOpenCalled: Bool {
+        return rewardedAdWrapperWillOpenCallsCount > 0
     }
-    var rewardedAdWrapperDidOpenReceivedAd: RewardedAdWrapper?
-    var rewardedAdWrapperDidOpenReceivedInvocations: [RewardedAdWrapper] = []
-    var rewardedAdWrapperDidOpenClosure: ((RewardedAdWrapper) -> Void)?
+    var rewardedAdWrapperWillOpenReceivedAd: RewardedAdWrapper?
+    var rewardedAdWrapperWillOpenReceivedInvocations: [RewardedAdWrapper] = []
+    var rewardedAdWrapperWillOpenClosure: ((RewardedAdWrapper) -> Void)?
 
-    func rewardedAdWrapper(didOpen ad: RewardedAdWrapper) {
-        rewardedAdWrapperDidOpenCallsCount += 1
-        rewardedAdWrapperDidOpenReceivedAd = ad
-        rewardedAdWrapperDidOpenReceivedInvocations.append(ad)
-        rewardedAdWrapperDidOpenClosure?(ad)
+    func rewardedAdWrapper(willOpen ad: RewardedAdWrapper) {
+        rewardedAdWrapperWillOpenCallsCount += 1
+        rewardedAdWrapperWillOpenReceivedAd = ad
+        rewardedAdWrapperWillOpenReceivedInvocations.append(ad)
+        rewardedAdWrapperWillOpenClosure?(ad)
     }
 
     //MARK: - rewardedAdWrapper

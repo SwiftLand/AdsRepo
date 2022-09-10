@@ -54,19 +54,19 @@ class InterstitialAdWrapperDelegateMock: NSObject,InterstitialAdWrapperDelegate 
 
     //MARK: - interstitialAdWrapper
 
-    var interstitialAdWrapperDidOpenCallsCount = 0
-    var interstitialAdWrapperDidOpenCalled: Bool {
-        return interstitialAdWrapperDidOpenCallsCount > 0
+    var interstitialAdWrapperWillOpenCallsCount = 0
+    var interstitialAdWrapperWillOpenCalled: Bool {
+        return interstitialAdWrapperWillOpenCallsCount > 0
     }
-    var interstitialAdWrapperDidOpenReceivedAd: InterstitialAdWrapper?
-    var interstitialAdWrapperDidOpenReceivedInvocations: [InterstitialAdWrapper] = []
-    var interstitialAdWrapperDidOpenClosure: ((InterstitialAdWrapper) -> Void)?
+    var interstitialAdWrapperWillOpenReceivedAd: InterstitialAdWrapper?
+    var interstitialAdWrapperWillOpenReceivedInvocations: [InterstitialAdWrapper] = []
+    var interstitialAdWrapperWillOpenClosure: ((InterstitialAdWrapper) -> Void)?
 
-    func interstitialAdWrapper(didOpen ad: InterstitialAdWrapper) {
-        interstitialAdWrapperDidOpenCallsCount += 1
-        interstitialAdWrapperDidOpenReceivedAd = ad
-        interstitialAdWrapperDidOpenReceivedInvocations.append(ad)
-        interstitialAdWrapperDidOpenClosure?(ad)
+    func interstitialAdWrapper(willOpen ad: InterstitialAdWrapper) {
+        interstitialAdWrapperWillOpenCallsCount += 1
+        interstitialAdWrapperWillOpenReceivedAd = ad
+        interstitialAdWrapperWillOpenReceivedInvocations.append(ad)
+        interstitialAdWrapperWillOpenClosure?(ad)
     }
 
     //MARK: - interstitialAdWrapper

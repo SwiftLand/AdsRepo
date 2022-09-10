@@ -126,7 +126,7 @@ class RewardedAdRepositorySpec: QuickSpec {
                         expected_ad = expected_adWrapper?.loadedAd as? FakeRewardedAdMock
                         
                         expected_ad?.presentFromRootViewControllerUserDidEarnRewardHandlerClosure = {vc,rewardHandler in
-                            expected_ad?.underlyingFullScreenContentDelegate?.adDidPresentFullScreenContent?(expected_ad!)
+                            expected_ad?.underlyingFullScreenContentDelegate?.adWillPresentFullScreenContent?(expected_ad!)
                         }
                     }
                     //MARK: Assertation
@@ -137,7 +137,7 @@ class RewardedAdRepositorySpec: QuickSpec {
                     expect(expected_ad).toNot(beNil())
                     expect(expected_adWrapper?.showCount).to(equal(1))
                     expect(delegateMock?.rewardedAdWrapperDidReadyCallsCount).to(equal(1))
-                    expect(delegateMock?.rewardedAdWrapperDidOpenCallsCount).to(equal(1))
+                    expect(delegateMock?.rewardedAdWrapperWillOpenCallsCount).to(equal(1))
                     expect(delegateMock?.rewardedAdWrapperDidShowCountChangedCallsCount).to(equal(1))
                     expect(expected_ad?.presentFromRootViewControllerUserDidEarnRewardHandlerCallsCount).to(equal(1))
                 }
@@ -158,7 +158,7 @@ class RewardedAdRepositorySpec: QuickSpec {
                         expected_ad = expected_adWrapper?.loadedAd as? FakeRewardedAdMock
                         
                         expected_ad?.presentFromRootViewControllerUserDidEarnRewardHandlerClosure = {vc,rewardHandler in
-                            expected_ad?.underlyingFullScreenContentDelegate?.adDidPresentFullScreenContent?(expected_ad!)
+                            expected_ad?.underlyingFullScreenContentDelegate?.adWillPresentFullScreenContent?(expected_ad!)
                         }
                     }
                     //MARK: Assertation
@@ -171,7 +171,7 @@ class RewardedAdRepositorySpec: QuickSpec {
                     expect(expected_ad).toNot(beNil())
                     expect(expected_adWrapper?.showCount).to(equal(1))
                     expect(delegateMock?.rewardedAdWrapperDidReadyCallsCount).to(equal(1))
-                    expect(delegateMock?.rewardedAdWrapperDidOpenCallsCount).to(equal(1))
+                    expect(delegateMock?.rewardedAdWrapperWillOpenCallsCount).to(equal(1))
                     expect(delegateMock?.rewardedAdWrapperDidShowCountChangedCallsCount).to(equal(1))
                     expect(expected_ad?.presentFromRootViewControllerUserDidEarnRewardHandlerCallsCount).to(equal(1))
                 }

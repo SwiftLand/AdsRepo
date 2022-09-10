@@ -15,7 +15,9 @@ let package = Package(
             targets: ["AdsRepo"]),
     ],
     dependencies: [
-            .package(url: "https://github.com/googleads/swift-package-manager-google-mobile-ads", from: "9.10.0")
+            .package(url: "https://github.com/googleads/swift-package-manager-google-mobile-ads", from: "9.10.0"),
+            .package(url: "https://github.com/Quick/Nimble.git", from: "10.0.0"),
+            .package(url: "https://github.com/Quick/Quick.git", from: "5.0.1"),
     ],
     targets: [
         .target(
@@ -25,7 +27,7 @@ let package = Package(
                        ]),
         .testTarget(
             name: "AdsRepoTests",
-            dependencies: ["AdsRepo"]),
+            dependencies: ["AdsRepo","Quick","Nimble"]),
     ],
     swiftLanguageVersions: [.v5]
 )

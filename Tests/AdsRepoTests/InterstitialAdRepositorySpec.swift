@@ -132,7 +132,7 @@ class InterstitialAdRepositorySpec: QuickSpec {
                         expected_ad = expected_adWrapper?.loadedAd as? FakeInterstitialAdMock
                         
                         expected_ad?.presentFromRootViewControllerClosure = {vc in
-                            expected_ad?.underlyingFullScreenContentDelegate?.adDidPresentFullScreenContent?(expected_ad!)
+                            expected_ad?.underlyingFullScreenContentDelegate?.adWillPresentFullScreenContent?(expected_ad!)
                         }
                     }
                     //MARK: Assertation
@@ -143,7 +143,7 @@ class InterstitialAdRepositorySpec: QuickSpec {
                     expect(expected_ad).toNot(beNil())
                     expect(expected_adWrapper?.showCount).to(equal(1))
                     expect(delegateMock?.interstitialAdWrapperDidReadyCallsCount).to(equal(1))
-                    expect(delegateMock?.interstitialAdWrapperDidOpenCallsCount).to(equal(1))
+                    expect(delegateMock?.interstitialAdWrapperWillOpenCallsCount).to(equal(1))
                     expect(delegateMock?.interstitialAdWrapperDidShowCountChangedCallsCount).to(equal(1))
                     expect(expected_ad?.presentFromRootViewControllerCallsCount).to(equal(1))
                 }
@@ -164,7 +164,7 @@ class InterstitialAdRepositorySpec: QuickSpec {
                         expected_ad = expected_adWrapper?.loadedAd as? FakeInterstitialAdMock
                         
                         expected_ad?.presentFromRootViewControllerClosure = {vc in
-                            expected_ad?.underlyingFullScreenContentDelegate?.adDidPresentFullScreenContent?(expected_ad!)
+                            expected_ad?.underlyingFullScreenContentDelegate?.adWillPresentFullScreenContent?(expected_ad!)
                         }
                     }
                     //MARK: Assertation
@@ -177,7 +177,7 @@ class InterstitialAdRepositorySpec: QuickSpec {
                     expect(expected_ad).toNot(beNil())
                     expect(expected_adWrapper?.showCount).to(equal(1))
                     expect(delegateMock?.interstitialAdWrapperDidReadyCallsCount).to(equal(1))
-                    expect(delegateMock?.interstitialAdWrapperDidOpenCallsCount).to(equal(1))
+                    expect(delegateMock?.interstitialAdWrapperWillOpenCallsCount).to(equal(1))
                     expect(delegateMock?.interstitialAdWrapperDidShowCountChangedCallsCount).to(equal(1))
                     expect(expected_ad?.presentFromRootViewControllerCallsCount).to(equal(1))
                 }

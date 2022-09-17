@@ -102,11 +102,11 @@ class MainController: UIViewController {
 extension MainController:AdsRepoDelegate{
     
     func interstitialAdRepository(didReceive repo: InterstitialAdRepository) {
-        loadedInterstinalAdCount = repo.adsRepo.count
+        loadedInterstinalAdCount = repo.AdCount
     }
     func interstitialAdRepository(didFinishLoading repo: InterstitialAdRepository, error: Error?) {
         if error == nil{
-            print("Repo(\(repo.config.adUnitId)) is full, count:\(repo.adsRepo.count)")
+            print("Repo(\(repo.config.adUnitId)) is full, count:\(repo.AdCount)")
         }else{
             print("Repo(\(repo.config.adUnitId)) have error:\(String(describing: error))")
         }
@@ -114,12 +114,12 @@ extension MainController:AdsRepoDelegate{
     }
     
     func rewardedAdRepository(didReceiveAds repo: RewardedAdRepository) {
-        loadedRewardedAdCount =  repo.adsRepo.count
+        loadedRewardedAdCount =  repo.AdCount
     }
     
     func rewardedAdRepository(didFinishLoading repo: RewardedAdRepository, error: Error?) {
         if error == nil{
-            print("Repo(\(repo.config.adUnitId)) is full, count:\(repo.adsRepo.count)")
+            print("Repo(\(repo.config.adUnitId)) is full, count:\(repo.AdCount)")
         }else{
             print("Repo(\(repo.config.adUnitId)) have error:\(String(describing: error))")
         }
@@ -127,20 +127,19 @@ extension MainController:AdsRepoDelegate{
     
     func nativeAdRepository(didReceive repo: NativeAdRepository) {
         if repo == RepositoryManager.shared.nativeAdRepo{
-            loadedNativeAdCount = repo.adsRepo.count
-        }
+            loadedNativeAdCount =  repo.AdCount        }
         if repo ==  RepositoryManager.shared.nativeVideoAdRepo{
-            loadedVideoNativeAdCount = repo.adsRepo.count
+            loadedVideoNativeAdCount =  repo.AdCount
         }
     }
 }
 extension MainController:InterstitialAdWrapperDelegate{
     func interstitialAdWrapper(didRemoveFromRepository ad: InterstitialAdWrapper) {
-        loadedInterstinalAdCount = ad.owner?.adsRepo.count ?? 0
+        loadedInterstinalAdCount = ad.owner?.AdCount ?? 0
     }
 }
 extension MainController:RewardedAdWrapperDelegate{
     func rewardedAdWrapper(didRemoveFromRepository ad: RewardedAdWrapper) {
-        loadedRewardedAdCount = ad.owner?.adsRepo.count ?? 0
+        loadedRewardedAdCount = ad.owner?.AdCount ?? 0
     }
 }

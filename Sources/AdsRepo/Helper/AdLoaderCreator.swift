@@ -8,6 +8,7 @@
 import Foundation
 import GoogleMobileAds
 
+/// Used for `AdLoader` dependency injection
 protocol AdLoaderCreatorProtocol{
     func create(adUnitId:String,
                 rootViewController:UIViewController?,

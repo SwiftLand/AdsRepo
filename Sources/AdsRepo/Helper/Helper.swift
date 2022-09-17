@@ -7,6 +7,7 @@
 
 import Foundation
 import GoogleMobileAds
+
 public func setTestDevices(deviceIds:[String]){
     GADMobileAds.sharedInstance().requestConfiguration.testDeviceIdentifiers = deviceIds
 }

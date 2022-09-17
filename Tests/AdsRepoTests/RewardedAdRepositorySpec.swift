@@ -207,11 +207,11 @@ class RewardedAdRepositorySpec: QuickSpec {
                    
                     //MARK: Assertation
                     expect(delegate.rewardedAdRepositoryDidFinishLoadingErrorCalled).toEventually(beTrue())
-                    expect(repo.hasReadyAd(vc: UIViewController())).to(beTrue())
+                    expect(repo.canPresentAnyAd(vc: UIViewController())).to(beTrue())
                 }
                 it("if empty"){
                     //MARK: Assertation
-                    expect(repo.hasReadyAd(vc: UIViewController())).to(beFalse())
+                    expect(repo.canPresentAnyAd(vc: UIViewController())).to(beFalse())
                 }
             }
             context("when get an error"){

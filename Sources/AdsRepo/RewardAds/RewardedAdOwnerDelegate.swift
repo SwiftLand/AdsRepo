@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// Protocol to communicate `RewardedAdWrapper` with its own repository
 internal protocol RewardedAdOwnerDelegate:NSObject{
     func adWrapper(didReady ad:RewardedAdWrapper)
     func adWrapper(didClose ad:RewardedAdWrapper)

@@ -6,6 +6,8 @@
 //
 
 import Foundation
+
+/// Ad state that used for interstitial Ads and rewarded ads
 public enum AdState:Int{
     case waiting = 0
     case loading = 1

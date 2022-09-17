@@ -7,6 +7,8 @@
 
 import Foundation
 import GoogleMobileAds
+
+/// Used as dependency injection
 protocol AdCreatorProtocol{
     func createAd(owner:InterstitialAdRepository)->InterstitialAdWrapper
     func createAd(owner:RewardedAdRepository)->RewardedAdWrapper

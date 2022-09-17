@@ -8,31 +8,27 @@
 import Foundation
 import GoogleMobileAds
 
-public struct ErrorHandlerConfig{
-    public static let defaultDelayBetweenRetyies:Int = 5
-    public static let defaultMaxRetryCount:Int = 20
-    
-    public var delayBetweenRetries = ErrorHandlerConfig.defaultDelayBetweenRetyies// second
-    public var maxRetryCount = ErrorHandlerConfig.defaultMaxRetryCount
-}
-
-protocol ErrorHandlerProtocol{
-    typealias RetryClosure = ()->Void
-    var config:ErrorHandlerConfig{get}
-    func isRetryAble(error: Error?,retryClosure:RetryClosure?)->Bool
-    func restart()
-    func cancel()
-}
-
+/// `ErrorHandler` will handle all types of repository errors. it is configurable to retry at a specific time before the return fails to its own repository.
 class ErrorHandler:ErrorHandlerProtocol  {
+    
+    /// Keep all configuration and policy that how retries after each fail
     let config:ErrorHandlerConfig
+    
     private(set) var currentRetryCount = 0
     private var lastWorkItem:DispatchWorkItem?  = nil
+    
+    
     init(config:ErrorHandlerConfig? = nil) {
         self.config = config ?? ErrorHandlerConfig()
     }
 
-    //return: can method retry or not (as bool)
+
+
+    /// check if the input error is retryable or not. If it's retryable, will call `retryClosure` after all conditions (which are declared in the `ErrorHandler Config` variable) are provided.
+    /// - Parameters:
+    ///   - error: An error which received from the repository
+    ///   - retryClosure: Will execute  after all condition (which are declared in the `ErrorHandlerConfig` variable) provided
+    /// - Returns: Return `true` if can method retry otherwise return `false`
     @discardableResult
     func isRetryAble(error: Error?,retryClosure:RetryClosure? = nil)->Bool{
         guard let error = error else{
@@ -82,10 +78,13 @@ class ErrorHandler:ErrorHandlerProtocol  {
         DispatchQueue.global().asyncAfter(deadline: .now()+DispatchTimeInterval.seconds(config.delayBetweenRetries)
                                           , execute: lastWorkItem!)
     }
-    //call it after restart
+    
+    ///Will restart retry count
     func restart(){
         currentRetryCount = 0
     }
+    
+    ///Will cancel last waiting `retryClosure` DispatchWorkItem
     func cancel(){
         lastWorkItem?.cancel()
     }

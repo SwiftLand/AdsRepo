@@ -11,35 +11,61 @@ import UIKit
 
 public class RewardedAdWrapper:NSObject{
     
+    /// get `GADRewardedAd` object that loaded successfully
     private var _loadedAd: GADRewardedAd?
     public var loadedAd:GADRewardedAdWrapper?{
         return _loadedAd as? GADRewardedAdWrapper
     }
-    
-    public private(set) var state:AdState = .waiting
-    public private(set) var loadedDate:TimeInterval? = nil
-    public var isPresenting:Bool{listener.isPresenting}
-    public internal(set) var showCount:Int = 0
-    public private(set) var isRewardReceived:Bool = false
+    /// Repository configuration. See **RepositoryConfig.swift** for more details.
     public private(set) var config:RepositoryConfig
-    public private(set) weak var owner:RewardedAdRepository? = nil
+    
+    /// return current state of `RewardedAdWrapper`.  See **AdState.swift** for more detail
+    public private(set) var state:AdState = .waiting
+    
+    /// Show GADRewardedAd load Date (In milisecond). `nil` if GADRewardedAd does not load yet
+    public private(set) var loadedDate:TimeInterval? = nil
+  
+    /// Show how many time this object return as valid ads to user. See **`loadAd`** function in **InterstitialAdRepository.swift** for more details
+    public internal(set) var showCount:Int = 0
+    
+    /// Return `true` if current ad Wrapper is presenting full-screen otherwise return `false`
+    public var isPresenting:Bool{listener.isPresenting}
+    
+    /// return `true` if the reward is successfully Received otherwise return `false`
+    public private(set) var isRewardReceived:Bool = false
+
+    /// Keep a weak reference of the current object owner. an `owner` is a repository object that will interact with this object.
+    public private(set) weak var owner:RewardedAdRepositoryProtocol? = nil
+    
+    /// Keep a weak reference of `RewardedAdWrapperDelegate`. See **InterstitialAdWrapperDelegate.swift** for more details
     public weak var delegate:RewardedAdWrapperDelegate?
     
+    /// Protocol to communicate `InterstitialAdWrapper` with its own repository
     internal weak var ownerDelegate:RewardedAdOwnerDelegate? = nil
     internal var adLoader = GADRewardedAd.self//<-- Use in testing
+    
+    //Keep the `now` object as a variable to make the unit test easy to change the current time
     internal var now:TimeInterval = {Date().timeIntervalSince1970}()
     
+    //Interval timer to expire date that's declared in repository config
     private var timer: DispatchSourceTimer? = nil
     
     private lazy var listener = {
         RewardAdWrapperListener(owner: self)
     }()
     
-   
-    init(owner:RewardedAdRepository) {
+    init(owner:RewardedAdRepositoryProtocol,
+                  adOwnerDelegate:RewardedAdOwnerDelegate,
+                  config:RepositoryConfig) {
+        
         self.owner = owner
-        self.ownerDelegate = owner
-        self.config = owner.config
+        self.ownerDelegate = adOwnerDelegate
+        self.config = config
+        super.init()
+    }
+    
+   convenience init(owner:RewardedAdRepository) {
+       self.init(owner: owner, adOwnerDelegate: owner, config: owner.config)
     }
     
     func loadAd(){
@@ -87,7 +113,7 @@ public class RewardedAdWrapper:NSObject{
     
     func presentAd(vc:UIViewController){
         
-        if isReady(vc: vc)  {
+        if canPresent(vc: vc)  {
             _loadedAd?.fullScreenContentDelegate = listener
             _loadedAd?.present(fromRootViewController: vc,
                               userDidEarnRewardHandler: {self.onReceivedReward()})
@@ -95,8 +121,10 @@ public class RewardedAdWrapper:NSObject{
             print("Rewarded Ad wasn't ready")
         }
     }
-    
-    func isReady(vc:UIViewController)->Bool{
+    /// Returns whether the interstitial ad can be presented from the provided root view controller. Sets the error out parameter if the ad can't be presented. Must be called on the main thread.
+    /// - Parameter vc: A view controller to present the ad.
+    /// - Returns: Return `true` if can present full-screen ad at input UIViewController otherwise return `false`
+   public func canPresent(vc:UIViewController)->Bool{
         guard _loadedAd != nil else{return false}
         do{
             try self._loadedAd?.canPresent(fromRootViewController: vc)

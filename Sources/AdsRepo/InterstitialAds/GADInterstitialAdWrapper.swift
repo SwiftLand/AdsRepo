@@ -8,6 +8,7 @@
 import Foundation
 import GoogleMobileAds
 
+/// Create a wrapper to prevent  override package `fullScreenContentDelegate` with user own  `fullScreenContentDelegate`
 public class GADInterstitialAdWrapper:GADInterstitialAd{
   
     internal weak var _fullScreenContentDelegate:GADFullScreenContentDelegate?

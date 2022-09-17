@@ -7,6 +7,8 @@
 
 import Foundation
 import AppTrackingTransparency
+
+/// Helper for use AppTrackingTransparency
 public class ATTHelper{
     @available(iOS 14, *)
     public static var state:ATTrackingManager.AuthorizationStatus{

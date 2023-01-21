@@ -12,26 +12,39 @@ import GoogleMobileAds
 
 class RepositoryManager{
     static let shared = RepositoryManager()
-    let interstitialAdsRepo: InterstitialAdRepository = {
-       return InterstitialAdRepository(config:RepositoryConfig.debugInterstitialConfig())
+    let interstitialAdsRepo: AdRepository<InterstitialAdWrapper> = {
+       return AdRepository<InterstitialAdWrapper>(config:RepositoryConfig.debugInterstitialConfig())
     }()
-    let rewardedAdsRepo: RewardedAdRepository = {
-        return RewardedAdRepository(config:RepositoryConfig.debugRewardedConfig())
+    let rewardedAdsRepo: AdRepository<RewardedAdWrapper> = {
+        return AdRepository<RewardedAdWrapper>(config:RepositoryConfig.debugRewardedConfig())
     }()
 
-    let nativeVideoAdRepo: NativeAdRepository = {
-       return NativeAdRepository(config:RepositoryConfig.debugNativeVideoConfig())
+    let nativeVideoAdRepo: AdRepository<NativeAdWrapper> = {
+       return AdRepository<NativeAdWrapper>(config:RepositoryConfig.debugNativeVideoConfig())
     }()
-    let nativeAdRepo: NativeAdRepository = {
-        return NativeAdRepository(config:RepositoryConfig.debugNativeConfig())
+    let nativeAdRepo: AdRepository<NativeAdWrapper> = {
+        return AdRepository<NativeAdWrapper>(config:RepositoryConfig.debugNativeConfig())
     }()
 
     
     func fillAllRepositories(){
-        interstitialAdsRepo.fillRepoAds()
-        rewardedAdsRepo.fillRepoAds()
-        nativeVideoAdRepo.fillRepoAds()
+//        interstitialAdsRepo.fillRepoAds()
+//        rewardedAdsRepo.fillRepoAds()
+//        nativeVideoAdRepo.fillRepoAds()
         nativeAdRepo.fillRepoAds()
+    }
+    
+    func add(Observer ob:AdRepositoryDelegate){
+        interstitialAdsRepo.append(observer: ob)
+        rewardedAdsRepo.append(observer: ob)
+        nativeVideoAdRepo.append(observer: ob)
+        nativeAdRepo.append(observer: ob)
+    }
+    func remove(Observer ob:AdRepositoryDelegate){
+        interstitialAdsRepo.remove(observer: ob)
+        rewardedAdsRepo.remove(observer: ob)
+        nativeVideoAdRepo.remove(observer: ob)
+        nativeAdRepo.remove(observer: ob)
     }
 }
 

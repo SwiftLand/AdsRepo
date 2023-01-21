@@ -8,7 +8,7 @@
 import Foundation
 import GoogleMobileAds
 @testable import AdsRepo
-class AdLoaderCreatorMock:AdLoaderCreatorProtocol{
+class AdLoaderCreatorMock:AdLoaderFactoryProtocol{
     
     var fakeAd = FakeNativeAdMock()
     var isLoading:Bool = false

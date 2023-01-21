@@ -29,7 +29,7 @@ class NativeAdCell:UICollectionViewCell{
                 showActivityIndicator()
                 return
             }
-            adWrapper.delegate = self//<-- weak reference
+//            adWrapper.delegate = self//<-- weak reference
             showCountLabel.text = "show count (\(adWrapper.showCount))"
             showNativeAd()
             hideActivityIndicator()
@@ -50,7 +50,7 @@ class NativeAdCell:UICollectionViewCell{
     private func showNativeAd() {
         guard let nativeAd = adWrapper?.loadedAd else {return}
 
-       
+
         // Populate the native ad view with the native ad assets.
         // The headline and mediaContent are guaranteed to be present in every native ad.
         (nativeAdView.headlineView as? UILabel)?.text = nativeAd.headline
@@ -120,13 +120,13 @@ class NativeAdCell:UICollectionViewCell{
         }
     }
 }
-
-extension NativeAdCell:NativeAdWrapperDelegate{
-    func nativeAdWrapper(didShowCountChanged ad: NativeAdWrapper) {
-        showCountLabel.text = "show count (\(adWrapper?.showCount ?? 0))"
-    }
-    func nativeAdWrapper(didExpire ad: NativeAdWrapper) {
-        showCountLabel.text = "(expired)"
-    }
-}
+//
+//extension NativeAdCell:NativeAdWrapperDelegate{
+//    func nativeAdWrapper(didShowCountChanged ad: NativeAdWrapper) {
+//        showCountLabel.text = "show count (\(adWrapper?.showCount ?? 0))"
+//    }
+//    func nativeAdWrapper(didExpire ad: NativeAdWrapper) {
+//        showCountLabel.text = "(expired)"
+//    }
+//}
 

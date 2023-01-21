@@ -9,6 +9,7 @@
 import UIKit
 import AdsRepo
 import AppTrackingTransparency
+import GoogleMobileAds
 class MainController: UIViewController {
     
     var loadedInterstinalAdCount = 0{
@@ -43,12 +44,8 @@ class MainController: UIViewController {
     @IBOutlet weak var interstinalAdBtn: UIButton!
     
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        AdsRepo.default.addObserver(observer: self)
-        // Do any additional setup after loading the view, typically from a nib.
-    }
     override func viewWillAppear(_ animated: Bool) {
+        RepositoryManager.shared.add(Observer: self)
         interstinalAdBtn.setTitle("Interstinal Ad (loaded:\(loadedInterstinalAdCount))", for: .normal)
         rewardedAdBtn.setTitle("Rewarded Ad (loaded:\(loadedRewardedAdCount))", for: .normal)
         
@@ -59,6 +56,10 @@ class MainController: UIViewController {
         VideoNativeAdBtn.setTitle("Full screen Video Native ad (loaded:\(loadedVideoNativeAdCount))", for: .normal)
         
     }
+    override func viewWillDisappear(_ animated: Bool) {
+        RepositoryManager.shared.remove(Observer: self)
+    }
+    
     override func viewDidAppear(_ animated: Bool) {
         ATTHelper.request{status in
             RepositoryManager.shared.fillAllRepositories()
@@ -86,60 +87,66 @@ class MainController: UIViewController {
             vc.adRepository = RepositoryManager.shared.nativeVideoAdRepo
             navigationController?.pushViewController(vc, animated: true)
         case rewardedAdBtn:
-            RepositoryManager.shared.rewardedAdsRepo.presentAd(vc: self){
-             [weak self] rewardAd in
-                rewardAd?.delegate = self
-            }
+            RepositoryManager.shared.rewardedAdsRepo.loadAd(onLoad: {
+                adWrapper in
+                adWrapper?.loadedAd.present(fromRootViewController: self, userDidEarnRewardHandler: {
+                    [weak self] in
+                    guard let ad = adWrapper?.loadedAd else{return}
+                    self?.onReceivedReward (ad:ad)
+                })
+            })
         case interstinalAdBtn:
-            RepositoryManager.shared.interstitialAdsRepo.presentAd(vc: self) {
-             [weak self] interstitialAd in
-                interstitialAd?.delegate = self
-            }
+            RepositoryManager.shared.interstitialAdsRepo.loadAd(onLoad: {
+                adWrapper in
+                adWrapper?.loadedAd.present(fromRootViewController: self)
+            })
+        default:break
+        }
+    }
+    
+    private func onReceivedReward (ad:GADRewardedAd){
+        guard ad.adReward.amount != 0 else {
+            return
+        }
+        let amount = ad.adReward.amount
+        print("Rewarded received with amount \(amount).")
+    }
+}
+extension MainController:AdRepositoryDelegate{
+    
+    
+    func adRepository(didReceive repository:any AdRepositoryProtocol){
+        updateRepositoryCountView(repository)
+    }
+
+    func adRepository(didFinishLoading repository:any AdRepositoryProtocol,error:Error?){
+        if error == nil{
+            print("Repo(\(repository.config.adUnitId)) is full, count:\(repository.adCount)")
+        }else{
+            print("Repo(\(repository.config.adUnitId)) have error:\(String(describing: error))")
+        }
+    }
+    
+    func adRepository(didExpire ad:any AdWrapperProtocol,in repository:any AdRepositoryProtocol){
+        updateRepositoryCountView(repository)
+    }
+    
+    func adRepository(didRemove ad:any AdWrapperProtocol,in repository:any AdRepositoryProtocol){
+        updateRepositoryCountView(repository)
+    }
+    
+    private func updateRepositoryCountView(_ repository:any AdRepositoryProtocol){
+        switch repository.self{
+        case RepositoryManager.shared.interstitialAdsRepo:
+            loadedInterstinalAdCount = repository.adCount
+        case RepositoryManager.shared.rewardedAdsRepo:
+            loadedRewardedAdCount = repository.adCount
+        case RepositoryManager.shared.nativeAdRepo:
+            loadedNativeAdCount = repository.adCount
+        case RepositoryManager.shared.nativeVideoAdRepo:
+            loadedVideoNativeAdCount = repository.adCount
         default:break
         }
     }
 }
-extension MainController:AdsRepoDelegate{
-    
-    func interstitialAdRepository(didReceive repo: InterstitialAdRepository) {
-        loadedInterstinalAdCount = repo.AdCount
-    }
-    func interstitialAdRepository(didFinishLoading repo: InterstitialAdRepository, error: Error?) {
-        if error == nil{
-            print("Repo(\(repo.config.adUnitId)) is full, count:\(repo.AdCount)")
-        }else{
-            print("Repo(\(repo.config.adUnitId)) have error:\(String(describing: error))")
-        }
-        
-    }
-    
-    func rewardedAdRepository(didReceiveAds repo: RewardedAdRepository) {
-        loadedRewardedAdCount =  repo.AdCount
-    }
-    
-    func rewardedAdRepository(didFinishLoading repo: RewardedAdRepository, error: Error?) {
-        if error == nil{
-            print("Repo(\(repo.config.adUnitId)) is full, count:\(repo.AdCount)")
-        }else{
-            print("Repo(\(repo.config.adUnitId)) have error:\(String(describing: error))")
-        }
-    }
-    
-    func nativeAdRepository(didReceive repo: NativeAdRepository) {
-        if repo == RepositoryManager.shared.nativeAdRepo{
-            loadedNativeAdCount =  repo.AdCount        }
-        if repo ==  RepositoryManager.shared.nativeVideoAdRepo{
-            loadedVideoNativeAdCount =  repo.AdCount
-        }
-    }
-}
-extension MainController:InterstitialAdWrapperDelegate{
-    func interstitialAdWrapper(didRemoveFromRepository ad: InterstitialAdWrapper) {
-        loadedInterstinalAdCount = ad.owner?.AdCount ?? 0
-    }
-}
-extension MainController:RewardedAdWrapperDelegate{
-    func rewardedAdWrapper(didRemoveFromRepository ad: RewardedAdWrapper) {
-        loadedRewardedAdCount = ad.owner?.AdCount ?? 0
-    }
-}
+

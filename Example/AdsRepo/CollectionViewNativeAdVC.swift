@@ -15,16 +15,19 @@ class CollectionViewNativeAdVC:UICollectionViewController{
         case banner
         case largeBanner
     }
-    weak var adRepository:NativeAdRepository? = nil
+    
+    typealias RepoTpye = AdRepository<NativeAdWrapper>
+    weak var adRepository:RepoTpye? = nil
     var type:AdType = .banner
     
     override func viewWillAppear(_ animated: Bool) {
         self.collectionView?.register(UINib(nibName: "BannerNativeAdCell", bundle: nil), forCellWithReuseIdentifier: "BannerNativeAdCell")
         self.collectionView?.register(UINib(nibName: "NativeAdCell", bundle: nil), forCellWithReuseIdentifier: "NativeAdCell")
-        AdsRepo.default.addObserver(observer: self)
+        adRepository?.append(observer: self)
+
     }
     override func viewWillDisappear(_ animated: Bool) {
-        AdsRepo.default.removeObserver(observer: self)
+        adRepository?.remove(observer: self)
     }
 }
 
@@ -88,27 +91,28 @@ extension CollectionViewNativeAdVC:UICollectionViewDelegateFlowLayout{
     }
 }
 
-extension CollectionViewNativeAdVC:AdsRepoDelegate{
-    func nativeAdRepository(didFinishLoading repo: NativeAdRepository, error: Error?) {
-        
+extension CollectionViewNativeAdVC:AdRepositoryDelegate{
+    
+    func adRepository(didFinishLoading repository: any AdRepositoryProtocol, error: Error?) {
+
         if let error = error {
             print("❗️","have error in loading",error)
             return
         }
         
-        guard repo == adRepository else {return}
+        guard let adRepository = self.adRepository else {return}
         
         collectionView?.visibleCells.forEach{
             cell in
             if let adCell = cell as? NativeAdCell,
-               adCell.adWrapper == nil || !adCell.adWrapper!.isValid{
-                adRepository?.loadAd {adWrapper in
+               adCell.adWrapper == nil {
+                adRepository.loadAd {adWrapper in
                     adCell.adWrapper = adWrapper
                 }
             }
             if let adCell = cell as? BannerNativeAdCell,
-                adCell.adWrapper == nil || !adCell.adWrapper!.isValid {
-                adRepository?.loadAd {adWrapper in
+                adCell.adWrapper == nil {
+                adRepository.loadAd {adWrapper in
                     adCell.adWrapper = adWrapper
                 }
             }

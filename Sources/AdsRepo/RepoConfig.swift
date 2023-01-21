@@ -9,7 +9,6 @@ import Foundation
 
 /// `RepositoryConfig` contains all repository non-mutable configuration. it's necessary to create a repository
 public struct RepositoryConfig{
-    
     public let adUnitId:String
     public let size:Int
     public let expireIntervalTime:TimeInterval
@@ -24,10 +23,9 @@ public struct RepositoryConfig{
     public init(
         adUnitId:String,//unitId that's google provided
         size:Int,//repository total size
-        expireIntervalTime:TimeInterval = 120,//reopo in second
+        expireIntervalTime:TimeInterval = 10,//reopo in second
         showCountThreshold:Int = 1//max time can show an ad
     ) {
-            
             self.adUnitId = adUnitId
             self.size = size
             self.showCountThreshold = showCountThreshold

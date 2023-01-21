@@ -13,16 +13,18 @@ import GoogleMobileAds
 
 class FullScreenNativeAdVC: UIViewController {
     
+    typealias RepoType = AdRepository<NativeAdWrapper>
     var isLoaded:Bool {nativeAdView.nativeAd != nil}
     @IBOutlet weak var nativeAdView: GADNativeAdView!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
-    weak var adRepository:NativeAdRepository? = nil
+    weak var adRepository:RepoType? = nil
     
     override func viewWillAppear(_ animated: Bool) {
         nativeAdView.isHidden = true
-        if let adController = adRepository {
-            showNativeAd(adController)
+        if let adRepository = adRepository {
+            showNativeAd(adRepository)
         }
+        registerCellForAdsRepo()
     }
     override func viewWillDisappear(_ animated: Bool) {
         deregisterCellForAdsRepo()
@@ -36,25 +38,25 @@ class FullScreenNativeAdVC: UIViewController {
         activityIndicator.stopAnimating()
         activityIndicator.isHidden = true
     }
-    func showNativeAd(_ adController:NativeAdRepository){
+    func showNativeAd(_ adController:RepoType){
         self.adRepository = adController
         adController.loadAd {[weak self] adWrapper in
+            guard let self = self else {return}
             if let adWrapper = adWrapper {
-                adWrapper.delegate = self//<-- weak reference
-                self?.showNativeAd(adWrapper.loadedAd)
-                self?.hideActivityIndicator()
+             
+                self.showNativeAd(adWrapper.loadedAd)
+                self.hideActivityIndicator()
             }else{
-                self?.showActivityIndicator()
-                self?.registerCellForAdsRepo()
+                self.showActivityIndicator()
             }
         }
     }
 
     func registerCellForAdsRepo(){
-        AdsRepo.default.addObserver(observer: self)
+        adRepository?.append(observer: self)
     }
     func deregisterCellForAdsRepo(){
-        AdsRepo.default.removeObserver(observer: self)
+        adRepository?.remove(observer: self)
     }
     
     private func showNativeAd(_ nativeAd: GADNativeAd) {
@@ -121,19 +123,14 @@ class FullScreenNativeAdVC: UIViewController {
 }
 
 
-extension FullScreenNativeAdVC:AdsRepoDelegate{
-    func nativeAdRepository(didReceive repo: NativeAdRepository) {
-        guard !isLoaded,let adController = self.adRepository else {return}
-        showNativeAd(adController)
+extension FullScreenNativeAdVC:AdRepositoryDelegate{
+    func adRepository(didReceive repository: any AdRepositoryProtocol) {
+        guard !isLoaded,let adRepository = self.adRepository else {return}
+        showNativeAd(adRepository)
     }
-}
-
-extension FullScreenNativeAdVC:NativeAdWrapperDelegate{
-    func nativeAdWrapper(didExpire ad: NativeAdWrapper) {
-        if isLoaded ,
-           ad.loadedAd == nativeAdView.nativeAd,
-           let adController = self.adRepository {
-            showNativeAd(adController)
+    func adRepository(didExpire ad: any AdWrapperProtocol, in repository:any AdRepositoryProtocol) {
+        if ad.loadedAd === nativeAdView.nativeAd,let adRepository = self.adRepository{
+            showNativeAd(adRepository)
         }
     }
 }

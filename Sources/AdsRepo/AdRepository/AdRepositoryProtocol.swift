@@ -7,18 +7,12 @@
 
 import Foundation
 
-public enum AdType {
-    case interstital
-    case rewarded
-    case native
-}
-
 public protocol AdRepositoryProtocol:NSObject {
     
     associatedtype AdWrapperType
     
     /// Current repository configuration. See **RepositoryConfig.swift** for more details.
-    var config:RepositoryConfig {get}
+    var config:AdRepositoryConfig {get}
     
     /// Return `true` if current repository is in loading state
     var isLoading:Bool {get}

@@ -43,7 +43,7 @@ class FullScreenNativeAdVC: UIViewController {
         adController.loadAd {[weak self] adWrapper in
             guard let self = self else {return}
             if let adWrapper = adWrapper {
-             
+                
                 self.showNativeAd(adWrapper.loadedAd)
                 self.hideActivityIndicator()
             }else{
@@ -51,7 +51,7 @@ class FullScreenNativeAdVC: UIViewController {
             }
         }
     }
-
+    
     func registerCellForAdsRepo(){
         adRepository?.append(observer: self)
     }
@@ -60,7 +60,7 @@ class FullScreenNativeAdVC: UIViewController {
     }
     
     private func showNativeAd(_ nativeAd: GADNativeAd) {
-       
+        
         // This app uses a fixed width for the GADMediaView and changes its height to match the aspect
         // Set the mediaContent on the GADMediaView to populate it with available
         // video/image asset.
@@ -79,7 +79,7 @@ class FullScreenNativeAdVC: UIViewController {
         
         (nativeAdView.iconView as? UIImageView)?.image = nativeAd.icon?.image
         nativeAdView.iconView?.isHidden = nativeAd.icon == nil
-
+        
         
         (nativeAdView.starRatingView as? UIImageView)?.image = imageOfStars(from: nativeAd.starRating)
         nativeAdView.starRatingView?.isHidden = nativeAd.starRating == nil
@@ -124,11 +124,11 @@ class FullScreenNativeAdVC: UIViewController {
 
 
 extension FullScreenNativeAdVC:AdRepositoryDelegate{
-    func adRepository(didReceive repository: any AdRepositoryProtocol) {
+    func adRepository(didReceive repository: AnyRepositoryType) {
         guard !isLoaded,let adRepository = self.adRepository else {return}
         showNativeAd(adRepository)
     }
-    func adRepository(didExpire ad: any AdWrapperProtocol, in repository:any AdRepositoryProtocol) {
+    func adRepository(didExpire ad: AnyAdType, in repository: AnyRepositoryType) {
         if ad.loadedAd === nativeAdView.nativeAd,let adRepository = self.adRepository{
             showNativeAd(adRepository)
         }

@@ -11,40 +11,45 @@ import GoogleMobileAds
 class NativeAdLoader:NSObject,AdLoaderProtocol{
     
     var state: AdLoaderState = .waiting
-    var config:RepositoryConfig
+    var config:AdRepositoryConfig
+    var request:GADRequest = GADRequest()
+    
     weak var delegate:AdLoaderDelegate?
     
-    private weak var rootVC:UIViewController? = nil
-    private var adLoader: GADAdLoader?
+    private var adLoader: GADAdLoader
     
     
-    init(config: RepositoryConfig,delegate:AdLoaderDelegate) {
+    init(config: AdRepositoryConfig,delegate:AdLoaderDelegate) {
         self.config = config
         self.delegate = delegate
+        
+        //default loader
+        adLoader = GADAdLoader(
+            adUnitID:config.adUnitId,
+            rootViewController: UIApplication.shared.keyWindow?.rootViewController,
+            adTypes: [.native],
+            options: []
+        )
     }
     
     
     func load(adCount:Int){
         state = .loading
-        adLoader?.load(GADRequest())
+        adLoader.delegate = self
+        adLoader.load(GADRequest())
     }
-
-    func configNativeAdLoader(adTypes:[GADAdLoaderAdType]? = nil,options:[GADAdLoaderOptions]? = nil,
-                              rootVC:UIViewController? = nil){
+    
+    func updateRequest(request:GADRequest){
+        self.request = request
+    }
+    
+    func updateLoader(adTypes:[GADAdLoaderAdType]? = nil,
+                        options:[GADAdLoaderOptions]? = nil,
+                        rootVC:UIViewController? = nil){
         
-        var adLoaderOptions = options ?? []
-        
-        //MARK: TODO
-        //multiAdOption have to control from repository
-//        adLoaderOptions.removeAll(where:{$0 is GADMultipleAdsAdLoaderOptions})
-//        let multiAdOption = GADMultipleAdsAdLoaderOptions()
-//        multiAdOption.numberOfAds = config.size - adsRepo.count
-//        adLoaderOptions.append(multiAdOption)
-//
-        
+        let adLoaderOptions = options ?? []
         let vc = rootVC ?? UIApplication.shared.keyWindow?.rootViewController
         
-        // Create GADAdLoader
         adLoader = GADAdLoader(
             adUnitID:config.adUnitId,
             rootViewController: vc,
@@ -52,8 +57,6 @@ class NativeAdLoader:NSObject,AdLoaderProtocol{
             options: adLoaderOptions
         )
         
-        // Set the GADAdLoader delegate
-        adLoader?.delegate = self
     }
     
 }
@@ -68,7 +71,6 @@ extension NativeAdLoader:GADNativeAdLoaderDelegate{
         print("Native AdLoader","DidFinishLoading")
         state = .waiting
         delegate?.adLoader(didFinishLoad: self,withError: nil)
-
     }
     
     func adLoader(_ adLoader: GADAdLoader, didFailToReceiveAdWithError error: Error) {

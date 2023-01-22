@@ -20,7 +20,7 @@ public class AdRepository<AdWrapperType:AdWrapperProtocol>:NSObject,AdRepository
     
     
     /// Current reposiotry configuration. See **RepositoryConfig.swift** for more details.
-    public private(set) var config:RepositoryConfig
+    public private(set) var config:AdRepositoryConfig
     
     /// Return `true` if current repository is in loading state
     public var isLoading:Bool {adLoader.state == .loading}
@@ -87,7 +87,7 @@ public class AdRepository<AdWrapperType:AdWrapperProtocol>:NSObject,AdRepository
     ///   - errorHandlerConfig: current reposiotry  error handler configuration  See **ErrorHandlerConfig.swift** for more details.
     ///   - delegate: set delegation for this repository
     public init(
-        config:RepositoryConfig,
+        config:AdRepositoryConfig,
         errorHandlerConfig:ErrorHandlerConfig? = nil){
             
             self.config = config

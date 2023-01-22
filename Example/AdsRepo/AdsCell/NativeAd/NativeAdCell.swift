@@ -29,7 +29,6 @@ class NativeAdCell:UICollectionViewCell{
                 showActivityIndicator()
                 return
             }
-//            adWrapper.delegate = self//<-- weak reference
             showCountLabel.text = "show count (\(adWrapper.showCount))"
             showNativeAd()
             hideActivityIndicator()
@@ -120,13 +119,4 @@ class NativeAdCell:UICollectionViewCell{
         }
     }
 }
-//
-//extension NativeAdCell:NativeAdWrapperDelegate{
-//    func nativeAdWrapper(didShowCountChanged ad: NativeAdWrapper) {
-//        showCountLabel.text = "show count (\(adWrapper?.showCount ?? 0))"
-//    }
-//    func nativeAdWrapper(didExpire ad: NativeAdWrapper) {
-//        showCountLabel.text = "(expired)"
-//    }
-//}
 

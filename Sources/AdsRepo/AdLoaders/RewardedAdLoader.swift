@@ -11,12 +11,12 @@ import GoogleMobileAds
 class RewardedAdLoader:AdLoaderProtocol{
     
     var state: AdLoaderState = .waiting
-    
-    var config:RepositoryConfig
+    var request:GADRequest = GADRequest()
+    var config:AdRepositoryConfig
     weak var delegate:AdLoaderDelegate?
 
     
-    init(config: RepositoryConfig,delegate:AdLoaderDelegate) {
+    init(config: AdRepositoryConfig,delegate:AdLoaderDelegate) {
         self.config = config
         self.delegate = delegate
     }
@@ -24,7 +24,6 @@ class RewardedAdLoader:AdLoaderProtocol{
     
     func load(adCount:Int){
         state = .loading
-        let request = GADRequest()
         GADRewardedAd.load(withAdUnitID:config.adUnitId,
                                request: request,completionHandler: {[weak self] (ad, error) in
             guard let self = self else{return}

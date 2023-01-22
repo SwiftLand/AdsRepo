@@ -21,7 +21,7 @@ class InterstitialAdRepositorySpec: QuickSpec {
         describe("InterstitialAdRepository"){
             
             beforeEach {
-                repo = InterstitialAdRepository(config: RepositoryConfig.debugInterstitialConfig())
+                repo = InterstitialAdRepository(config: AdRepositoryConfig.debugInterstitialConfig())
                 delegate = InterstitialAdRepositoryDelegateMock()
                 repo.delegate = delegate
                 adCreator = AdCreatorMock()

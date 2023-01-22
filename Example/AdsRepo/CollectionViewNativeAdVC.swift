@@ -92,16 +92,17 @@ extension CollectionViewNativeAdVC:UICollectionViewDelegateFlowLayout{
 }
 
 extension CollectionViewNativeAdVC:AdRepositoryDelegate{
-    
-    func adRepository(didFinishLoading repository: any AdRepositoryProtocol, error: Error?) {
+   
+ 
+    func adRepository(didFinishLoading repository:AnyRepositoryType, error: Error?) {
 
         if let error = error {
             print("❗️","have error in loading",error)
             return
         }
-        
+
         guard let adRepository = self.adRepository else {return}
-        
+
         collectionView?.visibleCells.forEach{
             cell in
             if let adCell = cell as? NativeAdCell,
@@ -115,6 +116,19 @@ extension CollectionViewNativeAdVC:AdRepositoryDelegate{
                 adRepository.loadAd {adWrapper in
                     adCell.adWrapper = adWrapper
                 }
+            }
+        }
+    }
+
+    func adRepository(didExpire ad:AnyAdType, in repository:AnyRepositoryType) {
+        collectionView?.visibleCells.forEach{
+            cell in
+            
+            if let adCell = cell as? NativeAdCell,adCell.adWrapper === ad{
+                adCell.showCountLabel.text = "(expired)"
+            }
+            if let adCell = cell as? BannerNativeAdCell,adCell.adWrapper === ad{
+                adCell.showCountLabel.text = "(expired)"
             }
         }
     }

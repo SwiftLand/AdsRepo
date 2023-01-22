@@ -13,7 +13,7 @@ protocol AdLoaderFactoryProtocol{
     
      associatedtype AdWrapperType
     
-     func create(config:RepositoryConfig,
+     func create(config:AdRepositoryConfig,
                 delegate:any AdLoaderDelegate,
                 rootViewController:UIViewController?,
                 adLoaderOptions:[GADAdLoaderOptions]?,
@@ -22,7 +22,7 @@ protocol AdLoaderFactoryProtocol{
 
 class AdLoaderFactory<AdWrapperType>:AdLoaderFactoryProtocol{
 
-    func create(config:RepositoryConfig,
+    func create(config:AdRepositoryConfig,
                 delegate:any AdLoaderDelegate,
                 rootViewController:UIViewController? = nil,
                 adLoaderOptions:[GADAdLoaderOptions]? = nil,
@@ -34,11 +34,7 @@ class AdLoaderFactory<AdWrapperType>:AdLoaderFactoryProtocol{
         }else if AdWrapperType.self == RewardedAdWrapper.self{
             return RewardedAdLoader(config: config, delegate: delegate)
         }else if  AdWrapperType.self == NativeAdWrapper.self{
-            let loader = NativeAdLoader(config: config, delegate: delegate)
-            loader.configNativeAdLoader(adTypes: adTypes ?? [.native],
-                                        options: adLoaderOptions,
-                                        rootVC: rootViewController)
-            return loader
+            return NativeAdLoader(config: config, delegate: delegate)
         }else{
             fatalError("Not implemented")
         }

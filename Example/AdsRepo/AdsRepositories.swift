@@ -12,25 +12,25 @@ import GoogleMobileAds
 
 class RepositoryManager{
     static let shared = RepositoryManager()
-    let interstitialAdsRepo: AdRepository<InterstitialAdWrapper> = {
-       return AdRepository<InterstitialAdWrapper>(config:RepositoryConfig.debugInterstitialConfig())
+    let interstitialAdsRepo: AdRepository<InterstitialAd> = {
+       return AdRepository<InterstitialAd>(config:AdRepositoryConfig.debugInterstitialConfig())
     }()
-    let rewardedAdsRepo: AdRepository<RewardedAdWrapper> = {
-        return AdRepository<RewardedAdWrapper>(config:RepositoryConfig.debugRewardedConfig())
+    let rewardedAdsRepo: AdRepository<RewardedAd> = {
+        return AdRepository<RewardedAd>(config:AdRepositoryConfig.debugRewardedConfig())
     }()
 
-    let nativeVideoAdRepo: AdRepository<NativeAdWrapper> = {
-       return AdRepository<NativeAdWrapper>(config:RepositoryConfig.debugNativeVideoConfig())
+    let nativeVideoAdRepo: AdRepository<NativeAd> = {
+       return AdRepository<NativeAd>(config:AdRepositoryConfig.debugNativeVideoConfig())
     }()
-    let nativeAdRepo: AdRepository<NativeAdWrapper> = {
-        return AdRepository<NativeAdWrapper>(config:RepositoryConfig.debugNativeConfig())
+    let nativeAdRepo: AdRepository<NativeAd> = {
+        return AdRepository<NativeAd>(config:AdRepositoryConfig.debugNativeConfig())
     }()
 
     
     func fillAllRepositories(){
-//        interstitialAdsRepo.fillRepoAds()
-//        rewardedAdsRepo.fillRepoAds()
-//        nativeVideoAdRepo.fillRepoAds()
+        interstitialAdsRepo.fillRepoAds()
+        rewardedAdsRepo.fillRepoAds()
+        nativeVideoAdRepo.fillRepoAds()
         nativeAdRepo.fillRepoAds()
     }
     

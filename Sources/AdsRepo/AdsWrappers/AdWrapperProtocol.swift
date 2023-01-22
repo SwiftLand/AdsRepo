@@ -8,12 +8,15 @@
 import Foundation
 import GoogleMobileAds
 
+public typealias InterstitialAd = InterstitialAdWrapper
+public typealias RewardedAd = RewardedAdWrapper
+public typealias NativeAd = NativeAdWrapper
 
 public protocol AdWrapperProtocol:NSObject,Hashable{
     
     associatedtype AdType:NSObject
     /// Repository configuration. See **RepositoryConfig.swift** for more details.
-    var config:RepositoryConfig{get}
+    var config:AdRepositoryConfig{get}
    
     var id:String{get}
     

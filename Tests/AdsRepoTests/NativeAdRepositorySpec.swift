@@ -22,7 +22,7 @@ class NativeAdRepositorySpec: QuickSpec {
         describe("NativeAdRepositorySpec"){
             
             beforeEach {
-                repo = NativeAdRepository(config: RepositoryConfig.debugNativeConfig())
+                repo = NativeAdRepository(config: AdRepositoryConfig.debugNativeConfig())
                 delegate = NativeAdRepositoryDelegateMock()
                 repo.delegate = delegate
                 adCreator = AdCreatorMock()

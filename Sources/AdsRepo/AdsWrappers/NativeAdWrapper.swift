@@ -11,7 +11,7 @@ import GoogleMobileAds
 public class NativeAdWrapper:NSObject,AdWrapperProtocol{
 
     /// Repository configuration. See **RepositoryConfig.swift** for more details.
-    public private(set) var config:RepositoryConfig
+    public private(set) var config:AdRepositoryConfig
     
     public private(set) var id: String  = UUID().uuidString
     
@@ -24,7 +24,7 @@ public class NativeAdWrapper:NSObject,AdWrapperProtocol{
     
     
     init(loadedAd: GADNativeAd,
-         config:RepositoryConfig){
+         config:AdRepositoryConfig){
         
         self.config = config
         self.loadedAd = loadedAd

@@ -16,7 +16,7 @@ public class InterstitialAdWrapper:NSObject,AdWrapperProtocol {
     public private(set) var id: String  = UUID().uuidString
     
     /// Repository configuration. See **RepositoryConfig.swift** for more details.
-    public private(set) var config:RepositoryConfig
+    public private(set) var config:AdRepositoryConfig
     
     /// Show GADInterstitialAd load Date (In milisecond). `nil` if GADInterstitialAd does not load yet
     public private(set) var loadedDate:TimeInterval = Date().timeIntervalSince1970
@@ -24,7 +24,7 @@ public class InterstitialAdWrapper:NSObject,AdWrapperProtocol {
     /// Show how many time this object return as valid ads to user. See **`loadAd`** function in **InterstitialAdRepository.swift** for more details
     public internal(set) var showCount:Int = 0
     
-    init(_ ad:GADInterstitialAd,config:RepositoryConfig) {
+    init(_ ad:GADInterstitialAd,config:AdRepositoryConfig) {
         self.loadedAd = ad
         self.config = config
         super.init()

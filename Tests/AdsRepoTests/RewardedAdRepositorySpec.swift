@@ -21,7 +21,7 @@ class RewardedAdRepositorySpec: QuickSpec {
         describe("RewardedAdRepositorySpec"){
             
             beforeEach {
-                repo = RewardedAdRepository(config: RepositoryConfig.debugRewardedConfig())
+                repo = RewardedAdRepository(config: AdRepositoryConfig.debugRewardedConfig())
                 delegate = RewardedAdRepositoryDelegateMock()
                 repo.delegate = delegate
                 adCreator = AdCreatorMock()

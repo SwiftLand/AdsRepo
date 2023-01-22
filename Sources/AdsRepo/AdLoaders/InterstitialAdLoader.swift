@@ -11,13 +11,13 @@ import GoogleMobileAds
 class InterstitialAdLoader:AdLoaderProtocol{
     
     var state: AdLoaderState = .waiting
-    
-    var config:RepositoryConfig
+    var request:GADRequest = GADRequest()
+    var config:AdRepositoryConfig
     weak var delegate:AdLoaderDelegate?
     
     private var count = 0
     
-    init(config: RepositoryConfig,delegate:AdLoaderDelegate) {
+    init(config: AdRepositoryConfig,delegate:AdLoaderDelegate) {
         self.config = config
         self.delegate = delegate
     }
@@ -28,7 +28,6 @@ class InterstitialAdLoader:AdLoaderProtocol{
         state = .loading
         count = adCount
         for _ in 0..<adCount{
-            let request = GADRequest()
             GADInterstitialAd.load(withAdUnitID:config.adUnitId,
                                    request: request,completionHandler: {[weak self] (ad, error) in
                 guard let self = self else{return}

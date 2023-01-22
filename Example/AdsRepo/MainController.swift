@@ -113,13 +113,12 @@ class MainController: UIViewController {
     }
 }
 extension MainController:AdRepositoryDelegate{
-    
-    
-    func adRepository(didReceive repository:any AdRepositoryProtocol){
+  
+    func adRepository(didReceive repository: AnyRepositoryType) {
         updateRepositoryCountView(repository)
     }
 
-    func adRepository(didFinishLoading repository:any AdRepositoryProtocol,error:Error?){
+    func adRepository(didFinishLoading repository:AnyRepositoryType,error:Error?){
         if error == nil{
             print("Repo(\(repository.config.adUnitId)) is full, count:\(repository.adCount)")
         }else{
@@ -127,11 +126,11 @@ extension MainController:AdRepositoryDelegate{
         }
     }
     
-    func adRepository(didExpire ad:any AdWrapperProtocol,in repository:any AdRepositoryProtocol){
+    func adRepository(didExpire ad:AnyAdType,in repository:AnyRepositoryType){
         updateRepositoryCountView(repository)
     }
     
-    func adRepository(didRemove ad:any AdWrapperProtocol,in repository:any AdRepositoryProtocol){
+    func adRepository(didRemove ad:AnyAdType,in repository:AnyRepositoryType){
         updateRepositoryCountView(repository)
     }
     

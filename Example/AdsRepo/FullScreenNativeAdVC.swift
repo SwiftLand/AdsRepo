@@ -13,7 +13,7 @@ import GoogleMobileAds
 
 class FullScreenNativeAdVC: UIViewController {
     
-    typealias RepoType = AdRepository<NativeAdWrapper>
+    typealias RepoType = NativeAdRepository
     var isLoaded:Bool {nativeAdView.nativeAd != nil}
     @IBOutlet weak var nativeAdView: GADNativeAdView!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!

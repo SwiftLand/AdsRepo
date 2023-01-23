@@ -22,16 +22,12 @@ public class InterstitialAdWrapper:NSObject,AdWrapperProtocol {
     public private(set) var loadedDate:TimeInterval = Date().timeIntervalSince1970
     
     /// Show how many time this object return as valid ads to user. See **`loadAd`** function in **InterstitialAdRepository.swift** for more details
-    public internal(set) var showCount:Int = 0
+    public var showCount:Int = 0
     
     init(_ ad:GADInterstitialAd,config:AdRepositoryConfig) {
         self.loadedAd = ad
         self.config = config
         super.init()
-    }
-    
-    public func increaseShowCount() {
-        showCount+=1
     }
     
     deinit {

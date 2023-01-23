@@ -22,9 +22,8 @@ public class RewardedAdWrapper:NSObject,AdWrapperProtocol{
     public private(set) var loadedDate:TimeInterval = Date().timeIntervalSince1970
     
     /// Show how many time this object return as valid ads to user. See **`loadAd`** function in **InterstitialAdRepository.swift** for more details
-    public internal(set) var showCount:Int = 0
+    public var showCount:Int = 0
     
-//    public var increaseShowCountPerLoad: Bool{false}
     /// return `true` if the reward is successfully Received otherwise return `false`
     public private(set) var isRewardReceived:Bool = false
     
@@ -34,10 +33,6 @@ public class RewardedAdWrapper:NSObject,AdWrapperProtocol{
         self.loadedAd = ad
         self.config = config
         super.init()
-    }
-
-    public func increaseShowCount(){
-        showCount += 1
     }
     
     deinit {

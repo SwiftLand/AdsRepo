@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol AdLoaderDelegate:NSObject{
-    func adLoader(_ adLoader:AdLoaderProtocol, didRecive ad:any AdWrapperProtocol )
+public protocol AdLoaderDelegate:NSObject{
+    func adLoader(_ adLoader:AdLoaderProtocol, didReceive ad:any AdWrapperProtocol)
     func adLoader(didFinishLoad adloader:AdLoaderProtocol,withError error:Error?)
 }

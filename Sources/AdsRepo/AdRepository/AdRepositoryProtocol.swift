@@ -10,6 +10,9 @@ import Foundation
 public protocol AdRepositoryProtocol:NSObject {
     
     associatedtype AdWrapperType
+    associatedtype AdLoaderType
+    
+    var adLoader:AdLoaderType{get}
     
     /// Current repository configuration. See **RepositoryConfig.swift** for more details.
     var config:AdRepositoryConfig {get}
@@ -63,6 +66,8 @@ public protocol AdRepositoryProtocol:NSObject {
     /// - NOTE: After being deleted from the repository, each ad will
     /// delegate `removeFromRepository` function
     func validateRepositoryAds()
+    
+    func invalidate(ad:AdWrapperType)
     
     func append(observer:AdRepositoryDelegate)
     

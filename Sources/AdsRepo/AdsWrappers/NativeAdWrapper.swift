@@ -15,12 +15,12 @@ public class NativeAdWrapper:NSObject,AdWrapperProtocol{
     
     public private(set) var id: String  = UUID().uuidString
     
-    public var loadedAd: GADNativeAd
+    public private(set) var loadedAd: GADNativeAd
     /// Show GADNativeAd load Date (In milisecond)
     public private(set) var loadedDate:TimeInterval = Date().timeIntervalSince1970
     
     /// Show how many time this object return as valid ads to user. See **`loadAd`** function in **NativeAdRepository.swift** for more details
-    public private(set) var showCount:Int = 0
+    public var showCount:Int = 0
     
     
     init(loadedAd: GADNativeAd,
@@ -31,20 +31,8 @@ public class NativeAdWrapper:NSObject,AdWrapperProtocol{
         
         super.init()
     }
-
-    public func increaseShowCount(){
-       showCount += 1
-    }
     
     deinit {
         print("deinit","Native Ad")
-    }
-}
-
-extension NativeAdWrapper:GADNativeAdDelegate{
-    
-    public func nativeAdDidRecordImpression(_ nativeAd: GADNativeAd) {
-        increaseShowCount()
-      // The native ad was shown.
     }
 }

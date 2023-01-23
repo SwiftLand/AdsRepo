@@ -7,10 +7,12 @@
 
 import Foundation
 import GoogleMobileAds
-protocol AdLoaderProtocol {
+
+public protocol AdLoaderProtocol {
     var request:GADRequest{get set}
     var state:AdLoaderState{get}
     var config:AdRepositoryConfig{get}
     var delegate:AdLoaderDelegate?{get set}
-    func load(adCount:Int)
+    init(config:AdRepositoryConfig)
+    func load(count:Int)
 }

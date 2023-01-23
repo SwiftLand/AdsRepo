@@ -27,7 +27,5 @@ public protocol AdWrapperProtocol:NSObject,Hashable{
     var loadedDate:TimeInterval{get}
     
     /// Show how many time this object return as valid ads to user. See **`loadAd`** function in **NativeAdRepository.swift** for more details
-    var showCount:Int{get}
-    
-    func increaseShowCount()
+    var showCount:Int{get set}
 }

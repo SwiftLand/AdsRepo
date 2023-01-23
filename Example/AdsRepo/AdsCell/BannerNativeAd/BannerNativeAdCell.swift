@@ -11,7 +11,7 @@ import AdsRepo
 
 class BannerNativeAdCell:UICollectionViewCell{
     var observerId: String = UUID().uuidString
-    typealias RepoTpye = AdRepository<NativeAdWrapper>
+    typealias RepoTpye = NativeAdRepository
     var isLoaded:Bool {nativeAdView.nativeAd != nil}
     weak var adController:RepoTpye? = nil
     

@@ -8,74 +8,81 @@
 import Foundation
 import GoogleMobileAds
 
-class NativeAdLoader:NSObject,AdLoaderProtocol{
+public class NativeAdLoader:NSObject,AdLoaderProtocol{
     
-    var state: AdLoaderState = .waiting
-    var config:AdRepositoryConfig
-    var request:GADRequest = GADRequest()
+    public var state: AdLoaderState = .waiting
+    public var config:AdRepositoryConfig
+    public var request:GADRequest = GADRequest()
+    public weak var delegate:AdLoaderDelegate?
     
-    weak var delegate:AdLoaderDelegate?
+    private weak var rootVC:UIViewController? = nil
+    private var options:[GADAdLoaderOptions]? = nil
+    private var adTypes:[GADAdLoaderAdType]? = nil
+    private var nativeAdLoader:GADAdLoader!
     
-    private var adLoader: GADAdLoader
-    
-    
-    init(config: AdRepositoryConfig,delegate:AdLoaderDelegate) {
+    required public init(config: AdRepositoryConfig) {
         self.config = config
-        self.delegate = delegate
-        
-        //default loader
-        adLoader = GADAdLoader(
-            adUnitID:config.adUnitId,
-            rootViewController: UIApplication.shared.keyWindow?.rootViewController,
-            adTypes: [.native],
-            options: []
-        )
     }
     
-    
-    func load(adCount:Int){
+    public func load(count:Int){
         state = .loading
-        adLoader.delegate = self
-        adLoader.load(GADRequest())
-    }
-    
-    func updateRequest(request:GADRequest){
-        self.request = request
-    }
-    
-    func updateLoader(adTypes:[GADAdLoaderAdType]? = nil,
-                        options:[GADAdLoaderOptions]? = nil,
-                        rootVC:UIViewController? = nil){
         
-        let adLoaderOptions = options ?? []
+        var options = options ?? []
+        let adTypes = adTypes ?? [.native]
         let vc = rootVC ?? UIApplication.shared.keyWindow?.rootViewController
         
-        adLoader = GADAdLoader(
+        //multiAdOption have to control from repository
+        options.removeAll(where:{$0 is GADMultipleAdsAdLoaderOptions})
+        let multiAdOption = GADMultipleAdsAdLoaderOptions()
+        multiAdOption.numberOfAds = count
+        options.append(multiAdOption)
+        
+        nativeAdLoader = GADAdLoader(
             adUnitID:config.adUnitId,
             rootViewController: vc,
-            adTypes: adTypes ?? [.native],
-            options: adLoaderOptions
+            adTypes: adTypes,
+            options: options
         )
         
+        nativeAdLoader.delegate = self
+        nativeAdLoader.load(request)
+    }
+    
+    public func updateLoader(adTypes:[GADAdLoaderAdType]?,
+                             options:[GADAdLoaderOptions]?,
+                             rootVC:UIViewController?){
+        self.adTypes = adTypes
+        self.options = options
+        self.rootVC = rootVC
+    }
+    
+    public func set(adTypes:[GADAdLoaderAdType]?){
+        self.adTypes = adTypes
+    }
+    
+    public func set(options:[GADAdLoaderOptions]?){
+        self.options = options
+    }
+    
+    public func set(rootViewController rootVC:UIViewController?){
+        self.rootVC = rootVC
     }
     
 }
 
 extension NativeAdLoader:GADNativeAdLoaderDelegate{
     
-    func adLoader(_ adLoader: GADAdLoader, didReceive nativeAd: GADNativeAd) {
-        delegate?.adLoader(self,didRecive:  NativeAdWrapper(loadedAd: nativeAd, config: config))
+    public  func adLoader(_ adLoader: GADAdLoader, didReceive nativeAd: GADNativeAd) {
+        delegate?.adLoader(self,didReceive:  NativeAdWrapper(loadedAd: nativeAd, config: config))
     }
     
-    func adLoaderDidFinishLoading(_ adLoader: GADAdLoader) {
-        print("Native AdLoader","DidFinishLoading")
+    public func adLoaderDidFinishLoading(_ adLoader: GADAdLoader) {
         state = .waiting
         delegate?.adLoader(didFinishLoad: self,withError: nil)
     }
     
-    func adLoader(_ adLoader: GADAdLoader, didFailToReceiveAdWithError error: Error) {
+    public func adLoader(_ adLoader: GADAdLoader, didFailToReceiveAdWithError error: Error) {
         state = .waiting
         delegate?.adLoader(didFinishLoad: self,withError: error)
     }
 }
-

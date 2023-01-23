@@ -8,15 +8,19 @@
 import Foundation
 import GoogleMobileAds
 
+public typealias InterstitalAdRepository = AdRepository<InterstitialAdWrapper,InterstitialAdLoader>
+public typealias RewardedAdRepository = AdRepository<RewardedAdWrapper,RewardedAdLoader>
+public typealias NativeAdRepository = AdRepository<NativeAdWrapper,NativeAdLoader>
 
-public class AdRepository<AdWrapperType:AdWrapperProtocol>:NSObject,AdRepositoryProtocol{
+public class AdRepository<AdWrapperType:AdWrapperProtocol,AdLoaderType:AdLoaderProtocol>:NSObject,AdRepositoryProtocol{
+
     
     public var adCount: Int {adsRepo.count}
     
     private var adTimerDict:[String:DispatchSourceTimer] = [:]
     private var errorHandler:ErrorHandlerProtocol
     
-    lazy var adLoader:AdLoaderProtocol = AdLoaderFactory<AdWrapperType>().create(config: config, delegate: self)
+    public lazy var adLoader:AdLoaderType = AdLoaderType(config: config)
     
     
     /// Current reposiotry configuration. See **RepositoryConfig.swift** for more details.
@@ -27,7 +31,7 @@ public class AdRepository<AdWrapperType:AdWrapperProtocol>:NSObject,AdRepository
     
     /// Array of `InterstitialAdWrapper` objects
     /// - WARNING:It's a `read-only` variable and it will change inside the repository only
-    private(set) var adsRepo:[any AdWrapperProtocol] = []
+    private(set) var adsRepo:[AdWrapperType] = []
     
     /// If `true` repository will load new ads automaticly when require otherwise you need to to call `fillRepoAds` manually.
     public var autoFill:Bool = true
@@ -131,7 +135,8 @@ public class AdRepository<AdWrapperType:AdWrapperProtocol>:NSObject,AdRepository
        
         let totalAdsNeedCount =  config.size - validCount
         
-        adLoader.load(adCount: totalAdsNeedCount)
+        adLoader.delegate = self
+        adLoader.load(count: totalAdsNeedCount)
 
         return true
     }
@@ -144,12 +149,19 @@ public class AdRepository<AdWrapperType:AdWrapperProtocol>:NSObject,AdRepository
             return false
         }
         let ad = adsRepo.min(by: {$0.showCount<$1.showCount})
-        ad?.increaseShowCount()
-        onLoad(ad as? AdWrapperType)
+        ad?.showCount += 1
+        onLoad(ad)
         if autoFill {
             fillRepoAds()
         }
         return true
+    }
+    
+    public func invalidate(ad: AdWrapperType) {
+        remove(ad: ad)
+        if autoFill {
+            fillRepoAds()
+        }
     }
 }
 
@@ -157,19 +169,19 @@ public class AdRepository<AdWrapperType:AdWrapperProtocol>:NSObject,AdRepository
 extension AdRepository{
     
     @discardableResult
-    func append(ad:any AdWrapperProtocol)->any AdWrapperProtocol{
+    func append(ad:AdWrapperType)->AdWrapperType{
         adsRepo.append(ad)
         return ad
     }
     
-    private func remove(ad:any AdWrapperProtocol){
+    private func remove(ad:AdWrapperType){
         adsRepo.removeAll(where: {$0 == ad})
         multicastDelegate.delegates.forEach{
             $0.adRepository(didRemove: ad, in: self)
         }
     }
     
-    private func removeAll(where condition: ((any AdWrapperProtocol) -> Bool)? = nil){
+    private func removeAll(where condition: ((AdWrapperType) -> Bool)? = nil){
         var ads:[any AdWrapperProtocol] = []
         if let condition = condition {
             ads = adsRepo.filter(condition)
@@ -198,7 +210,7 @@ extension AdRepository{
 }
 extension AdRepository{
     
-    private func createTimer(for ad:any AdWrapperProtocol){
+    private func createTimer(for ad:AdWrapperType){
         let timer = DispatchSource.makeTimerSource(queue:DispatchQueue.main)
         timer.schedule(deadline: .now() +  config.expireIntervalTime)
         timer.setEventHandler { [weak self] in
@@ -216,10 +228,10 @@ extension AdRepository{
         adTimerDict[ad.id] = timer
     }
     
-    private func startTimer(for ad:any AdWrapperProtocol){
+    private func startTimer(for ad:AdWrapperType){
         adTimerDict[ad.id]?.resume()
     }
-    private func cancelTimer(for ad:any AdWrapperProtocol){
+    private func cancelTimer(for ad:AdWrapperType){
         adTimerDict[ad.id]?.cancel()
         adTimerDict.removeValue(forKey: ad.id)
     }
@@ -227,9 +239,14 @@ extension AdRepository{
 
 extension AdRepository:AdLoaderDelegate{
     
-    func adLoader(_ adLoader: AdLoaderProtocol, didRecive ad: any AdWrapperProtocol) {
-        print("AdLoader","did Receive ad")
-        append(ad:ad as! AdWrapperType)
+    public func adLoader(_ adLoader: AdLoaderProtocol, didReceive ad:any AdWrapperProtocol) {
+      
+        guard let ad = ad as? AdWrapperType else {
+            fatalError("mismatch type => adLoader returns a different type of ad to current repository")
+        }
+        
+        print("AdRepository","did Receive \(AdWrapperType.self) type ad")
+        append(ad:ad)
         createTimer(for: ad)
         startTimer(for: ad)
         multicastDelegate.delegates.forEach{
@@ -237,11 +254,13 @@ extension AdRepository:AdLoaderDelegate{
         }
     }
     
-    func adLoader(didFinishLoad adloader:AdLoaderProtocol, withError error: Error?) {
+    public func adLoader(didFinishLoad adloader:AdLoaderProtocol, withError error: Error?) {
         if let error = error{
+            print("AdRepository","did finish load ads for",AdWrapperType.self,"with error:",error.localizedDescription)
             handlerError(adloader, didFailToReceiveAdWithError: error)
             return
         }
+        print("AdRepository","did finish load ads for",AdWrapperType.self)
         errorHandler.restart()
         validateRepositoryAds()
         if autoFill{

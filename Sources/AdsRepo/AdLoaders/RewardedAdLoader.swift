@@ -8,46 +8,52 @@
 import Foundation
 import GoogleMobileAds
 
-class RewardedAdLoader:AdLoaderProtocol{
+public class RewardedAdLoader:AdLoaderProtocol{
     
-    var state: AdLoaderState = .waiting
-    var request:GADRequest = GADRequest()
-    var config:AdRepositoryConfig
-    weak var delegate:AdLoaderDelegate?
-
+    public var state: AdLoaderState = .waiting
+    public var request:GADRequest = GADRequest()
+    public  var config:AdRepositoryConfig
+    public  weak var delegate:AdLoaderDelegate?
     
-    init(config: AdRepositoryConfig,delegate:AdLoaderDelegate) {
+    private var count = 0
+    
+    required public init(config: AdRepositoryConfig) {
         self.config = config
-        self.delegate = delegate
     }
     
     
-    func load(adCount:Int){
+    public func load(count:Int){
         state = .loading
-        GADRewardedAd.load(withAdUnitID:config.adUnitId,
+        self.count = count
+        for _ in 0..<count{
+            GADRewardedAd.load(withAdUnitID:config.adUnitId,
                                request: request,completionHandler: {[weak self] (ad, error) in
-            guard let self = self else{return}
-            
-            guard let ad = ad else {
-                self.handlerError(error:error)
-                return
-            }
-            
-            self.fulfill(ad: ad)
-        })
+                guard let self = self else{return}
+                
+                guard let ad = ad else {
+                    self.handlerError(error:error)
+                    return
+                }
+                
+                self.fulfill(ad: ad)
+            })
+        }
     }
     
-    func handlerError(error:Error?){
+    private func handlerError(error:Error?){
         print("Rewarded Ad failed to load with error: \(String(describing: error?.localizedDescription))")
         self.state = .waiting
         self.delegate?.adLoader(didFinishLoad: self, withError: error)
     }
     
-    func fulfill(ad: GADRewardedAd){
+    private func fulfill(ad: GADRewardedAd){
         
         let ad = RewardedAdWrapper(ad: ad, config: config)
-        delegate?.adLoader(self, didRecive: ad)
-        delegate?.adLoader(didFinishLoad: self, withError: nil)
+        delegate?.adLoader(self, didReceive: ad)
+        count -= 1
+        if count == 0 {
+            delegate?.adLoader(didFinishLoad: self, withError: nil)
+        }
         state = .waiting
     }
 

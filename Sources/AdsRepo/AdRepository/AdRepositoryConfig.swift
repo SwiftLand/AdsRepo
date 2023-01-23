@@ -23,7 +23,7 @@ public struct AdRepositoryConfig{
     public init(
         adUnitId:String,//unitId that's google provided
         size:Int,//repository total size
-        expireIntervalTime:TimeInterval = 10,//reopo in second
+        expireIntervalTime:TimeInterval = 120,//reopo in second
         showCountThreshold:Int = 1//max time can show an ad
     ) {
             self.adUnitId = adUnitId

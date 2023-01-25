@@ -8,11 +8,18 @@
 import Foundation
 import GoogleMobileAds
 
-public protocol AdLoaderProtocol {
-    var request:GADRequest{get set}
+public protocol AdLoaderProtocol:NSObject {
+    
+    associatedtype AdWrapperType = AdWrapperProtocol
+    
     var state:AdLoaderState{get}
     var config:AdRepositoryConfig{get}
-    var delegate:AdLoaderDelegate?{get set}
+    
+    var notifyRepositoryDidReceiveAd:((_ ad:AdWrapperType)->())? { get set }
+    var notifyRepositoryDidFinishLoad:((_ withError:Error?)->())? { get set }
+    
     init(config:AdRepositoryConfig)
+    
     func load(count:Int)
+    
 }

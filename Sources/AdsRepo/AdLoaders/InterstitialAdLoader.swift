@@ -8,12 +8,15 @@
 import Foundation
 import GoogleMobileAds
 
-public class InterstitialAdLoader:AdLoaderProtocol{
+public class InterstitialAdLoader:NSObject,AdLoaderProtocol{
     
+    public typealias AdWrapperType = InterstitialAdWrapper
     public var state: AdLoaderState = .waiting
     public var request:GADRequest = GADRequest()
     public var config:AdRepositoryConfig
-    public weak var delegate:(any AdLoaderDelegate)?
+    
+    public var notifyRepositoryDidReceiveAd: ((AdWrapperType) -> ())?
+    public var notifyRepositoryDidFinishLoad: ((Error?) -> ())?
     
     private var count = 0
     
@@ -43,17 +46,16 @@ public class InterstitialAdLoader:AdLoaderProtocol{
     
     private func handlerError(error:Error?){
         print("Interstitial Ad failed to load with error: \(String(describing: error?.localizedDescription))")
-        self.state = .waiting
-        self.delegate?.adLoader(didFinishLoad: self, withError: error)
+        state = .waiting
+        notifyRepositoryDidFinishLoad?(error)
     }
     
     private func fulfill(ad: GADInterstitialAd){
         
-        let adWrapper = InterstitialAdWrapper(ad, config: config)
-        delegate?.adLoader(self, didReceive: adWrapper)
+        notifyRepositoryDidReceiveAd?(InterstitialAdWrapper(ad, config: config))
         count -= 1
         if count == 0 {
-            delegate?.adLoader(didFinishLoad: self, withError: nil)
+            notifyRepositoryDidFinishLoad?(nil)
         }
         state = .waiting
     }

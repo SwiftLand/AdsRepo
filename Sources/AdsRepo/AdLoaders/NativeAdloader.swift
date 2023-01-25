@@ -9,11 +9,15 @@ import Foundation
 import GoogleMobileAds
 
 public class NativeAdLoader:NSObject,AdLoaderProtocol{
+   
+    public typealias AdWrapperType = NativeAdWrapper
     
     public var state: AdLoaderState = .waiting
     public var config:AdRepositoryConfig
     public var request:GADRequest = GADRequest()
-    public weak var delegate:AdLoaderDelegate?
+    
+    public var notifyRepositoryDidReceiveAd: ((AdWrapperType) -> ())?
+    public var notifyRepositoryDidFinishLoad: ((Error?) -> ())?
     
     private weak var rootVC:UIViewController? = nil
     private var options:[GADAdLoaderOptions]? = nil
@@ -73,16 +77,16 @@ public class NativeAdLoader:NSObject,AdLoaderProtocol{
 extension NativeAdLoader:GADNativeAdLoaderDelegate{
     
     public  func adLoader(_ adLoader: GADAdLoader, didReceive nativeAd: GADNativeAd) {
-        delegate?.adLoader(self,didReceive:  NativeAdWrapper(loadedAd: nativeAd, config: config))
+        notifyRepositoryDidReceiveAd?(NativeAdWrapper(loadedAd: nativeAd, config: config))
     }
     
     public func adLoaderDidFinishLoading(_ adLoader: GADAdLoader) {
         state = .waiting
-        delegate?.adLoader(didFinishLoad: self,withError: nil)
+        notifyRepositoryDidFinishLoad?(nil)
     }
     
     public func adLoader(_ adLoader: GADAdLoader, didFailToReceiveAdWithError error: Error) {
         state = .waiting
-        delegate?.adLoader(didFinishLoad: self,withError: error)
+       notifyRepositoryDidFinishLoad?(error)
     }
 }

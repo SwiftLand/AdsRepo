@@ -12,9 +12,9 @@ public typealias InterstitalAdRepository = AdRepository<InterstitialAdWrapper,In
 public typealias RewardedAdRepository = AdRepository<RewardedAdWrapper,RewardedAdLoader>
 public typealias NativeAdRepository = AdRepository<NativeAdWrapper,NativeAdLoader>
 
-public class AdRepository<AdWrapperType:AdWrapperProtocol,AdLoaderType:AdLoaderProtocol>:NSObject,AdRepositoryProtocol{
+public class AdRepository<AdWrapperType:AdWrapperProtocol,
+                          AdLoaderType:AdLoaderProtocol>:NSObject,AdRepositoryProtocol where AdLoaderType.AdWrapperType == AdWrapperType{
 
-    
     public var adCount: Int {adsRepo.count}
     
     private var adTimerDict:[String:DispatchSourceTimer] = [:]
@@ -135,7 +135,7 @@ public class AdRepository<AdWrapperType:AdWrapperProtocol,AdLoaderType:AdLoaderP
        
         let totalAdsNeedCount =  config.size - validCount
         
-        adLoader.delegate = self
+        setNotifiers()
         adLoader.load(count: totalAdsNeedCount)
 
         return true
@@ -163,13 +163,34 @@ public class AdRepository<AdWrapperType:AdWrapperProtocol,AdLoaderType:AdLoaderP
             fillRepoAds()
         }
     }
+    
+    public func append(observer: AdRepositoryDelegate) {
+        multicastDelegate.append(observer: observer)
+    }
+    
+    public func remove(observer: AdRepositoryDelegate) {
+        multicastDelegate.remove(observer: observer)
+    }
 }
 
-//internal functions
+//private functions
 extension AdRepository{
     
+    private func setNotifiers(){
+        adLoader.notifyRepositoryDidReceiveAd = {
+            [weak self] ad in
+            guard let self = self else{return}
+            self.notifyDidReceive(ad: ad)
+        }
+        adLoader.notifyRepositoryDidFinishLoad = {
+            [weak self] error in
+            guard let self = self else{return}
+            self.notifydidFinishLoad(withError: error)
+        }
+    }
+    
     @discardableResult
-    func append(ad:AdWrapperType)->AdWrapperType{
+    private func append(ad:AdWrapperType)->AdWrapperType{
         adsRepo.append(ad)
         return ad
     }
@@ -198,14 +219,6 @@ extension AdRepository{
             }
         }
         
-    }
-    
-    public func append(observer: AdRepositoryDelegate) {
-        multicastDelegate.append(observer: observer)
-    }
-    
-    public func remove(observer: AdRepositoryDelegate) {
-        multicastDelegate.remove(observer: observer)
     }
 }
 extension AdRepository{
@@ -237,14 +250,9 @@ extension AdRepository{
     }
 }
 
-extension AdRepository:AdLoaderDelegate{
+extension AdRepository{
     
-    public func adLoader(_ adLoader: AdLoaderProtocol, didReceive ad:any AdWrapperProtocol) {
-      
-        guard let ad = ad as? AdWrapperType else {
-            fatalError("mismatch type => adLoader returns a different type of ad to current repository")
-        }
-        
+    private func notifyDidReceive(ad:AdWrapperType){
         print("AdRepository","did Receive \(AdWrapperType.self) type ad")
         append(ad:ad)
         createTimer(for: ad)
@@ -254,10 +262,10 @@ extension AdRepository:AdLoaderDelegate{
         }
     }
     
-    public func adLoader(didFinishLoad adloader:AdLoaderProtocol, withError error: Error?) {
+    private func notifydidFinishLoad(withError error:Error?){
         if let error = error{
             print("AdRepository","did finish load ads for",AdWrapperType.self,"with error:",error.localizedDescription)
-            handlerError(adloader, didFailToReceiveAdWithError: error)
+            handleError(error)
             return
         }
         print("AdRepository","did finish load ads for",AdWrapperType.self)
@@ -269,10 +277,9 @@ extension AdRepository:AdLoaderDelegate{
         multicastDelegate.delegates.forEach{
             $0.adRepository(didFinishLoading: self, error: error)
         }
-        
     }
     
-    private func handlerError(_ adLoader: AdLoaderProtocol, didFailToReceiveAdWithError error: Error) {
+    private func handleError(_ error: Error) {
         guard !errorHandler.isRetryAble(error: error), !self.isLoading else {return}
         multicastDelegate.delegates.forEach{
             $0.adRepository(didFinishLoading: self, error: error)

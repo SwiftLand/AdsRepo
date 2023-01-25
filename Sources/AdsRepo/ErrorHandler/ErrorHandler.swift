@@ -75,7 +75,8 @@ class ErrorHandler:ErrorHandlerProtocol  {
     
    private func recallMethod(_ error:Error?){
         print("ErrorHandler","retry count:","\(currentRetryCount)","with delay:",config.delayBetweenRetries)
-    
+        guard currentRetryCount < config.maxRetryCount else {return}
+       
         lastWorkItem = DispatchWorkItem{[weak self] in
             guard let self = self else {return}
             self.delegate?.errorHandler(onRetry: self.currentRetryCount, for: error)

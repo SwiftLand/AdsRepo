@@ -8,12 +8,16 @@
 import Foundation
 import GoogleMobileAds
 
-public class RewardedAdLoader:AdLoaderProtocol{
+public class RewardedAdLoader:NSObject,AdLoaderProtocol{
+    
+    public typealias AdWrapperType = RewardedAdWrapper
     
     public var state: AdLoaderState = .waiting
     public var request:GADRequest = GADRequest()
-    public  var config:AdRepositoryConfig
-    public  weak var delegate:AdLoaderDelegate?
+    public var config:AdRepositoryConfig
+    
+    public var notifyRepositoryDidReceiveAd: ((AdWrapperType) -> ())?
+    public var notifyRepositoryDidFinishLoad: ((Error?) -> ())?
     
     private var count = 0
     
@@ -27,7 +31,8 @@ public class RewardedAdLoader:AdLoaderProtocol{
         self.count = count
         for _ in 0..<count{
             GADRewardedAd.load(withAdUnitID:config.adUnitId,
-                               request: request,completionHandler: {[weak self] (ad, error) in
+                               request: request,
+                               completionHandler: {[weak self] (ad, error) in
                 guard let self = self else{return}
                 
                 guard let ad = ad else {
@@ -42,19 +47,18 @@ public class RewardedAdLoader:AdLoaderProtocol{
     
     private func handlerError(error:Error?){
         print("Rewarded Ad failed to load with error: \(String(describing: error?.localizedDescription))")
-        self.state = .waiting
-        self.delegate?.adLoader(didFinishLoad: self, withError: error)
+        state = .waiting
+        notifyRepositoryDidFinishLoad?(error)
     }
     
     private func fulfill(ad: GADRewardedAd){
         
-        let ad = RewardedAdWrapper(ad: ad, config: config)
-        delegate?.adLoader(self, didReceive: ad)
+        notifyRepositoryDidReceiveAd?(RewardedAdWrapper(ad: ad, config: config))
         count -= 1
         if count == 0 {
-            delegate?.adLoader(didFinishLoad: self, withError: nil)
+            notifyRepositoryDidFinishLoad?(nil)
         }
         state = .waiting
     }
-
+    
 }

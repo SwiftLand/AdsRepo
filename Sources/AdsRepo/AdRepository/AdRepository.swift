@@ -14,11 +14,21 @@ public typealias NativeAdRepository = AdRepository<NativeAdWrapper,NativeAdLoade
 
 public class AdRepository<AdWrapperType:AdWrapperProtocol,
                           AdLoaderType:AdLoaderProtocol>:NSObject,AdRepositoryProtocol where AdLoaderType.AdWrapperType == AdWrapperType{
-
+    
     public var adCount: Int {adsRepo.count}
     
     private var adTimerDict:[String:DispatchSourceTimer] = [:]
     private var errorHandler:ErrorHandlerProtocol
+    private var reachability = try? Reachability()
+    
+    private var isReachable:Bool{
+        switch reachability?.connection {
+        case .wifi,.cellular:
+            return true
+        default:
+            return false
+        }
+    }
     
     public lazy var adLoader:AdLoaderType = AdLoaderType(config: config)
     
@@ -130,14 +140,19 @@ public class AdRepository<AdWrapperType:AdWrapperProtocol,
     public func fillRepoAds()->Bool{
         guard !isDisable else{return false}
         guard adLoader.state == .waiting else {return false}
+        guard isReachable else {
+            waitForConnection()
+            return false
+        }
+        
         let validCount = validAdCount
         guard (validCount<config.size) else {return false}
-       
+        
         let totalAdsNeedCount =  config.size - validCount
         
         setNotifiers()
         adLoader.load(count: totalAdsNeedCount)
-
+        
         return true
     }
     
@@ -175,6 +190,19 @@ public class AdRepository<AdWrapperType:AdWrapperProtocol,
 
 //private functions
 extension AdRepository{
+    
+    private func waitForConnection(){
+        reachability?.whenReachable = {[weak self] reachability in
+            guard let self = self else {return}
+            
+            self.reachability?.stopNotifier()
+            
+            if self.autoFill {
+                self.fillRepoAds()
+            }
+        }
+        try? reachability?.startNotifier()
+    }
     
     private func setNotifiers(){
         adLoader.notifyRepositoryDidReceiveAd = {

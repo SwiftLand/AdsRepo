@@ -26,6 +26,7 @@ public class MulticastDelegate<T> {
     
     public func append(observer: T) {
         let wrapper = Wrapper(observer as AnyObject)
+        guard !wrappers.contains(where: {$0.observer === wrapper}) else {return}
         wrappers.append(wrapper)
     }
     
@@ -36,6 +37,10 @@ public class MulticastDelegate<T> {
             return
         }
         wrappers.remove(at: index)
+    }
+    
+    public func removeAll() {
+        wrappers.removeAll()
     }
     
     public func invokeForEachDelegate(_ handler: (T) -> ()) {

@@ -32,20 +32,24 @@ public protocol AdRepositoryProtocol:NSObject {
     /// Return `true` if the repository contains ads otherwise return `false`
     var hasAd:Bool{get}
     
+    /// Return  repository valid total ad count
+    var currentAdCount:Int{get}
+    
+    
     /// Return `true` if the repository contains valid ads otherwise return `false`
     var hasValidAd:Bool{get}
-    
-    /// Return  repository valid total ad count
-    var adCount:Int{get}
-    
-    /// Return  repository invalid ad count
-    var invalidAdCount:Int{get}
-    
     /// Return  repository valid ad count
     var validAdCount:Int{get}
+  
     
     /// Return `true` if the repository contains Invalid ads otherwise return `false`
     var hasInvalidAd:Bool{get}
+    /// Return  repository invalid ad count
+    var invalidAdCount:Int{get}
+    
+    var errorHandler:AdRepositoryErrorHandlerProtocol {get set}
+    
+    var reachability:AdRepositoryReachabilityPorotocol {get set}
     
     ///  Fill repository with new ads
     ///

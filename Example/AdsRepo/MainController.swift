@@ -120,7 +120,7 @@ extension MainController:AdRepositoryDelegate{
 
     func adRepository(didFinishLoading repository:AnyRepositoryType,error:Error?){
         if error == nil{
-            print("Repo(\(repository.config.adUnitId)) is full, count:\(repository.adCount)")
+            print("Repo(\(repository.config.adUnitId)) is full, count:\(repository.currentAdCount)")
         }else{
             print("Repo(\(repository.config.adUnitId)) have error:\(String(describing: error))")
         }
@@ -137,13 +137,13 @@ extension MainController:AdRepositoryDelegate{
     private func updateRepositoryCountView(_ repository:any AdRepositoryProtocol){
         switch repository.self{
         case RepositoryManager.shared.interstitialAdsRepo:
-            loadedInterstinalAdCount = repository.adCount
+            loadedInterstinalAdCount = repository.currentAdCount
         case RepositoryManager.shared.rewardedAdsRepo:
-            loadedRewardedAdCount = repository.adCount
+            loadedRewardedAdCount = repository.currentAdCount
         case RepositoryManager.shared.nativeAdRepo:
-            loadedNativeAdCount = repository.adCount
+            loadedNativeAdCount = repository.currentAdCount
         case RepositoryManager.shared.nativeVideoAdRepo:
-            loadedVideoNativeAdCount = repository.adCount
+            loadedVideoNativeAdCount = repository.currentAdCount
         default:break
         }
     }

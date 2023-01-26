@@ -32,53 +32,53 @@ public struct AdRepositoryConfig{
             self.expireIntervalTime = expireIntervalTime
         }
     
-    public static let App_Open_ID =   "ca-app-pub-3940256099942544/5662855259"
-    public static let Banner_ID  = "ca-app-pub-3940256099942544/2934735716"
-    public static let Interstitial_ID =   "ca-app-pub-3940256099942544/4411468910"
-    public static let Interstitial_Video_ID   = "ca-app-pub-3940256099942544/5135589807"
-    public static let Rewarded_ID  =  "ca-app-pub-3940256099942544/1712485313"
-    public static let Rewarded_Interstitial_ID  = "ca-app-pub-3940256099942544/6978759866"
-    public static let Native_Advanced_ID   = "ca-app-pub-3940256099942544/3986624511"
-    public static let Native_Advanced_Video_ID = "ca-app-pub-3940256099942544/2521693316"
+    public static let GAD_App_Open_ID =   "ca-app-pub-3940256099942544/5662855259"
+    public static let GAD_Banner_ID  = "ca-app-pub-3940256099942544/2934735716"
+    public static let GAD_Interstitial_ID =   "ca-app-pub-3940256099942544/4411468910"
+    public static let GAD_Interstitial_Video_ID   = "ca-app-pub-3940256099942544/5135589807"
+    public static let GAD_Rewarded_ID  =  "ca-app-pub-3940256099942544/1712485313"
+    public static let GAD_Rewarded_Interstitial_ID  = "ca-app-pub-3940256099942544/6978759866"
+    public static let GAD_Native_Advanced_ID   = "ca-app-pub-3940256099942544/3986624511"
+    public static let GAD_Native_Advanced_Video_ID = "ca-app-pub-3940256099942544/2521693316"
     
     public static func debugInterstitialConfig(size:Int = 2) -> AdRepositoryConfig {
         AdRepositoryConfig(
-            adUnitId:AdRepositoryConfig.Interstitial_ID,
+            adUnitId:AdRepositoryConfig.GAD_Interstitial_ID,
             size: size,
             showCountThreshold: 1
         )
     }
     public static func debugInterstitialVideoConfig(size:Int = 2) -> AdRepositoryConfig {
         AdRepositoryConfig(
-            adUnitId: AdRepositoryConfig.Interstitial_Video_ID,
+            adUnitId: AdRepositoryConfig.GAD_Interstitial_Video_ID,
             size: size,
             showCountThreshold: 1
         )
     }
     public  static func debugRewardedConfig(size:Int = 2) -> AdRepositoryConfig {
         AdRepositoryConfig(
-            adUnitId: AdRepositoryConfig.Rewarded_ID,
+            adUnitId: AdRepositoryConfig.GAD_Rewarded_ID,
             size: size,
             showCountThreshold: 1
         )
     }
     public static func debugRewardedInterstitialConfig(size:Int = 2) -> AdRepositoryConfig {
         AdRepositoryConfig(
-            adUnitId: AdRepositoryConfig.Rewarded_Interstitial_ID,
+            adUnitId: AdRepositoryConfig.GAD_Rewarded_Interstitial_ID,
             size: size,
             showCountThreshold: 1
         )
     }
     public static func debugNativeVideoConfig(size:Int = 2) -> AdRepositoryConfig {
         AdRepositoryConfig(
-            adUnitId:AdRepositoryConfig.Native_Advanced_Video_ID,
+            adUnitId:AdRepositoryConfig.GAD_Native_Advanced_Video_ID,
             size: size,
             showCountThreshold: 3
         )
     }
     public static func debugNativeConfig(size:Int = 2) -> AdRepositoryConfig {
         AdRepositoryConfig(
-            adUnitId: AdRepositoryConfig.Native_Advanced_ID,
+            adUnitId: AdRepositoryConfig.GAD_Native_Advanced_ID,
             size: size,
             showCountThreshold: 3
         )

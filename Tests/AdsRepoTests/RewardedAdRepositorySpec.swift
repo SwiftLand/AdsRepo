@@ -252,7 +252,7 @@ class RewardedAdRepositorySpec: QuickSpec {
                         let error = NSError(domain: GADErrorDomain, code: GADErrorCode.timeout.rawValue)
                         adCreator.responseError = error
                         var counter = 0;
-                        let numberOfRetry = ErrorHandlerConfig.defaultMaxRetryCount
+                        let numberOfRetry = AdRepositoryErrorHandlerConfig.defaultMaxRetryCount
                         var retryCount:Int = 0
                         
                         errorHandler.isRetryAbleErrorRetryClosureClosure = {error,retryClosure in
@@ -272,7 +272,7 @@ class RewardedAdRepositorySpec: QuickSpec {
                         
                         //MARK: Assertation
                         expect(delegate.rewardedAdRepositoryDidFinishLoadingErrorCallsCount).toEventually(equal(1))
-                        expect(retryCount).to(equal(ErrorHandlerConfig.defaultMaxRetryCount))
+                        expect(retryCount).to(equal(AdRepositoryErrorHandlerConfig.defaultMaxRetryCount))
                         expect(repo.adsRepo.count).to(equal(0))
                         
                         let numberOfOnErrorCalled = adCreator.rewardedAdMocks.filter({$0.rewardedAdWrapperOnErrorErrorCallsCount == 1}).count

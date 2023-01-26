@@ -46,13 +46,11 @@ public class RewardedAdLoader:NSObject,AdLoaderProtocol{
     }
     
     private func handlerError(error:Error?){
-        print("Rewarded Ad failed to load with error: \(String(describing: error?.localizedDescription))")
         state = .waiting
         notifyRepositoryDidFinishLoad?(error)
     }
     
     private func fulfill(ad: GADRewardedAd){
-        
         notifyRepositoryDidReceiveAd?(RewardedAdWrapper(ad: ad, config: config))
         count -= 1
         if count == 0 {

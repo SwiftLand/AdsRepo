@@ -6,24 +6,19 @@
 //
 
 import Foundation
-import GoogleMobileAds
 
 public typealias InterstitalAdRepository = AdRepository<InterstitialAdWrapper,InterstitialAdLoader>
 public typealias RewardedAdRepository = AdRepository<RewardedAdWrapper,RewardedAdLoader>
 public typealias NativeAdRepository = AdRepository<NativeAdWrapper,NativeAdLoader>
 
-public class AdRepository<AdWrapperType:AdWrapperProtocol,
+public final class AdRepository<AdWrapperType:AdWrapperProtocol,
                           AdLoaderType:AdLoaderProtocol>:NSObject,AdRepositoryProtocol where AdLoaderType.AdWrapperType == AdWrapperType{
     
-    public var adCount: Int {adsRepo.count}
     
-    private var adTimerDict:[String:DispatchSourceTimer] = [:]
-    internal var errorHandler:ErrorHandlerProtocol
-    internal var reachability:ReachabilityPorotocol = ReachabilityWrapper()
-    
-    
-    public lazy var adLoader:AdLoaderType = AdLoaderType(config: config)
-    
+  
+    public private(set) lazy var adLoader:AdLoaderType = AdLoaderType(config: config)
+    public var errorHandler:AdRepositoryErrorHandlerProtocol = AdRepositoryErrorHandler()
+    public var reachability:AdRepositoryReachabilityPorotocol = ReachabilityWrapper()
     
     /// Current reposiotry configuration. See **RepositoryConfig.swift** for more details.
     public private(set) var config:AdRepositoryConfig
@@ -31,9 +26,38 @@ public class AdRepository<AdWrapperType:AdWrapperProtocol,
     /// Return `true` if current repository is in loading state
     public var isLoading:Bool {adLoader.state == .loading}
     
-    /// Array of `InterstitialAdWrapper` objects
-    /// - WARNING:It's a `read-only` variable and it will change inside the repository only
-    private(set) var adsRepo:[AdWrapperType] = []
+    /// Return `true` if the repository contains ads otherwise return `false`
+    public var hasAd:Bool{
+        return adsRepo.count > 0
+    }
+    public var currentAdCount: Int {adsRepo.count}
+    
+    
+    /// Return  repository valid ad count
+    public  var validAdCount:Int{
+        adsRepo.filter({!invalidAdCondition($0)}).count
+    }
+    /// Return `true` if the repository contains valid ads otherwise return `false`
+    public var hasValidAd:Bool{
+        adsRepo.contains(where: {!invalidAdCondition($0)})
+    }
+    
+    /// Return  repository invalid ad count
+    public var invalidAdCount:Int{
+        adsRepo.filter({invalidAdCondition($0)}).count
+    }
+    
+    /// Return `true` if the repository contains Invalid ads otherwise return `false`
+    public var hasInvalidAd:Bool{
+        return adsRepo.contains(where: invalidAdCondition)
+    }
+   
+    /// Condition to validate ads
+    ///  - NOTE:by default use `showCount` and `expireIntervalTime` to validate ads in repository
+    public var invalidAdCondition:((any AdWrapperProtocol) -> Bool) = {
+        let now = Date().timeIntervalSince1970
+        return (now-($0.loadedDate) > $0.config.expireIntervalTime) || $0.showCount>=$0.config.showCountThreshold
+    }
     
     /// If `true` repository will load new ads automaticly when require otherwise you need to to call `fillRepoAds` manually.
     public var autoFill:Bool = true
@@ -46,68 +70,25 @@ public class AdRepository<AdWrapperType:AdWrapperProtocol,
                 errorHandler.cancel()
                 removeAll()
             }else{
-                if autoFill {
-                    fillRepoAds()
-                }
+                fillRepoAdsIfAutoFillEnable()
             }
         }
     }
-    
+ 
+
+    private var adsRepo:[AdWrapperType] = []
     private var multicastDelegate = MulticastDelegate<AdRepositoryDelegate>()
-    
-    /// Condition to validate ads
-    ///  - NOTE:by default use `showCount` and `expireIntervalTime` to validate ads in repository
-    open var invalidAdCondition:((any AdWrapperProtocol) -> Bool) = {
-        let now = Date().timeIntervalSince1970
-        return (now-($0.loadedDate) > $0.config.expireIntervalTime) || $0.showCount>=$0.config.showCountThreshold
-    }
-    
-    /// Return `true` if the repository contains ads otherwise return `false`
-    public var hasAd:Bool{
-        return adsRepo.count > 0
-    }
-    
-    /// Return `true` if the repository contains valid ads otherwise return `false`
-    public var hasValidAd:Bool{
-        adsRepo.contains(where: {!invalidAdCondition($0)})
-    }
-    
-    /// Return  repository invalid ad count
-    public  var invalidAdCount:Int{
-        adsRepo.filter({invalidAdCondition($0)}).count
-    }
-    
-    /// Return  repository valid ad count
-    public  var validAdCount:Int{
-        adsRepo.filter({!invalidAdCondition($0)}).count
-    }
-    
-    /// Return `true` if the repository contains Invalid ads otherwise return `false`
-    public var hasInvalidAd:Bool{
-        return adsRepo.contains(where: invalidAdCondition)
-    }
+    private var adTimerDict:[String:DispatchSourceTimer] = [:]
+   
     
     /// Create new `InterstitialAdRepository`
     /// - Parameters:
     ///   - config: current reposiotry configuration. you can't change it after intial repository. See **RepositoryConfig.swift** for more details.
     ///   - errorHandlerConfig: current reposiotry  error handler configuration  See **ErrorHandlerConfig.swift** for more details.
     ///   - delegate: set delegation for this repository
-    public init(
-        config:AdRepositoryConfig,
-        errorHandlerConfig:ErrorHandlerConfig? = nil){
-            
+    public init(config:AdRepositoryConfig){
             self.config = config
-            
-            if let eConfig = errorHandlerConfig{
-                self.errorHandler = ErrorHandler(config:eConfig)
-            }
-            self.errorHandler = errorHandlerConfig != nil ? ErrorHandler(config: errorHandlerConfig):ErrorHandler()
-            
-            super.init()
-            
-            self.errorHandler.delegate = self
-        }
-    
+    }
     
     /// Will remove invalid ads (which comfirm `invalidAdCondition`) instantly
     /// - NOTE: After delete from repository, each ads will delegate `removeFromRepository` function
@@ -158,17 +139,13 @@ public class AdRepository<AdWrapperType:AdWrapperProtocol,
         let ad = adsRepo.min(by: {$0.showCount<$1.showCount})
         ad?.showCount += 1
         onLoad(ad)
-        if autoFill {
-            fillRepoAds()
-        }
+        fillRepoAdsIfAutoFillEnable()
         return true
     }
     
     public func invalidate(ad: AdWrapperType) {
         remove(ad: ad)
-        if autoFill {
-            fillRepoAds()
-        }
+        fillRepoAdsIfAutoFillEnable()
     }
     
     public func append(observer: AdRepositoryDelegate) {
@@ -180,18 +157,22 @@ public class AdRepository<AdWrapperType:AdWrapperProtocol,
     }
 }
 
-//private functions
+//MARK: Private setction
+
 extension AdRepository{
+    
+    private func fillRepoAdsIfAutoFillEnable(){
+        if autoFill{
+            fillRepoAds()
+        }
+    }
     
     private func waitForConnection(){
         
         reachability.setBackOnlineNotifier{[weak self] reachability in
-            
+    
             reachability.stopNotifier()
-
-            if let self = self,self.autoFill {
-                self.fillRepoAds()
-            }
+            self?.fillRepoAdsIfAutoFillEnable()
         }
         reachability.startNotifier()
     }
@@ -241,6 +222,7 @@ extension AdRepository{
         
     }
 }
+
 extension AdRepository{
     
     private func createTimer(for ad:AdWrapperType){
@@ -254,9 +236,7 @@ extension AdRepository{
             self.multicastDelegate.delegates.forEach{
                 $0.adRepository(didExpire: ad, in: self)
             }
-            if self.autoFill{
-                self.fillRepoAds()
-            }
+            self.fillRepoAdsIfAutoFillEnable()
         }
         adTimerDict[ad.id] = timer
     }
@@ -291,27 +271,26 @@ extension AdRepository{
         print("AdRepository","did finish load ads for",AdWrapperType.self)
         errorHandler.restart()
         validateRepositoryAds()
-        if autoFill{
-            fillRepoAds()
-        }
+        fillRepoAdsIfAutoFillEnable()
         multicastDelegate.delegates.forEach{
             $0.adRepository(didFinishLoading: self, error: error)
         }
     }
     
     private func handleError(_ error: Error) {
-        guard !errorHandler.isRetryAble(error: error), !self.isLoading else {return}
+        
+        
+        guard !errorHandler.isRetryAble(error: error), !self.isLoading else {
+            
+            errorHandler.requestForRetry{[weak self] _ in
+                self?.fillRepoAdsIfAutoFillEnable()
+            }
+            
+            return
+        }
         multicastDelegate.delegates.forEach{
             $0.adRepository(didFinishLoading: self, error: error)
         }
     }
     
-}
-
-extension AdRepository:ErrorHandlerDelegate{
-    func errorHandler(onRetry count: Int, for error: Error?) {
-        if autoFill {
-            fillRepoAds()
-        }
-    }
 }

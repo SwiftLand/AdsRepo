@@ -7,7 +7,6 @@
 
 import Foundation
 import GoogleMobileAds
-import UIKit
 
 public class RewardedAdWrapper:NSObject,AdWrapperProtocol{
     

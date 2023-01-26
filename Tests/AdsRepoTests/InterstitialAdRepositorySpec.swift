@@ -258,7 +258,7 @@ class InterstitialAdRepositorySpec: QuickSpec {
                         let error = NSError(domain: GADErrorDomain, code: GADErrorCode.timeout.rawValue)
                         adCreator.responseError = error
                         var counter = 0;
-                        let numberOfRetry = ErrorHandlerConfig.defaultMaxRetryCount
+                        let numberOfRetry = AdRepositoryErrorHandlerConfig.defaultMaxRetryCount
                         var retryCount:Int = 0
                         
                         errorHandler.isRetryAbleErrorRetryClosureClosure = {error,retryClosure in
@@ -278,7 +278,7 @@ class InterstitialAdRepositorySpec: QuickSpec {
                         
                         //MARK: Assertation
                         expect(delegate.interstitialAdRepositoryDidFinishLoadingErrorCallsCount).toEventually(equal(1))
-                        expect(retryCount).to(equal(ErrorHandlerConfig.defaultMaxRetryCount))
+                        expect(retryCount).to(equal(AdRepositoryErrorHandlerConfig.defaultMaxRetryCount))
                         expect(repo.adsRepo.count).to(equal(0))
                         
                         let numberOfOnErrorCalled = adCreator.interstitialAdMocks.filter({$0.interstitialAdWrapperOnErrorErrorCallsCount == 1}).count

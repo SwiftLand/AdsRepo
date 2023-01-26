@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import GoogleMobileAds
 
 public typealias InterstitialAd = InterstitialAdWrapper
 public typealias RewardedAd = RewardedAdWrapper

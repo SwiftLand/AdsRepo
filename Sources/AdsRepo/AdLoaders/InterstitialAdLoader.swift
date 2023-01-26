@@ -45,7 +45,6 @@ public class InterstitialAdLoader:NSObject,AdLoaderProtocol{
     }
     
     private func handlerError(error:Error?){
-        print("Interstitial Ad failed to load with error: \(String(describing: error?.localizedDescription))")
         state = .waiting
         notifyRepositoryDidFinishLoad?(error)
     }

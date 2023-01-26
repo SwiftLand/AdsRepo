@@ -32,12 +32,12 @@ import AppKit
 
 
 
-class ErrorHandlerProtocolMock: ErrorHandlerProtocol {
-    var config: ErrorHandlerConfig {
+class ErrorHandlerProtocolMock: AdRepositoryErrorHandlerProtocol {
+    var config: AdRepositoryErrorHandlerConfig {
         get { return underlyingConfig }
         set(value) { underlyingConfig = value }
     }
-    var underlyingConfig: ErrorHandlerConfig!
+    var underlyingConfig: AdRepositoryErrorHandlerConfig!
     
     //MARK: - isRetryAble
 

@@ -6,22 +6,22 @@
 //
 
 import Foundation
-class ReachabilityWrapper:ReachabilityPorotocol{
+class ReachabilityWrapper:AdRepositoryReachabilityPorotocol{
    
-    
-    
     private var reachability = try? Reachability()
     
     var isConnected: Bool {
         switch reachability?.connection {
         case .wifi,.cellular:
             return true
-        default:
+        case .unavailable:
             return false
+        default:break
         }
+        return true //if reachability == nil
     }
     
-    func setBackOnlineNotifier(_ notifier:OnConnectedType?) {
+    func setBackOnlineNotifier(_ notifier:BackOnlineNotifierClosure?) {
         reachability?.whenReachable = {[weak self] reachability in
             guard let self = self else{return}
             notifier?(self)

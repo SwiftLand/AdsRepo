@@ -18,17 +18,9 @@ public class AdRepository<AdWrapperType:AdWrapperProtocol,
     public var adCount: Int {adsRepo.count}
     
     private var adTimerDict:[String:DispatchSourceTimer] = [:]
-    private var errorHandler:ErrorHandlerProtocol
-    private var reachability = try? Reachability()
+    internal var errorHandler:ErrorHandlerProtocol
+    internal var reachability:ReachabilityPorotocol = ReachabilityWrapper()
     
-    private var isReachable:Bool{
-        switch reachability?.connection {
-        case .wifi,.cellular:
-            return true
-        default:
-            return false
-        }
-    }
     
     public lazy var adLoader:AdLoaderType = AdLoaderType(config: config)
     
@@ -140,7 +132,7 @@ public class AdRepository<AdWrapperType:AdWrapperProtocol,
     public func fillRepoAds()->Bool{
         guard !isDisable else{return false}
         guard adLoader.state == .waiting else {return false}
-        guard isReachable else {
+        guard reachability.isConnected else {
             waitForConnection()
             return false
         }
@@ -192,16 +184,16 @@ public class AdRepository<AdWrapperType:AdWrapperProtocol,
 extension AdRepository{
     
     private func waitForConnection(){
-        reachability?.whenReachable = {[weak self] reachability in
-            guard let self = self else {return}
+        
+        reachability.setBackOnlineNotifier{[weak self] reachability in
             
-            self.reachability?.stopNotifier()
-            
-            if self.autoFill {
+            reachability.stopNotifier()
+
+            if let self = self,self.autoFill {
                 self.fillRepoAds()
             }
         }
-        try? reachability?.startNotifier()
+        reachability.startNotifier()
     }
     
     private func setNotifiers(){

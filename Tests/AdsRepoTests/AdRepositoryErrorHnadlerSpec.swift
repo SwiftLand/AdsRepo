@@ -23,6 +23,7 @@ class AdRepositoryErrorHnadlerSpec: QuickSpec {
             beforeEach {
                errorHandler = AdRepositoryErrorHandler()
             }
+            
             context("is retryable"){
                 it("if retryable"){
                     let error = NSError(domain: GADErrorDomain, code: GADErrorCode.noFill.rawValue)
@@ -36,24 +37,33 @@ class AdRepositoryErrorHnadlerSpec: QuickSpec {
             }
             
             it("request for retry"){
+                //Testing
                 errorHandler.requestForRetry{_ in}
                 
+                //Assertation
                 expect(errorHandler.lastWorkItem).notTo(beNil())
                 expect(errorHandler.currentRetryCount).to(equal(1))
             }
             
             it("reset"){
+                //Preparation
                 errorHandler.requestForRetry{_ in}
+                
+                //Testing
                 errorHandler.restart()
                 
+                //Assertation
                 expect(errorHandler.currentRetryCount).to(equal(0))
             }
             
             it("cancel"){
-                
+                //Preparation
                 errorHandler.requestForRetry{_ in}
+                
+                //Testing
                 errorHandler.cancel()
                 
+                //Assertation
                 expect(errorHandler.lastWorkItem).to(beNil())
             }
         }

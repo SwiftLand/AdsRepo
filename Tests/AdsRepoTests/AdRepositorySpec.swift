@@ -108,6 +108,7 @@ class AdRepositorySpec: QuickSpec {
                 }
                 
             }
+            
             it("when call fillRepoAds"){
                 
                 //Testing
@@ -123,10 +124,76 @@ class AdRepositorySpec: QuickSpec {
                 }
             }
             
+            context("when internet"){
+                var reachablity:AdRepositoryReachabilityPorotocolMock!
+                beforeEach {
+                    reachablity = AdRepositoryReachabilityPorotocolMock()
+                    repo.reachability = reachablity
+                }
+                
+                it("was offline"){
+                    //Preparation
+                    reachablity.isConnected = false
+                    
+                    //Testing
+                    repo.fillRepoAds()
+                    
+                    //Assertation
+                    expect(delegate.adRepositoryDidFinishLoadingErrorCallsCount).toEventually(equal(0))
+                    expect(delegate.adRepositoryDidReceiveCallsCount).to(equal(0))
+                    expect(repo.adsRepo.count).to(equal(0))
+                }
+                
+                it("was online"){
+                    //Preparation
+                    reachablity.isConnected = true
+                    
+                    //Testing
+                    repo.fillRepoAds()
+                    
+                    //Assertation
+                    expect(delegate.adRepositoryDidFinishLoadingErrorCallsCount).toEventually(equal(1))
+                    expect(delegate.adRepositoryDidReceiveCallsCount).to(equal(repoConfig.size))
+                    expect(repo.adsRepo.count).to(equal(repo.config.size))
+                }
+                
+                it("goes offline"){
+                    //Preparation
+                    reachablity.isConnected = true
+                    delegate.adRepositoryDidReceiveClosure = {ad in
+                        reachablity.isConnected = false
+                        repo.adLoader.responseError = NSError(domain: GADErrorDomain, code: GADErrorCode.networkError.rawValue)
+                    }
+                    
+                    //Testing
+                    repo.fillRepoAds()
+                    
+                    //Assertation
+                    expect(delegate.adRepositoryDidFinishLoadingErrorCallsCount).toEventually(equal(1))
+                    expect(delegate.adRepositoryDidReceiveCallsCount).to(equal(repoConfig.size))
+                    expect(repo.adsRepo.count).to(equal(repo.config.size))
+                }
+            
+                it("back online"){
+                    //Preparation
+                    reachablity.isConnected = false
+                    
+                    //Testing
+                    repo.fillRepoAds()
+                    reachablity.isConnected = true
+                    reachablity.setBackOnlineNotifierReceivedNotifier?(reachablity)
+                    
+                    //Assertation
+                    expect(delegate.adRepositoryDidFinishLoadingErrorCallsCount).toEventually(equal(1))
+                    expect(delegate.adRepositoryDidReceiveCallsCount).to(equal(repoConfig.size))
+                    expect(repo.adsRepo.count).to(equal(repo.config.size))
+                }
+            }
+            
             context("when get an error"){
                 context("if retryable"){
                    it("and finally success"){
-                        //Preparation
+                       //Preparation
                        repo.adLoader.responseError = NSError(domain: GADErrorDomain, code: GADErrorCode.timeout.rawValue)
                         
                         var counter = 0;

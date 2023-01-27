@@ -55,11 +55,11 @@ private class AdLoaderBehavior<T:AdLoaderProtocol>: Behavior<T> {
                 }
                 
                 it("if success"){
-                
+                    //Testing
                     let tester = AdLoaderTester<T>(adloader: adloader)
                     tester.startTest()
                     
-                    
+                    //Assertation
                     expect(tester.numberOfNotifyRepositoryDidReceiveAdCalled).to(equal(config.size),description: "test1")
                     expect(tester.numberOfNotifyRepositoryDidFinishLoadCalled).to(equal(1),description: "test2")
                     expect(tester.receivedAd).notTo(beNil(),description: "test3")
@@ -67,13 +67,14 @@ private class AdLoaderBehavior<T:AdLoaderProtocol>: Behavior<T> {
                 }
                 
                 it("if failed"){
-                    
+                    //Preparation
                     ErrorController.setErrorForAllRequests()
                     
+                    //Testing
                     let tester = AdLoaderTester<T>(adloader: adloader)
                     tester.startTest()
                     
-                    
+                    //Assertation
                     expect(tester.numberOfNotifyRepositoryDidReceiveAdCalled).to(equal(0),description: "test1")
                     expect(tester.numberOfNotifyRepositoryDidFinishLoadCalled).to(equal(1),description: "test2")
                     expect(tester.receivedAd).to(beNil(),description: "test3")

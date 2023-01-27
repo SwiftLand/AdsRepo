@@ -112,12 +112,10 @@ class GADRewardedAdMock: GADRewardedAd {
     static var error:NSError? = nil
     override class func load(withAdUnitID adUnitID: String, request: GADRequest?, completionHandler: @escaping GADRewardedAdLoadCompletionHandler) {
         guard error == nil else{
-            DispatchQueue.main.async {completionHandler(nil,error)}
+            completionHandler(nil,error)
             return
         }
         let ad = GADRewardedAdMock()
-        DispatchQueue.main.async {
-            completionHandler(ad,error)
-        }
+        completionHandler(ad,error)
     }
 }

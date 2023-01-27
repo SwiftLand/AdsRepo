@@ -36,9 +36,9 @@ import AppKit
 class GADAdLoaderMock: GADAdLoader {
     override var delegate: GADAdLoaderDelegate?{
         get { return underlyingDelegate }
-        set(value) { underlyingDelegate = value }
+        set(value) { underlyingDelegate = value as? any GADNativeAdLoaderDelegate }
     }
-    var underlyingDelegate: GADAdLoaderDelegate?
+    var underlyingDelegate: GADNativeAdLoaderDelegate?
     
     override var adUnitID: String {
         get { return underlyingAdUnitID }
@@ -79,6 +79,32 @@ class GADAdLoaderMock: GADAdLoader {
         loadReceivedRequest = request
         loadReceivedInvocations.append(request)
         loadClosure?(request)
+        MockLoadProcess()
     }
-
+    
+    //MARK: - load
+    static var error:NSError? = nil
+    func MockLoadProcess() {
+        guard GADAdLoaderMock.error == nil else{
+            underlyingDelegate?.adLoader(self, didFailToReceiveAdWithError: GADAdLoaderMock.error!)
+            return
+        }
+      
+        
+        let options = initAdUnitIDRootViewControllerAdTypesOptionsReceivedArguments?.options
+        
+        if let multiAdOption =  options?.first(where:{$0 is GADMultipleAdsAdLoaderOptions}) as? GADMultipleAdsAdLoaderOptions{
+            
+            for _ in 0..<multiAdOption.numberOfAds{
+                let ad = GADNativeAdMock()
+                underlyingDelegate?.adLoader(self, didReceive: ad)
+            }
+        }else{
+            let ad = GADNativeAdMock()
+            underlyingDelegate?.adLoader(self, didReceive: ad)
+        }
+        
+        
+        underlyingDelegate?.adLoaderDidFinishLoading?(self)
+    }
 }

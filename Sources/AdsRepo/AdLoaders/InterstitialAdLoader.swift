@@ -19,6 +19,7 @@ public class InterstitialAdLoader:NSObject,AdLoaderProtocol{
     public var notifyRepositoryDidFinishLoad: ((Error?) -> ())?
     
     private var count = 0
+    internal var Loader = GADInterstitialAd.self
     
     required public init(config: AdRepositoryConfig) {
         self.config = config
@@ -30,12 +31,12 @@ public class InterstitialAdLoader:NSObject,AdLoaderProtocol{
         state = .loading
         self.count = count
         for _ in 0..<count{
-            GADInterstitialAd.load(withAdUnitID:config.adUnitId,
-                                   request: request,completionHandler: {[weak self] (ad, error) in
+            Loader.load(withAdUnitID:config.adUnitId,
+                        request: request,completionHandler: {[weak self] (ad, error) in
                 guard let self = self else{return}
                 
                 guard let ad = ad else {
-                    self.handlerError(error:error)
+                    self.notifyFinishLoadIfNeed(error:error)
                     return
                 }
                 
@@ -44,19 +45,16 @@ public class InterstitialAdLoader:NSObject,AdLoaderProtocol{
         }
     }
     
-    private func handlerError(error:Error?){
-        state = .waiting
-        notifyRepositoryDidFinishLoad?(error)
-    }
-    
-    private func fulfill(ad: GADInterstitialAd){
-        
-        notifyRepositoryDidReceiveAd?(GADInterstitialAdWrapper(ad, config: config))
+    private func notifyFinishLoadIfNeed(error:Error? = nil){
         count -= 1
         if count == 0 {
             state = .waiting
-            notifyRepositoryDidFinishLoad?(nil)
+            notifyRepositoryDidFinishLoad?(error)
         }
     }
-
+    
+    private func fulfill(ad: GADInterstitialAd){
+        notifyRepositoryDidReceiveAd?(GADInterstitialAdWrapper(ad, config: config))
+        notifyFinishLoadIfNeed()
+    }
 }

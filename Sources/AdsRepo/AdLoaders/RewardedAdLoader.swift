@@ -20,6 +20,7 @@ public class RewardedAdLoader:NSObject,AdLoaderProtocol{
     public var notifyRepositoryDidFinishLoad: ((Error?) -> ())?
     
     private var count = 0
+    internal var Loader = GADRewardedAd.self
     
     required public init(config: AdRepositoryConfig) {
         self.config = config
@@ -30,13 +31,13 @@ public class RewardedAdLoader:NSObject,AdLoaderProtocol{
         state = .loading
         self.count = count
         for _ in 0..<count{
-            GADRewardedAd.load(withAdUnitID:config.adUnitId,
-                               request: request,
-                               completionHandler: {[weak self] (ad, error) in
+            Loader.load(withAdUnitID:config.adUnitId,
+                        request: request,
+                        completionHandler: {[weak self] (ad, error) in
                 guard let self = self else{return}
                 
                 guard let ad = ad else {
-                    self.handlerError(error:error)
+                    self.notifyFinishLoadIfNeed(error:error)
                     return
                 }
                 
@@ -45,17 +46,16 @@ public class RewardedAdLoader:NSObject,AdLoaderProtocol{
         }
     }
     
-    private func handlerError(error:Error?){
-        state = .waiting
-        notifyRepositoryDidFinishLoad?(error)
+    private func notifyFinishLoadIfNeed(error:Error? = nil){
+        count -= 1
+        if count == 0 {
+            state = .waiting
+            notifyRepositoryDidFinishLoad?(error)
+        }
     }
     
     private func fulfill(ad: GADRewardedAd){
         notifyRepositoryDidReceiveAd?(GADRewardedAdWrapper(ad: ad, config: config))
-        count -= 1
-        if count == 0 {
-            state = .waiting
-            notifyRepositoryDidFinishLoad?(nil)
-        }
+        notifyFinishLoadIfNeed()
     }
 }

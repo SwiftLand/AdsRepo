@@ -102,13 +102,11 @@ class GADInterstitialAdMock: GADInterstitialAd {
     static var error:NSError? = nil
     override class func load(withAdUnitID adUnitID: String, request: GADRequest?, completionHandler: @escaping GADInterstitialAdLoadCompletionHandler) {
         guard error == nil else{
-            DispatchQueue.main.async {completionHandler(nil,error)}
+            completionHandler(nil,error)
             return
         }
         let ad = GADInterstitialAdMock()
-        DispatchQueue.main.async {
-            completionHandler(ad,error)
-        }
+        completionHandler(ad,error)
     }
 }
 

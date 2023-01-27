@@ -9,7 +9,7 @@ import Foundation
 import GoogleMobileAds
 
 public class NativeAdLoader:NSObject,AdLoaderProtocol{
-   
+    
     public typealias AdWrapperType = GADNativeAdWrapper
     
     public var state: AdLoaderState = .waiting
@@ -23,6 +23,8 @@ public class NativeAdLoader:NSObject,AdLoaderProtocol{
     private var options:[GADAdLoaderOptions]? = nil
     private var adTypes:[GADAdLoaderAdType]? = nil
     private var nativeAdLoader:GADAdLoader!
+    
+    internal var Loader = GADAdLoader.self
     
     required public init(config: AdRepositoryConfig) {
         self.config = config
@@ -41,7 +43,7 @@ public class NativeAdLoader:NSObject,AdLoaderProtocol{
         multiAdOption.numberOfAds = count
         options.append(multiAdOption)
         
-        nativeAdLoader = GADAdLoader(
+        nativeAdLoader = Loader.init(
             adUnitID:config.adUnitId,
             rootViewController: vc,
             adTypes: adTypes,
@@ -87,6 +89,6 @@ extension NativeAdLoader:GADNativeAdLoaderDelegate{
     
     public func adLoader(_ adLoader: GADAdLoader, didFailToReceiveAdWithError error: Error) {
         state = .waiting
-       notifyRepositoryDidFinishLoad?(error)
+        notifyRepositoryDidFinishLoad?(error)
     }
 }

@@ -14,7 +14,7 @@ class MulticastDelegationSpec: QuickSpec {
     
     override func spec() {
         
-        describe("MulticastDelegationSpec"){
+        describe("MulticastDelegation"){
             
             var multicast:MulticastDelegate<AdRepositoryDelegateMock>!
             

@@ -15,7 +15,7 @@ class AdLoaderSpec: QuickSpec {
     
     override func spec() {
         
-        describe("AdLoaderSpec"){
+        describe("AdLoader"){
             
             let config = AdRepositoryConfig(adUnitId: "sample", size: 2)
             

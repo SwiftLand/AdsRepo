@@ -15,8 +15,8 @@ class AdRepositoryErrorHandler:AdRepositoryErrorHandlerProtocol  {
     public static let delayBetweenRetyies:Int = 5
     public static let maxRetryCount:Int = 20
     
-    private var currentRetryCount = 0
-    private var lastWorkItem:DispatchWorkItem?  = nil
+    internal var currentRetryCount = 0
+    internal var lastWorkItem:DispatchWorkItem?  = nil
     
     
     /// check if the input error is retryable or not. If it's retryable, will call `retryClosure` after all conditions (which are declared in the `ErrorHandler Config` variable) are provided.
@@ -70,7 +70,7 @@ class AdRepositoryErrorHandler:AdRepositoryErrorHandlerProtocol  {
         }
         
         let delay = DispatchTimeInterval.seconds(AdRepositoryErrorHandler.delayBetweenRetyies)
-        DispatchQueue.global().asyncAfter(deadline: .now()+delay, execute: lastWorkItem!)
+        DispatchQueue.main.asyncAfter(deadline: .now()+delay, execute: lastWorkItem!)
     }
     
     ///Will restart retry count
@@ -81,6 +81,7 @@ class AdRepositoryErrorHandler:AdRepositoryErrorHandlerProtocol  {
     ///Will cancel last waiting `retryClosure` DispatchWorkItem
     func cancel(){
         lastWorkItem?.cancel()
+        lastWorkItem = nil
     }
     
     deinit {

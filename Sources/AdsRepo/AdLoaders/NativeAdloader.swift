@@ -10,7 +10,7 @@ import GoogleMobileAds
 
 public class NativeAdLoader:NSObject,AdLoaderProtocol{
    
-    public typealias AdWrapperType = NativeAdWrapper
+    public typealias AdWrapperType = GADNativeAdWrapper
     
     public var state: AdLoaderState = .waiting
     public var config:AdRepositoryConfig
@@ -77,7 +77,7 @@ public class NativeAdLoader:NSObject,AdLoaderProtocol{
 extension NativeAdLoader:GADNativeAdLoaderDelegate{
     
     public  func adLoader(_ adLoader: GADAdLoader, didReceive nativeAd: GADNativeAd) {
-        notifyRepositoryDidReceiveAd?(NativeAdWrapper(loadedAd: nativeAd, config: config))
+        notifyRepositoryDidReceiveAd?(GADNativeAdWrapper(loadedAd: nativeAd, config: config))
     }
     
     public func adLoaderDidFinishLoading(_ adLoader: GADAdLoader) {

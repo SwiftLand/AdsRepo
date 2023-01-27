@@ -7,17 +7,17 @@
 
 import Foundation
 
-public typealias InterstitialAd = InterstitialAdWrapper
-public typealias RewardedAd = RewardedAdWrapper
-public typealias NativeAd = NativeAdWrapper
+public typealias InterstitialAd = GADInterstitialAdWrapper
+public typealias RewardedAd = GADRewardedAdWrapper
+public typealias NativeAd = GADNativeAdWrapper
 
-public protocol AdWrapperProtocol:NSObject,Hashable{
+public protocol AdWrapperProtocol:NSObject{
     
     associatedtype AdType:NSObject
     /// Repository configuration. See **RepositoryConfig.swift** for more details.
     var config:AdRepositoryConfig{get}
    
-    var id:String{get}
+    var uniqueId:String{get}
     
     /// GADNativeAd object that loaded successfully with adLoader inside `owner` Repository object
     var loadedAd:AdType{get}

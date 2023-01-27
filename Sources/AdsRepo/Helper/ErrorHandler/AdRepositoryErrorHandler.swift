@@ -12,8 +12,8 @@ import GoogleMobileAds
 class AdRepositoryErrorHandler:AdRepositoryErrorHandlerProtocol  {
     
     
-    private let delayBetweenRetyies:Int = 5
-    private let maxRetryCount:Int = 20
+    public static let delayBetweenRetyies:Int = 5
+    public static let maxRetryCount:Int = 20
     
     private var currentRetryCount = 0
     private var lastWorkItem:DispatchWorkItem?  = nil
@@ -26,6 +26,9 @@ class AdRepositoryErrorHandler:AdRepositoryErrorHandlerProtocol  {
     /// - Returns: Return `true` if can method retry otherwise return `false`
    
     func isRetryAble(error: Error) -> Bool {
+        
+        guard currentRetryCount < AdRepositoryErrorHandler.maxRetryCount else {return false}
+        
         let errorCode = GADErrorCode(rawValue: (error as NSError).code)
         switch (errorCode) {
             //retrable errors
@@ -57,16 +60,17 @@ class AdRepositoryErrorHandler:AdRepositoryErrorHandlerProtocol  {
     }
     
     private func recallMethod(onRetry retry:@escaping RetryClosure){
-        print("ErrorHandler","retry count:","\(currentRetryCount)","with delay:",delayBetweenRetyies)
-        guard currentRetryCount < maxRetryCount else {return}
+        
+        print("ErrorHandler","retry count:","\(currentRetryCount)","with delay:",AdRepositoryErrorHandler.delayBetweenRetyies)
+        
         
         lastWorkItem = DispatchWorkItem{[weak self] in
             guard let self = self else {return}
             retry(self.currentRetryCount)
         }
         
-        DispatchQueue.global().asyncAfter(deadline: .now()+DispatchTimeInterval.seconds(delayBetweenRetyies)
-                                          , execute: lastWorkItem!)
+        let delay = DispatchTimeInterval.seconds(AdRepositoryErrorHandler.delayBetweenRetyies)
+        DispatchQueue.global().asyncAfter(deadline: .now()+delay, execute: lastWorkItem!)
     }
     
     ///Will restart retry count

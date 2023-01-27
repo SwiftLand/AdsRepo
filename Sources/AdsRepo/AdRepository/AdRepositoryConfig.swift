@@ -11,8 +11,8 @@ import Foundation
 public struct AdRepositoryConfig{
     public let adUnitId:String
     public let size:Int
-    public let expireIntervalTime:TimeInterval
-    public let showCountThreshold:Int
+    public var expireIntervalTime:TimeInterval = 120//reopo in second
+    public var showCountThreshold:Int = 1
     
     /// Init non-mutable `RepositoryConfig` struct
     /// - Parameters:
@@ -20,17 +20,7 @@ public struct AdRepositoryConfig{
     ///   - size: Repository total size
     ///   - expireIntervalTime: Expire time for each repository ad
     ///   - showCountThreshold: Max number that the repository can load each ad
-    public init(
-        adUnitId:String,//unitId that's google provided
-        size:Int,//repository total size
-        expireIntervalTime:TimeInterval = 120,//reopo in second
-        showCountThreshold:Int = 1//max time can show an ad
-    ) {
-            self.adUnitId = adUnitId
-            self.size = size
-            self.showCountThreshold = showCountThreshold
-            self.expireIntervalTime = expireIntervalTime
-        }
+
     
     public static let GAD_App_Open_ID =   "ca-app-pub-3940256099942544/5662855259"
     public static let GAD_Banner_ID  = "ca-app-pub-3940256099942544/2934735716"

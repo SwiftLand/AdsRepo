@@ -24,7 +24,7 @@ class BannerNativeAdCell:UICollectionViewCell{
     @IBOutlet weak var adIconWidthConstrians: NSLayoutConstraint!
 
 
-    weak var adWrapper:NativeAdWrapper? = nil {
+    weak var adWrapper:GADNativeAdWrapper? = nil {
         didSet{
             guard let adWrapper = adWrapper else {
                 showActivityIndicator()

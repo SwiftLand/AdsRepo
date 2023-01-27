@@ -9,11 +9,11 @@ import Foundation
 import GoogleMobileAds
 
 
-public class InterstitialAdWrapper:NSObject,AdWrapperProtocol {
+public class GADInterstitialAdWrapper:NSObject,AdWrapperProtocol {
    
     public var loadedAd:GADInterstitialAd
     
-    public private(set) var id: String  = UUID().uuidString
+    public private(set) var uniqueId: String  = UUID().uuidString
     
     /// Repository configuration. See **RepositoryConfig.swift** for more details.
     public private(set) var config:AdRepositoryConfig
@@ -27,7 +27,6 @@ public class InterstitialAdWrapper:NSObject,AdWrapperProtocol {
     init(_ ad:GADInterstitialAd,config:AdRepositoryConfig) {
         self.loadedAd = ad
         self.config = config
-        super.init()
     }
     
     deinit {

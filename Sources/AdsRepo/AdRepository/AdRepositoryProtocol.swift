@@ -51,6 +51,8 @@ public protocol AdRepositoryProtocol:NSObject {
     
     var reachability:AdRepositoryReachabilityPorotocol {get set}
     
+    var invalidAdCondition:((AdWrapperType) -> Bool){get set}
+    
     ///  Fill repository with new ads
     ///
     ///- Precondition
@@ -73,7 +75,7 @@ public protocol AdRepositoryProtocol:NSObject {
     
     func invalidate(ad:AdWrapperType)
     
-    func append(observer:AdRepositoryDelegate)
+    func append(delegate:AdRepositoryDelegate)
     
-    func remove(observer:AdRepositoryDelegate)
+    func remove(delegate:AdRepositoryDelegate)
 }

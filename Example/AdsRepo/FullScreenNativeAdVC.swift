@@ -53,10 +53,10 @@ class FullScreenNativeAdVC: UIViewController {
     }
     
     func registerCellForAdsRepo(){
-        adRepository?.append(observer: self)
+        adRepository?.append(delegate: self)
     }
     func deregisterCellForAdsRepo(){
-        adRepository?.remove(observer: self)
+        adRepository?.remove(delegate: self)
     }
     
     private func showNativeAd(_ nativeAd: GADNativeAd) {

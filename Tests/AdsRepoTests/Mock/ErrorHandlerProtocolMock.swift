@@ -5,6 +5,7 @@
 //  Created by Ali on 8/12/22.
 //
 
+/// Generated using Sourcery 2.0.0 — https://github.com/krzysztofzablocki/Sourcery
 // DO NOT EDIT
 // swiftlint:disable line_length
 // swiftlint:disable variable_name
@@ -32,33 +33,45 @@ import AppKit
 
 
 
-class ErrorHandlerProtocolMock: AdRepositoryErrorHandlerProtocol {
-    var config: AdRepositoryErrorHandlerConfig {
-        get { return underlyingConfig }
-        set(value) { underlyingConfig = value }
-    }
-    var underlyingConfig: AdRepositoryErrorHandlerConfig!
-    
+class AdRepositoryErrorHandlerProtocolMock: AdRepositoryErrorHandlerProtocol {
+
     //MARK: - isRetryAble
 
-    var isRetryAbleErrorRetryClosureCallsCount = 0
-    var isRetryAbleErrorRetryClosureCalled: Bool {
-        return isRetryAbleErrorRetryClosureCallsCount > 0
+    var isRetryAbleErrorCallsCount = 0
+    var isRetryAbleErrorCalled: Bool {
+        return isRetryAbleErrorCallsCount > 0
     }
-    var isRetryAbleErrorRetryClosureReceivedArguments: (error: Error?, retryClosure: RetryClosure?)?
-    var isRetryAbleErrorRetryClosureReceivedInvocations: [(error: Error?, retryClosure: RetryClosure?)] = []
-    var isRetryAbleErrorRetryClosureReturnValue: Bool!
-    var isRetryAbleErrorRetryClosureClosure: ((Error?, RetryClosure?) -> Bool)?
+    var isRetryAbleErrorReceivedError: Error?
+    var isRetryAbleErrorReceivedInvocations: [Error] = []
+    var isRetryAbleErrorReturnValue: Bool!
+    var isRetryAbleErrorClosure: ((Error) -> Bool)?
 
-    func isRetryAble(error: Error?, retryClosure: RetryClosure?) -> Bool {
-        isRetryAbleErrorRetryClosureCallsCount += 1
-        isRetryAbleErrorRetryClosureReceivedArguments = (error: error, retryClosure: retryClosure)
-        isRetryAbleErrorRetryClosureReceivedInvocations.append((error: error, retryClosure: retryClosure))
-        if let isRetryAbleErrorRetryClosureClosure = isRetryAbleErrorRetryClosureClosure {
-            return isRetryAbleErrorRetryClosureClosure(error, retryClosure)
+    func isRetryAble(error: Error) -> Bool {
+        isRetryAbleErrorCallsCount += 1
+        isRetryAbleErrorReceivedError = error
+        isRetryAbleErrorReceivedInvocations.append(error)
+        if let isRetryAbleErrorClosure = isRetryAbleErrorClosure {
+            return isRetryAbleErrorClosure(error)
         } else {
-            return isRetryAbleErrorRetryClosureReturnValue
+            return isRetryAbleErrorReturnValue
         }
+    }
+
+    //MARK: - requestForRetry
+
+    var requestForRetryOnRetryCallsCount = 0
+    var requestForRetryOnRetryCalled: Bool {
+        return requestForRetryOnRetryCallsCount > 0
+    }
+    var requestForRetryOnRetryReceivedRetry: (RetryClosure)?
+    var requestForRetryOnRetryReceivedInvocations: [(RetryClosure)] = []
+    var requestForRetryOnRetryClosure: ((@escaping RetryClosure) -> Void)?
+
+    func requestForRetry(onRetry retry: @escaping RetryClosure) {
+        requestForRetryOnRetryCallsCount += 1
+        requestForRetryOnRetryReceivedRetry = retry
+        requestForRetryOnRetryReceivedInvocations.append(retry)
+        requestForRetryOnRetryClosure?(retry)
     }
 
     //MARK: - restart

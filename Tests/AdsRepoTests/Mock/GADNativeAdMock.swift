@@ -34,7 +34,7 @@ import AppKit
 
 
 
-class FakeNativeAdMock: GADNativeAd {
+class GADNativeAdMock: GADNativeAd {
     override var headline: String?{
         get{underlyingHeadline}
         set{underlyingHeadline = newValue}

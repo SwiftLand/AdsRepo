@@ -34,15 +34,15 @@ class RepositoryManager{
     }
     
     func add(Observer ob:AdRepositoryDelegate){
-        interstitialAdsRepo.append(observer: ob)
-        rewardedAdsRepo.append(observer: ob)
-        nativeVideoAdRepo.append(observer: ob)
-        nativeAdRepo.append(observer: ob)
+        interstitialAdsRepo.append(delegate: ob)
+        rewardedAdsRepo.append(delegate: ob)
+        nativeVideoAdRepo.append(delegate: ob)
+        nativeAdRepo.append(delegate: ob)
     }
     func remove(Observer ob:AdRepositoryDelegate){
-        interstitialAdsRepo.remove(observer: ob)
-        rewardedAdsRepo.remove(observer: ob)
-        nativeVideoAdRepo.remove(observer: ob)
-        nativeAdRepo.remove(observer: ob)
+        interstitialAdsRepo.remove(delegate: ob)
+        rewardedAdsRepo.remove(delegate: ob)
+        nativeVideoAdRepo.remove(delegate: ob)
+        nativeAdRepo.remove(delegate: ob)
     }
 }

@@ -8,12 +8,12 @@
 import Foundation
 import GoogleMobileAds
 
-public class NativeAdWrapper:NSObject,AdWrapperProtocol{
+public class GADNativeAdWrapper:NSObject,AdWrapperProtocol{
 
     /// Repository configuration. See **RepositoryConfig.swift** for more details.
     public private(set) var config:AdRepositoryConfig
     
-    public private(set) var id: String  = UUID().uuidString
+    public private(set) var uniqueId: String  = UUID().uuidString
     
     public private(set) var loadedAd: GADNativeAd
     /// Show GADNativeAd load Date (In milisecond)
@@ -23,13 +23,10 @@ public class NativeAdWrapper:NSObject,AdWrapperProtocol{
     public var showCount:Int = 0
     
     
-    init(loadedAd: GADNativeAd,
-         config:AdRepositoryConfig){
+    init(loadedAd: GADNativeAd,config:AdRepositoryConfig){
         
         self.config = config
         self.loadedAd = loadedAd
-        
-        super.init()
     }
     
     deinit {

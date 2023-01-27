@@ -8,11 +8,11 @@
 import Foundation
 import GoogleMobileAds
 
-public class RewardedAdWrapper:NSObject,AdWrapperProtocol{
+public class GADRewardedAdWrapper:NSObject,AdWrapperProtocol{
     
     public var loadedAd:GADRewardedAd
     
-    public private(set) var id: String  = UUID().uuidString
+    public private(set) var uniqueId: String  = UUID().uuidString
     
     /// Repository configuration. See **RepositoryConfig.swift** for more details.
     public private(set) var config:AdRepositoryConfig
@@ -31,7 +31,6 @@ public class RewardedAdWrapper:NSObject,AdWrapperProtocol{
         
         self.loadedAd = ad
         self.config = config
-        super.init()
     }
     
     deinit {

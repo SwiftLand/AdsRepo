@@ -7,9 +7,9 @@
 
 import Foundation
 
-public typealias InterstitalAdRepository = AdRepository<InterstitialAdWrapper,InterstitialAdLoader>
-public typealias RewardedAdRepository = AdRepository<RewardedAdWrapper,RewardedAdLoader>
-public typealias NativeAdRepository = AdRepository<NativeAdWrapper,NativeAdLoader>
+public typealias InterstitalAdRepository = AdRepository<GADInterstitialAdWrapper,InterstitialAdLoader>
+public typealias RewardedAdRepository = AdRepository<GADRewardedAdWrapper,RewardedAdLoader>
+public typealias NativeAdRepository = AdRepository<GADNativeAdWrapper,NativeAdLoader>
 
 public final class AdRepository<AdWrapperType:AdWrapperProtocol,
                           AdLoaderType:AdLoaderProtocol>:NSObject,AdRepositoryProtocol where AdLoaderType.AdWrapperType == AdWrapperType{
@@ -54,8 +54,8 @@ public final class AdRepository<AdWrapperType:AdWrapperProtocol,
    
     /// Condition to validate ads
     ///  - NOTE:by default use `showCount` and `expireIntervalTime` to validate ads in repository
-    public var invalidAdCondition:((any AdWrapperProtocol) -> Bool) = {
-        let now = Date().timeIntervalSince1970
+    public var invalidAdCondition:((AdWrapperType) -> Bool) = {
+        let now = Date.current.timeIntervalSince1970
         return (now-($0.loadedDate) > $0.config.expireIntervalTime) || $0.showCount>=$0.config.showCountThreshold
     }
     
@@ -76,10 +76,9 @@ public final class AdRepository<AdWrapperType:AdWrapperProtocol,
     }
  
 
-    private var adsRepo:[AdWrapperType] = []
-    private var multicastDelegate = MulticastDelegate<AdRepositoryDelegate>()
-    private var adTimerDict:[String:DispatchSourceTimer] = [:]
-   
+    internal var adsRepo:[AdWrapperType] = []
+    internal var multicastDelegate = MulticastDelegate<AdRepositoryDelegate>()
+    internal var adTimerDict:[String:DispatchSourceTimer] = [:]
     
     /// Create new `InterstitialAdRepository`
     /// - Parameters:
@@ -93,11 +92,7 @@ public final class AdRepository<AdWrapperType:AdWrapperProtocol,
     /// Will remove invalid ads (which comfirm `invalidAdCondition`) instantly
     /// - NOTE: After delete from repository, each ads will delegate `removeFromRepository` function
     public func validateRepositoryAds(){
-        let ads = adsRepo.filter(invalidAdCondition)
-        adsRepo.removeAll(where: invalidAdCondition)
-        ads.forEach{ ad in
-            multicastDelegate.delegates.forEach({$0.adRepository(didRemove: ad, in: self)})
-        }
+        removeAll(where: invalidAdCondition)
     }
     
     ///  Fill repository with new ads
@@ -148,12 +143,12 @@ public final class AdRepository<AdWrapperType:AdWrapperProtocol,
         fillRepoAdsIfAutoFillEnable()
     }
     
-    public func append(observer: AdRepositoryDelegate) {
-        multicastDelegate.append(observer: observer)
+    public func append(delegate: AdRepositoryDelegate) {
+        multicastDelegate.append(delegate: delegate)
     }
     
-    public func remove(observer: AdRepositoryDelegate) {
-        multicastDelegate.remove(observer: observer)
+    public func remove(delegate: AdRepositoryDelegate) {
+        multicastDelegate.remove(delegate: delegate)
     }
 }
 
@@ -197,29 +192,42 @@ extension AdRepository{
     }
     
     private func remove(ad:AdWrapperType){
-        adsRepo.removeAll(where: {$0 == ad})
-        multicastDelegate.delegates.forEach{
-            $0.adRepository(didRemove: ad, in: self)
-        }
+        removeFirst(where: {$0 == ad})
+    }
+    
+    private func removeFirst(where condition: ((AdWrapperType) -> Bool)){
+        guard let removedIndex = adsRepo.firstIndex(where: condition) else {return}
+        let removedAd = adsRepo.remove(at: removedIndex)
+        cancelTimer(for: removedAd)
+        notifyRemoveObservers([removedAd])
     }
     
     private func removeAll(where condition: ((AdWrapperType) -> Bool)? = nil){
-        var ads:[any AdWrapperProtocol] = []
+        var removedads:[AdWrapperType] = []
+        
         if let condition = condition {
-            ads = adsRepo.filter(condition)
+            removedads = adsRepo.filter(condition)
             adsRepo.removeAll(where:condition)
         }else{
-            ads = adsRepo
+            removedads = adsRepo
             adsRepo.removeAll()
         }
         
-        ads.forEach{
-            ad in
-            multicastDelegate.delegates.forEach{
+        for removedAd in removedads{
+            cancelTimer(for: removedAd)
+        }
+        notifyRemoveObservers(removedads)
+    }
+    
+    private func notifyRemoveObservers(_ ads:[AdWrapperType]){
+        for ad in ads{
+            multicastDelegate.invoke{
                 $0.adRepository(didRemove: ad, in: self)
             }
+//          for delegate in  multicastDelegate.delegates{
+//              delegate.adRepository(didRemove: ad, in: self)
+//            }
         }
-        
     }
 }
 
@@ -232,21 +240,26 @@ extension AdRepository{
             
             guard let self = self else {return}
             
-            self.adTimerDict.removeValue(forKey: ad.id)
-            self.multicastDelegate.delegates.forEach{
+            self.adTimerDict.removeValue(forKey: ad.uniqueId)
+            
+//            for delegate in self.multicastDelegate.delegates{
+//                delegate.adRepository(didExpire: ad, in: self)
+//            }
+            self.multicastDelegate.invoke{
                 $0.adRepository(didExpire: ad, in: self)
             }
+            
             self.fillRepoAdsIfAutoFillEnable()
         }
-        adTimerDict[ad.id] = timer
+        adTimerDict[ad.uniqueId] = timer
     }
     
     private func startTimer(for ad:AdWrapperType){
-        adTimerDict[ad.id]?.resume()
+        adTimerDict[ad.uniqueId]?.resume()
     }
     private func cancelTimer(for ad:AdWrapperType){
-        adTimerDict[ad.id]?.cancel()
-        adTimerDict.removeValue(forKey: ad.id)
+        adTimerDict[ad.uniqueId]?.cancel()
+        adTimerDict.removeValue(forKey: ad.uniqueId)
     }
 }
 
@@ -254,10 +267,14 @@ extension AdRepository{
     
     private func notifyDidReceive(ad:AdWrapperType){
         print("AdRepository","did Receive \(AdWrapperType.self) type ad")
+        removeFirst(where: invalidAdCondition)
         append(ad:ad)
         createTimer(for: ad)
         startTimer(for: ad)
-        multicastDelegate.delegates.forEach{
+//        for delegate in multicastDelegate.delegates{
+//            delegate.adRepository(didReceive: self)
+//        }
+        multicastDelegate.invoke{
             $0.adRepository(didReceive: self)
         }
     }
@@ -270,15 +287,16 @@ extension AdRepository{
         }
         print("AdRepository","did finish load ads for",AdWrapperType.self)
         errorHandler.restart()
-        validateRepositoryAds()
         fillRepoAdsIfAutoFillEnable()
-        multicastDelegate.delegates.forEach{
+//        for delegate in multicastDelegate.delegates{
+//            delegate.adRepository(didFinishLoading: self, error: error)
+//        }
+        multicastDelegate.invoke{
             $0.adRepository(didFinishLoading: self, error: error)
         }
     }
     
     private func handleError(_ error: Error) {
-        
         
         guard !errorHandler.isRetryAble(error: error), !self.isLoading else {
             
@@ -288,9 +306,12 @@ extension AdRepository{
             
             return
         }
-        multicastDelegate.delegates.forEach{
+        multicastDelegate.invoke{
             $0.adRepository(didFinishLoading: self, error: error)
         }
+//        for delegate in multicastDelegate.delegates{
+//            delegate.adRepository(didFinishLoading: self, error: error)
+//        }
     }
     
 }

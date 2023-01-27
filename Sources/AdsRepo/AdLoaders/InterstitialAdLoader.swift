@@ -10,7 +10,7 @@ import GoogleMobileAds
 
 public class InterstitialAdLoader:NSObject,AdLoaderProtocol{
     
-    public typealias AdWrapperType = InterstitialAdWrapper
+    public typealias AdWrapperType = GADInterstitialAdWrapper
     public var state: AdLoaderState = .waiting
     public var request:GADRequest = GADRequest()
     public var config:AdRepositoryConfig
@@ -51,12 +51,12 @@ public class InterstitialAdLoader:NSObject,AdLoaderProtocol{
     
     private func fulfill(ad: GADInterstitialAd){
         
-        notifyRepositoryDidReceiveAd?(InterstitialAdWrapper(ad, config: config))
+        notifyRepositoryDidReceiveAd?(GADInterstitialAdWrapper(ad, config: config))
         count -= 1
         if count == 0 {
+            state = .waiting
             notifyRepositoryDidFinishLoad?(nil)
         }
-        state = .waiting
     }
 
 }

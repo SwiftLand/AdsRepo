@@ -34,7 +34,7 @@ import AppKit
 
 
 
-class FakeRewardedAdMock: GADRewardedAdWrapper {
+class GADRewardedAdMock: GADRewardedAd {
     override var adUnitID: String {
         get { return underlyingAdUnitID }
         set(value) { underlyingAdUnitID = value }
@@ -115,7 +115,7 @@ class FakeRewardedAdMock: GADRewardedAdWrapper {
             DispatchQueue.main.async {completionHandler(nil,error)}
             return
         }
-        let ad = FakeRewardedAdMock()
+        let ad = GADRewardedAdMock()
         DispatchQueue.main.async {
             completionHandler(ad,error)
         }

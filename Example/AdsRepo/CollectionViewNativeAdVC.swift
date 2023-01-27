@@ -23,11 +23,11 @@ class CollectionViewNativeAdVC:UICollectionViewController{
     override func viewWillAppear(_ animated: Bool) {
         self.collectionView?.register(UINib(nibName: "BannerNativeAdCell", bundle: nil), forCellWithReuseIdentifier: "BannerNativeAdCell")
         self.collectionView?.register(UINib(nibName: "NativeAdCell", bundle: nil), forCellWithReuseIdentifier: "NativeAdCell")
-        adRepository?.append(observer: self)
+        adRepository?.append(delegate: self)
 
     }
     override func viewWillDisappear(_ animated: Bool) {
-        adRepository?.remove(observer: self)
+        adRepository?.remove(delegate: self)
     }
 }
 

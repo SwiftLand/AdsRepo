@@ -34,7 +34,7 @@ import AppKit
 
 
 
-class FakeInterstitialAdMock: GADInterstitialAdWrapper {
+class GADInterstitialAdMock: GADInterstitialAd {
     override var adUnitID: String {
         get { return underlyingAdUnitID }
         set { underlyingAdUnitID = newValue }
@@ -105,7 +105,7 @@ class FakeInterstitialAdMock: GADInterstitialAdWrapper {
             DispatchQueue.main.async {completionHandler(nil,error)}
             return
         }
-        let ad = FakeInterstitialAdMock()
+        let ad = GADInterstitialAdMock()
         DispatchQueue.main.async {
             completionHandler(ad,error)
         }

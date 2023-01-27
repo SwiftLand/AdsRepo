@@ -10,7 +10,7 @@ import GoogleMobileAds
 
 public class RewardedAdLoader:NSObject,AdLoaderProtocol{
     
-    public typealias AdWrapperType = RewardedAdWrapper
+    public typealias AdWrapperType = GADRewardedAdWrapper
     
     public var state: AdLoaderState = .waiting
     public var request:GADRequest = GADRequest()
@@ -51,12 +51,11 @@ public class RewardedAdLoader:NSObject,AdLoaderProtocol{
     }
     
     private func fulfill(ad: GADRewardedAd){
-        notifyRepositoryDidReceiveAd?(RewardedAdWrapper(ad: ad, config: config))
+        notifyRepositoryDidReceiveAd?(GADRewardedAdWrapper(ad: ad, config: config))
         count -= 1
         if count == 0 {
+            state = .waiting
             notifyRepositoryDidFinishLoad?(nil)
         }
-        state = .waiting
     }
-    
 }

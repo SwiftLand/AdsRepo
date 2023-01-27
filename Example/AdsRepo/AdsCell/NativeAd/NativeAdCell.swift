@@ -23,7 +23,7 @@ class NativeAdCell:UICollectionViewCell{
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var showCountLabel:UILabel!
     
-    weak var adWrapper:NativeAdWrapper? = nil {
+    weak var adWrapper:GADNativeAdWrapper? = nil {
         didSet{
             guard let adWrapper = adWrapper else {
                 showActivityIndicator()

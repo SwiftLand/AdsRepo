@@ -13,7 +13,7 @@ class AdRepositoryErrorHandler:AdRepositoryErrorHandlerProtocol  {
     
     
     public static let delayBetweenRetyies:Int = 5
-    public static let maxRetryCount:Int = 20
+    public static let maxRetryCount:Int = 10
     
     internal var currentRetryCount = 0
     internal var lastWorkItem:DispatchWorkItem?  = nil
@@ -62,7 +62,6 @@ class AdRepositoryErrorHandler:AdRepositoryErrorHandlerProtocol  {
     private func recallMethod(onRetry retry:@escaping RetryClosure){
         
         print("ErrorHandler","retry count:","\(currentRetryCount)","with delay:",AdRepositoryErrorHandler.delayBetweenRetyies)
-        
         
         lastWorkItem = DispatchWorkItem{[weak self] in
             guard let self = self else {return}

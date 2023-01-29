@@ -63,13 +63,9 @@ extension CollectionViewNativeAdVC{
     override func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
         switch cell {
         case let adCell as BannerNativeAdCell:
-            adRepository?.loadAd {adWrapper in
-                adCell.adWrapper = adWrapper
-            }
+            adCell.adWrapper = adRepository?.loadAd()
         case let adCell as NativeAdCell:
-            adRepository?.loadAd {adWrapper in
-                adCell.adWrapper = adWrapper
-            }
+            adCell.adWrapper = adRepository?.loadAd()
         default:break
         }
         
@@ -107,15 +103,11 @@ extension CollectionViewNativeAdVC:AdRepositoryDelegate{
             cell in
             if let adCell = cell as? NativeAdCell,
                adCell.adWrapper == nil {
-                adRepository.loadAd {adWrapper in
-                    adCell.adWrapper = adWrapper
-                }
+               adCell.adWrapper = adRepository.loadAd()
             }
             if let adCell = cell as? BannerNativeAdCell,
                 adCell.adWrapper == nil {
-                adRepository.loadAd {adWrapper in
-                    adCell.adWrapper = adWrapper
-                }
+                adCell.adWrapper = adRepository.loadAd()
             }
         }
     }

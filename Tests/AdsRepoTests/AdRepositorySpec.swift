@@ -29,6 +29,10 @@ class AdRepositorySpec: QuickSpec {
                 repo.append(delegate: delegate)
             }
             
+            afterEach {
+                Date.overrideCurrentDate(Date())
+            }
+            
             context("when isDisable"){
                 it("if true"){
                     //Pereparing
@@ -65,6 +69,7 @@ class AdRepositorySpec: QuickSpec {
                 it("if ad reach the showCount threshold"){
                     
                     //Preparation
+                    repo.autoFill = false
                     repo.fillRepoAds()
                     let ads = repo.adsRepo
                     repo.adsRepo.forEach({$0.showCount = $0.config.showCountThreshold+1})
@@ -82,14 +87,14 @@ class AdRepositorySpec: QuickSpec {
                     repo.remove(delegate: delegate)
                 }
                 
-                //MARK: TODO <---------
-                xit("if ad become expire"){
+                it("if ad become expire"){
                     
                     //Preparation
+                    repo.autoFill = false
                     repo.fillRepoAds()
+                    repo.adLoader.canLoad = false
                     let ads = repo.adsRepo
 
-//                    Nimble.AsyncDefaults.timeout = .seconds(2)
                     let timeTravel = Date().addingTimeInterval(repo.config.expireIntervalTime+1)
                     Date.overrideCurrentDate(timeTravel)
                     
@@ -108,87 +113,207 @@ class AdRepositorySpec: QuickSpec {
                 }
                 
             }
-            
-            it("when call fillRepoAds"){
+            it("when call invalideAd"){
+                //Preparation
+                repo.fillRepoAds()
+                repo.autoFill = false
+                let removeAd = repo.adsRepo[0]
                 
                 //Testing
-                repo.fillRepoAds()
+                repo.invalidate(ad: removeAd)
                 
                 //Assertation
-                expect(delegate.adRepositoryDidFinishLoadingErrorCallsCount).toEventually(equal(1))
-                expect(delegate.adRepositoryDidReceiveCallsCount).to(equal(repoConfig.size))
-                expect(repo.adsRepo.count).to(equal(repo.config.size))
-                
-                for ad in repo.adLoader.loadedAds{
-                    expect(repo.adsRepo.contains(where: {$0 == ad})).to(beTrue())
-                }
+                expect(repo.adsRepo.count).to(equal(repo.config.size-1))
+                expect(repo.adsRepo.contains(removeAd)).to(beFalse())
+                let isContain = delegate.adRepositoryDidRemoveInReceivedInvocations.contains(where: {$0.ad == removeAd})
+                expect(isContain).to(beTrue())
             }
             
-            context("when internet"){
-                var reachablity:AdRepositoryReachabilityPorotocolMock!
-                beforeEach {
-                    reachablity = AdRepositoryReachabilityPorotocolMock()
-                    repo.reachability = reachablity
-                }
+            context("when call loadAd"){
                 
-                it("was offline"){
-                    //Preparation
-                    reachablity.isConnected = false
+                context("if repository is empty"){
                     
-                    //Testing
-                    repo.fillRepoAds()
-                    
-                    //Assertation
-                    expect(delegate.adRepositoryDidFinishLoadingErrorCallsCount).toEventually(equal(0))
-                    expect(delegate.adRepositoryDidReceiveCallsCount).to(equal(0))
-                    expect(repo.adsRepo.count).to(equal(0))
-                }
-                
-                it("was online"){
-                    //Preparation
-                    reachablity.isConnected = true
-                    
-                    //Testing
-                    repo.fillRepoAds()
-                    
-                    //Assertation
-                    expect(delegate.adRepositoryDidFinishLoadingErrorCallsCount).toEventually(equal(1))
-                    expect(delegate.adRepositoryDidReceiveCallsCount).to(equal(repoConfig.size))
-                    expect(repo.adsRepo.count).to(equal(repo.config.size))
-                }
-                
-                it("goes offline"){
-                    //Preparation
-                    reachablity.isConnected = true
-                    delegate.adRepositoryDidReceiveClosure = {ad in
-                        reachablity.isConnected = false
-                        repo.adLoader.responseError = NSError(domain: GADErrorDomain, code: GADErrorCode.networkError.rawValue)
+                    it("if autoFill true"){
+                        //Preparation
+                        repo.autoFill = true
+                        
+                        //Testing
+                        let loadedAd = repo.loadAd()
+                        
+                        //Assertation
+                        expect(loadedAd).to(beNil())
+                        expect(delegate.adRepositoryDidFinishLoadingErrorCallsCount).toEventually(equal(1))
+                        expect(delegate.adRepositoryDidReceiveCallsCount).to(equal(repoConfig.size))
+                        expect(repo.adsRepo.count).to(equal(repo.config.size))
                     }
                     
-                    //Testing
-                    repo.fillRepoAds()
-                    
-                    //Assertation
-                    expect(delegate.adRepositoryDidFinishLoadingErrorCallsCount).toEventually(equal(1))
-                    expect(delegate.adRepositoryDidReceiveCallsCount).to(equal(repoConfig.size))
-                    expect(repo.adsRepo.count).to(equal(repo.config.size))
+                    it("if autoFill false"){
+                   
+                        repo.autoFill = false
+                        expect(repo.loadAd()).to(beNil())
+                    }
                 }
+
+                context("if loadOnlyValidAd"){
+                    it("be true"){
+                        //Preparation
+                        repo.autoFill = false
+                        repo.fillRepoAds()
+                        repo.adsRepo.forEach({$0.showCount = repo.config.showCountThreshold+1})
+                        
+                        //Testing
+                        repo.loadOnlyValidAd = true
+                        let loadedAd = repo.loadAd()
+                        
+                        //Assertation
+                        expect(loadedAd).to(beNil())
+                        expect(repo.adsRepo.count).to(equal(0))
+                     
+                    }
+                    
+                    it("be false"){
+                        //Preparation
+                        repo.autoFill = false
+                        repo.fillRepoAds()
+                        repo.adsRepo.forEach({$0.showCount = repo.config.showCountThreshold+1})
+                        repo.adLoader.canLoad = false
+                        
+                        //Testing
+                        repo.loadOnlyValidAd = false
+                        let loadedAd = repo.loadAd()
+                        
+                        //Assertation
+                        expect(loadedAd).notTo(beNil())
+                        expect(repo.adsRepo.count).to(equal(repo.config.size))
+                    }
+                }
+                
+                context("if waitForNewAdBeforeRemove"){
+                    it("be true"){
+                        //Preparation
+                        repo.autoFill = false
+                        repo.fillRepoAds()
+                        repo.adsRepo.forEach({$0.showCount = repo.config.showCountThreshold+1})
+                      
+                        //Testing
+                        repo.waitForNewAdBeforeRemove = false
+                        let _ = repo.loadAd()
+                        
+                        //Assertation
+                        expect(repo.adsRepo.count).to(equal(0))
+                    }
+                    
+                    it("be false"){
+                        //Preparation
+                        repo.autoFill = false
+                        repo.fillRepoAds()
+                        repo.adsRepo.forEach({$0.showCount = repo.config.showCountThreshold+1})
+                        repo.adLoader.canLoad = false
+                        
+                        //Testing
+                        repo.waitForNewAdBeforeRemove = true
+                        let _ = repo.loadAd()
+                        
+                        //Assertation
+                        expect(repo.adsRepo.count).to(equal(repo.config.size))
+                    }
+                }
+               
+            }
             
-                it("back online"){
-                    //Preparation
-                    reachablity.isConnected = false
+            context("when call fillRepoAds"){
+                context("if isDisable"){
+                    it("is true"){
+                        repo.adLoader.canLoad = false
+                        repo.isDisable = false
+                        expect(repo.fillRepoAds()).to(beTrue())
+                    }
+                    it("is false"){
+                        repo.isDisable = true
+                        expect(repo.fillRepoAds()).to(beFalse())
+                    }
+                }
+                context("if adloader"){
+                    it("in loading state"){
+                        repo.adLoader.state = .loading
+                        expect(repo.fillRepoAds()).to(beFalse())
+                    }
+                    it("in watting state"){
+                        repo.adLoader.state = .waiting
+                        expect(repo.fillRepoAds()).to(beTrue())
+                    }
+                }
+       
+                
+                context("if internet"){
+                    var reachablity:AdRepositoryReachabilityPorotocolMock!
+                    beforeEach {
+                        reachablity = AdRepositoryReachabilityPorotocolMock()
+                        repo.reachability = reachablity
+                    }
                     
-                    //Testing
-                    repo.fillRepoAds()
-                    reachablity.isConnected = true
-                    reachablity.setBackOnlineNotifierReceivedNotifier?(reachablity)
+                    it("was offline"){
+                        //Preparation
+                        reachablity.isConnected = false
+                        
+                        //Testing
+                        repo.fillRepoAds()
+                        
+                        //Assertation
+                        expect(delegate.adRepositoryDidFinishLoadingErrorCallsCount).toEventually(equal(0))
+                        expect(delegate.adRepositoryDidReceiveCallsCount).to(equal(0))
+                        expect(repo.adsRepo.count).to(equal(0))
+                    }
                     
-                    //Assertation
-                    expect(delegate.adRepositoryDidFinishLoadingErrorCallsCount).toEventually(equal(1))
-                    expect(delegate.adRepositoryDidReceiveCallsCount).to(equal(repoConfig.size))
-                    expect(repo.adsRepo.count).to(equal(repo.config.size))
+                    it("was online"){
+                        //Preparation
+                        reachablity.isConnected = true
+                        
+                        //Testing
+                        repo.fillRepoAds()
+                        
+                        //Assertation
+                        expect(delegate.adRepositoryDidFinishLoadingErrorCallsCount).toEventually(equal(1))
+                        expect(delegate.adRepositoryDidReceiveCallsCount).to(equal(repoConfig.size))
+                        expect(repo.adsRepo.count).to(equal(repo.config.size))
+                    }
+                    
+                    it("goes offline"){
+                        //Preparation
+                        reachablity.isConnected = true
+                        delegate.adRepositoryDidReceiveClosure = {ad in
+                            reachablity.isConnected = false
+                            repo.adLoader.responseError = NSError(domain: GADErrorDomain, code: GADErrorCode.networkError.rawValue)
+                        }
+                        
+                        //Testing
+                        repo.fillRepoAds()
+                        
+                        //Assertation
+                        expect(delegate.adRepositoryDidFinishLoadingErrorCallsCount).toEventually(equal(1))
+                        expect(delegate.adRepositoryDidReceiveCallsCount).to(equal(repoConfig.size))
+                        expect(repo.adsRepo.count).to(equal(repo.config.size))
+                    }
+                
+                    it("back online"){
+                        //Preparation
+                        repo.autoFill = true
+                        reachablity.isConnected = false
+                        
+                        //Testing
+                        repo.fillRepoAds()
+                        reachablity.isConnected = true
+                        reachablity.setBackOnlineNotifierReceivedNotifier?(reachablity)
+                        
+                        //Assertation
+                        expect(delegate.adRepositoryDidFinishLoadingErrorCallsCount).toEventually(equal(1))
+                        expect(delegate.adRepositoryDidReceiveCallsCount).to(equal(repoConfig.size))
+                        expect(repo.adsRepo.count).to(equal(repo.config.size))
+                    }
                 }
             }
+            
+          
             
             context("when get an error"){
                 context("if retryable"){

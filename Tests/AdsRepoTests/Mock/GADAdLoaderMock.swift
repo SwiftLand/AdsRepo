@@ -87,6 +87,7 @@ class GADAdLoaderMock: GADAdLoader {
     func MockLoadProcess() {
         guard GADAdLoaderMock.error == nil else{
             underlyingDelegate?.adLoader(self, didFailToReceiveAdWithError: GADAdLoaderMock.error!)
+            underlyingDelegate?.adLoaderDidFinishLoading?(self)
             return
         }
       

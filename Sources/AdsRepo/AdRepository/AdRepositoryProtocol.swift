@@ -24,6 +24,10 @@ public protocol AdRepositoryProtocol:NSObject {
     /// requiring otherwise you need to call `fillRepoAds` manually.
     var autoFill:Bool {set get}
     
+    var loadOnlyValidAd:Bool {set get}
+    
+    var waitForNewAdBeforeRemove:Bool {set get}
+    
     /// If `true` repository remove all ads
     /// (also delegate `removeFromRepository` function for eachremoved ad) and never fill repository again even after call `fillRepoAds`,`loadAd` or `presentAd` function.
     /// If `false` and `autofill` is `true`  (default : `true`), It will fill repository with ads
@@ -65,8 +69,8 @@ public protocol AdRepositoryProtocol:NSObject {
     @discardableResult
     func fillRepoAds()->Bool
     
-    @discardableResult
-    func loadAd(onLoad: @escaping ((AdWrapperType?) -> Void)) -> Bool
+    
+    func loadAd()->AdWrapperType?
     
     /// Will remove invalid ads (which confirm `invalidAdCondition`) instantly
     /// - NOTE: After being deleted from the repository, each ad will

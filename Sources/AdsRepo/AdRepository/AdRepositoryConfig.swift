@@ -11,7 +11,7 @@ import Foundation
 public struct AdRepositoryConfig{
     public let adUnitId:String
     public let size:Int
-    public var expireIntervalTime:TimeInterval = 120//reopo in second
+    public var expireIntervalTime:TimeInterval = 120//in second
     public var showCountThreshold:Int = 1
     
     /// Init non-mutable `RepositoryConfig` struct

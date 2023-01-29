@@ -23,6 +23,7 @@ public class NativeAdLoader:NSObject,AdLoaderProtocol{
     private var options:[GADAdLoaderOptions]? = nil
     private var adTypes:[GADAdLoaderAdType]? = nil
     private var nativeAdLoader:GADAdLoader!
+    private var receiveddError:Error? = nil
     
     internal var Loader = GADAdLoader.self
     
@@ -84,11 +85,12 @@ extension NativeAdLoader:GADNativeAdLoaderDelegate{
     
     public func adLoaderDidFinishLoading(_ adLoader: GADAdLoader) {
         state = .waiting
-        notifyRepositoryDidFinishLoad?(nil)
+        let error = receiveddError
+        receiveddError = nil
+        notifyRepositoryDidFinishLoad?(error)
     }
     
     public func adLoader(_ adLoader: GADAdLoader, didFailToReceiveAdWithError error: Error) {
-        state = .waiting
-        notifyRepositoryDidFinishLoad?(error)
+        receiveddError = error
     }
 }

@@ -69,37 +69,32 @@ class MainController: UIViewController {
     @IBAction func onUserAction (_ sender:UIControl){
         switch sender{
         case nativeCollectionViewBtn:
-           let vc = CollectionViewNativeAdVC.instantiate()
+            let vc = CollectionViewNativeAdVC.instantiate()
             vc.adRepository = RepositoryManager.shared.nativeAdRepo
             vc.type = .largeBanner
             navigationController?.pushViewController(vc, animated: true)
         case nativeBannerCollectionViewBtn:
-           let vc = CollectionViewNativeAdVC.instantiate()
+            let vc = CollectionViewNativeAdVC.instantiate()
             vc.adRepository = RepositoryManager.shared.nativeAdRepo
             vc.type = .banner
             navigationController?.pushViewController(vc, animated: true)
         case imageNativeAdbtn:
-           let vc =  FullScreenNativeAdVC.instantiate()
+            let vc =  FullScreenNativeAdVC.instantiate()
             vc.adRepository = RepositoryManager.shared.nativeAdRepo
-           navigationController?.pushViewController(vc, animated: true)
+            navigationController?.pushViewController(vc, animated: true)
         case VideoNativeAdBtn:
             let vc =  FullScreenNativeAdVC.instantiate()
             vc.adRepository = RepositoryManager.shared.nativeVideoAdRepo
             navigationController?.pushViewController(vc, animated: true)
         case rewardedAdBtn:
-            RepositoryManager.shared.rewardedAdsRepo.loadAd(onLoad: {
-                adWrapper in
-                adWrapper?.loadedAd.present(fromRootViewController: self, userDidEarnRewardHandler: {
-                    [weak self] in
-                    guard let ad = adWrapper?.loadedAd else{return}
-                    self?.onReceivedReward (ad:ad)
-                })
+            guard let adWrapper =  RepositoryManager.shared.rewardedAdsRepo.loadAd() else {return}
+            adWrapper.loadedAd.present(fromRootViewController: self, userDidEarnRewardHandler: {
+                [weak self] in
+                self?.onReceivedReward (ad:adWrapper.loadedAd)
             })
         case interstinalAdBtn:
-            RepositoryManager.shared.interstitialAdsRepo.loadAd(onLoad: {
-                adWrapper in
-                adWrapper?.loadedAd.present(fromRootViewController: self)
-            })
+            guard let adWrapper =  RepositoryManager.shared.interstitialAdsRepo.loadAd() else {return}
+            adWrapper.loadedAd.present(fromRootViewController: self)
         default:break
         }
     }
@@ -113,11 +108,11 @@ class MainController: UIViewController {
     }
 }
 extension MainController:AdRepositoryDelegate{
-  
+    
     func adRepository(didReceive repository: AnyRepositoryType) {
         updateRepositoryCountView(repository)
     }
-
+    
     func adRepository(didFinishLoading repository:AnyRepositoryType,error:Error?){
         if error == nil{
             print("Repo(\(repository.config.adUnitId)) is full, count:\(repository.currentAdCount)")

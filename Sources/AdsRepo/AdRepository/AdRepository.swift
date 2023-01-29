@@ -61,6 +61,9 @@ public final class AdRepository<AdWrapperType:AdWrapperProtocol,
     
     /// If `true` repository will load new ads automaticly when require otherwise you need to to call `fillRepoAds` manually.
     public var autoFill:Bool = true
+    public var loadOnlyValidAd:Bool = false
+    public var waitForNewAdBeforeRemove:Bool = true
+    
     
     /// If `true` repository remove all ads (also delegate `removeFromRepository` function for each removed ad) and never fill repository again even after call `fillRepoAds` or `loadAd` function.
     /// if `false` and `autofill` is `true`  (default : `true`), It will fill repository with ads
@@ -124,18 +127,27 @@ public final class AdRepository<AdWrapperType:AdWrapperProtocol,
         return true
     }
     
-    @discardableResult
-    public func loadAd(onLoad: @escaping (((AdWrapperType)?) -> Void)) -> Bool {
-        guard autoFill,adsRepo.count>0 else {
-            onLoad(nil)
-            fillRepoAds()
-            return false
+    public func loadAd()->AdWrapperType? {
+        
+        if loadOnlyValidAd {
+            validateRepositoryAds()
         }
+        
+        guard adsRepo.count>0 else {
+            fillRepoAdsIfAutoFillEnable()
+            return nil
+        }
+        
         let ad = adsRepo.min(by: {$0.showCount<$1.showCount})
         ad?.showCount += 1
-        onLoad(ad)
+        
+        if !waitForNewAdBeforeRemove {
+            validateRepositoryAds()
+        }
+        
         fillRepoAdsIfAutoFillEnable()
-        return true
+        
+        return ad
     }
     
     public func invalidate(ad: AdWrapperType) {
@@ -224,9 +236,6 @@ extension AdRepository{
             multicastDelegate.invoke{
                 $0.adRepository(didRemove: ad, in: self)
             }
-//          for delegate in  multicastDelegate.delegates{
-//              delegate.adRepository(didRemove: ad, in: self)
-//            }
         }
     }
 }
@@ -241,10 +250,7 @@ extension AdRepository{
             guard let self = self else {return}
             
             self.adTimerDict.removeValue(forKey: ad.uniqueId)
-            
-//            for delegate in self.multicastDelegate.delegates{
-//                delegate.adRepository(didExpire: ad, in: self)
-//            }
+
             self.multicastDelegate.invoke{
                 $0.adRepository(didExpire: ad, in: self)
             }
@@ -271,9 +277,7 @@ extension AdRepository{
         append(ad:ad)
         createTimer(for: ad)
         startTimer(for: ad)
-//        for delegate in multicastDelegate.delegates{
-//            delegate.adRepository(didReceive: self)
-//        }
+
         multicastDelegate.invoke{
             $0.adRepository(didReceive: self)
         }
@@ -285,12 +289,11 @@ extension AdRepository{
             handleError(error)
             return
         }
+        
         print("AdRepository","did finish load ads for",AdWrapperType.self)
         errorHandler.restart()
         fillRepoAdsIfAutoFillEnable()
-//        for delegate in multicastDelegate.delegates{
-//            delegate.adRepository(didFinishLoading: self, error: error)
-//        }
+
         multicastDelegate.invoke{
             $0.adRepository(didFinishLoading: self, error: error)
         }
@@ -298,20 +301,19 @@ extension AdRepository{
     
     private func handleError(_ error: Error) {
         
-        guard !errorHandler.isRetryAble(error: error), !self.isLoading else {
-            
-            errorHandler.requestForRetry{[weak self] _ in
-                self?.fillRepoAdsIfAutoFillEnable()
+        guard !errorHandler.isRetryAble(error: error) else {
+            if !isLoading {
+                errorHandler.requestForRetry{[weak self] count in
+                    print("AdRepository","retry load ads for",AdWrapperType.self,"retry number:",count)
+                    self?.fillRepoAdsIfAutoFillEnable()
+                }
             }
-            
             return
         }
+        
         multicastDelegate.invoke{
             $0.adRepository(didFinishLoading: self, error: error)
         }
-//        for delegate in multicastDelegate.delegates{
-//            delegate.adRepository(didFinishLoading: self, error: error)
-//        }
     }
     
 }

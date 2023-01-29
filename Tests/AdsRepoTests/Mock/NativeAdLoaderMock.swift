@@ -10,10 +10,7 @@ import GoogleMobileAds
 @testable import AdsRepo
 
 public class NativeAdLoaderMock:NSObject,AdLoaderProtocol{
-    //for tests
-//    static let RESPONSE_DELAY:Int = 1 // in seacond
-    
-    
+
     public typealias AdWrapperType = GADNativeAdWrapper
     
     public var state: AdLoaderState = .waiting
@@ -24,15 +21,17 @@ public class NativeAdLoaderMock:NSObject,AdLoaderProtocol{
     public var notifyRepositoryDidFinishLoad: ((Error?) -> ())?
 
     
-  
+    //for tests
     var loadedAds:[AdWrapperType] = []
     var responseError:Error? = nil
+    var canLoad = true
     
     required public init(config: AdRepositoryConfig) {
         self.config = config
     }
     
     public func load(count:Int){
+        guard canLoad else { return}
         state = .loading
         loadMock(count: count)
     }

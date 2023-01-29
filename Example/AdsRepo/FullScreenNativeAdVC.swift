@@ -38,17 +38,13 @@ class FullScreenNativeAdVC: UIViewController {
         activityIndicator.stopAnimating()
         activityIndicator.isHidden = true
     }
-    func showNativeAd(_ adController:RepoType){
-        self.adRepository = adController
-        adController.loadAd {[weak self] adWrapper in
-            guard let self = self else {return}
-            if let adWrapper = adWrapper {
-                
-                self.showNativeAd(adWrapper.loadedAd)
-                self.hideActivityIndicator()
-            }else{
-                self.showActivityIndicator()
-            }
+    func showNativeAd(_ adRepository:RepoType){
+        self.adRepository = adRepository
+        if let adWrapper = adRepository.loadAd(){
+            self.showNativeAd(adWrapper.loadedAd)
+            self.hideActivityIndicator()
+        }else{
+            self.showActivityIndicator()
         }
     }
     

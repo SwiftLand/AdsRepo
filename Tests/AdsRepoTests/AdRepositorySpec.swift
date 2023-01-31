@@ -322,7 +322,7 @@ class AdRepositorySpec: QuickSpec {
                        repo.adLoader.responseError = NSError(domain: GADErrorDomain, code: GADErrorCode.timeout.rawValue)
                         
                         var counter = 0;
-                        let numberOfRetry = AdRepositoryErrorHandler.maxRetryCount/2
+                        let numberOfRetry = errorHandler.maxRetryCount/2
                       
                         errorHandler.isRetryAbleErrorReturnValue = true
                         errorHandler.requestForRetryOnRetryClosure = {retryClosure in
@@ -349,7 +349,7 @@ class AdRepositorySpec: QuickSpec {
                         repo.adLoader.responseError = error
                         
                         var counter = 0;
-                        let numberOfRetry = AdRepositoryErrorHandler.maxRetryCount
+                        let numberOfRetry = errorHandler.maxRetryCount
                         
                         errorHandler.isRetryAbleErrorClosure = {error in
                             guard (counter < numberOfRetry) else{

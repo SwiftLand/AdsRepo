@@ -1,5 +1,5 @@
 //
-//  RepositoryConfig.swift
+//  AdRepositoryConfig.swift
 //  AdsRepo
 //
 //  Created by Ali on 9/4/21.
@@ -7,20 +7,25 @@
 
 import Foundation
 
-/// `RepositoryConfig` contains all repository non-mutable configuration. it's necessary to create a repository
+/// `AdRepositoryConfig` contains all repository non-mutable configuration. it's necessary to create a repository
 public struct AdRepositoryConfig{
     public let adUnitId:String
     public let size:Int
-    public var expireIntervalTime:TimeInterval = 120//in second
-    public var showCountThreshold:Int = 1
+    public var expireIntervalTime:TimeInterval//in second
+    public var showCountThreshold:Int
     
     /// Init non-mutable `RepositoryConfig` struct
     /// - Parameters:
     ///   - adUnitId: Unit Id that's google provided
     ///   - size: Repository total size
-    ///   - expireIntervalTime: Expire time for each repository ad
+    ///   - expireIntervalTime: Expire time  in seconds for each repository ad
     ///   - showCountThreshold: Max number that the repository can load each ad
-
+    init(adUnitId: String, size: Int, expireIntervalTime: TimeInterval = 120, showCountThreshold: Int = 1) {
+        self.adUnitId = adUnitId
+        self.size = size
+        self.expireIntervalTime = expireIntervalTime
+        self.showCountThreshold = showCountThreshold
+    }
     
     public static let GAD_App_Open_ID =   "ca-app-pub-3940256099942544/5662855259"
     public static let GAD_Banner_ID  = "ca-app-pub-3940256099942544/2934735716"

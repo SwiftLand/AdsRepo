@@ -34,6 +34,17 @@ import AppKit
 
 
 class AdRepositoryErrorHandlerProtocolMock: AdRepositoryErrorHandlerProtocol {
+    
+    var delayBetweenRetyies: Int {
+        get { return underlyingDelayBetweenRetyies }
+        set(value) { underlyingDelayBetweenRetyies = value }
+    }
+    var underlyingDelayBetweenRetyies: Int = 5
+    var maxRetryCount: Int {
+        get { return underlyingMaxRetryCount }
+        set(value) { underlyingMaxRetryCount = value }
+    }
+    var underlyingMaxRetryCount: Int = 10
 
     //MARK: - isRetryAble
 

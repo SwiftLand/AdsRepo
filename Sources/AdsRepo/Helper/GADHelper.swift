@@ -1,5 +1,5 @@
 //
-//  Helper.swift
+//  GADHelper.swift
 //  AdsRepo
 //
 //  Created by Ali on 7/22/22.

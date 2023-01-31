@@ -10,26 +10,27 @@ import GoogleMobileAds
 
 public class GADNativeAdWrapper:NSObject,AdWrapperProtocol{
 
-    /// Repository configuration. See **RepositoryConfig.swift** for more details.
+    /// Repository configuration. See **AdRepositoryConfig.swift** for more details.
     public private(set) var config:AdRepositoryConfig
     
+    /// Unique id for the ad wrapper that used for some process in the ad's own repository
     public private(set) var uniqueId: String  = UUID().uuidString
     
+    /// Loaded GADNativeAd  object
     public private(set) var loadedAd: GADNativeAd
-    /// Show GADNativeAd load Date (In milisecond)
-    public private(set) var loadedDate:TimeInterval = Date().timeIntervalSince1970
     
-    /// Show how many time this object return as valid ads to user. See **`loadAd`** function in **NativeAdRepository.swift** for more details
-    public var showCount:Int = 0
+    /// GADNativeAd's  loaded Date
+    public private(set) var loadedDate:Date = Date()
+    
+    /// Show how many time this GADNativeAdWrapper return as valid ads to user. See **loadAd** function in **AdRepository.swift** for more details
+    /// - NOTE: This value typically changes by the ad's own repository but you can also change it if failed to show/present returned ad.
+    /// - Important: This property is thread-safe
+    @Atomic public var showCount:Int = 0
     
     
     init(loadedAd: GADNativeAd,config:AdRepositoryConfig){
         
         self.config = config
         self.loadedAd = loadedAd
-    }
-    
-    deinit {
-        print("deinit","Native Ad")
     }
 }

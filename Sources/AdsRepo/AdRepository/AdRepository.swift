@@ -20,17 +20,15 @@ public final class AdRepository<AdWrapperType:AdWrapperProtocol,
     public var errorHandler:AdRepositoryErrorHandlerProtocol = AdRepositoryErrorHandler()
     public var reachability:AdRepositoryReachabilityPorotocol = ReachabilityWrapper()
     
-    /// Current reposiotry configuration. See **RepositoryConfig.swift** for more details.
+    /// Current reposiotry configuration. See **AdRepositoryConfig.swift** for more details.
     public private(set) var config:AdRepositoryConfig
     
-    /// Return `true` if current repository is in loading state
+    /// Return `true` if current repository's adloder  is in loading state
     public var isLoading:Bool {adLoader.state == .loading}
     
     /// Return `true` if the repository contains ads otherwise return `false`
-    public var hasAd:Bool{
-        return adsRepo.count > 0
-    }
-    public var currentAdCount: Int {adsRepo.count}
+    public var hasAd:Bool{return adsRepo.count > 0}
+    public var totalAdCount: Int {adsRepo.count}
     
     
     /// Return  repository valid ad count
@@ -56,12 +54,15 @@ public final class AdRepository<AdWrapperType:AdWrapperProtocol,
     ///  - NOTE:by default use `showCount` and `expireIntervalTime` to validate ads in repository
     public var invalidAdCondition:((AdWrapperType) -> Bool) = {
         let now = Date.current.timeIntervalSince1970
-        return (now-($0.loadedDate) > $0.config.expireIntervalTime) || $0.showCount>=$0.config.showCountThreshold
+        return (now-($0.loadedDate.timeIntervalSince1970) > $0.config.expireIntervalTime) || $0.showCount>=$0.config.showCountThreshold
     }
     
-    /// If `true` repository will load new ads automaticly when require otherwise you need to to call `fillRepoAds` manually.
+    /// If `true` repository will load new ads automaticly when require otherwise you need to to call `fillRepoAds` manually.(defualt: `true`)
     public var autoFill:Bool = true
+    /// If `true` repository validates ads before loading them (defualt: `false`)
     public var loadOnlyValidAd:Bool = false
+    /// If `true` repository keep invalidate ads until new ad arrive them (defualt: `true`)
+    /// - NOTE: You can use an ad multiple times before new ads arrive
     public var waitForNewAdBeforeRemove:Bool = true
     
     
@@ -86,13 +87,11 @@ public final class AdRepository<AdWrapperType:AdWrapperProtocol,
     /// Create new `InterstitialAdRepository`
     /// - Parameters:
     ///   - config: current reposiotry configuration. you can't change it after intial repository. See **RepositoryConfig.swift** for more details.
-    ///   - errorHandlerConfig: current reposiotry  error handler configuration  See **ErrorHandlerConfig.swift** for more details.
-    ///   - delegate: set delegation for this repository
     public init(config:AdRepositoryConfig){
             self.config = config
     }
     
-    /// Will remove invalid ads (which comfirm `invalidAdCondition`) instantly
+    /// Will remove invalid ads (which confirm `invalidAdCondition`) instantly
     /// - NOTE: After delete from repository, each ads will delegate `removeFromRepository` function
     public func validateRepositoryAds(){
         removeAll(where: invalidAdCondition)
@@ -102,7 +101,7 @@ public final class AdRepository<AdWrapperType:AdWrapperProtocol,
     ///
     ///- Precondition
     ///    * Repository not disable
-    ///    * Repository not fill
+    ///    * Repository not fill with valid ads
     ///    * Repository contain invalid ads
     ///    * Repository not already in loading
     ///
@@ -127,12 +126,13 @@ public final class AdRepository<AdWrapperType:AdWrapperProtocol,
         return true
     }
     
+    ///If the repository has at least one ad (in a user-specified condition), will return that ad otherwise returns `nil`
     public func loadAd()->AdWrapperType? {
         
         if loadOnlyValidAd {
             validateRepositoryAds()
         }
-        
+
         guard adsRepo.count>0 else {
             fillRepoAdsIfAutoFillEnable()
             return nil
@@ -150,15 +150,22 @@ public final class AdRepository<AdWrapperType:AdWrapperProtocol,
         return ad
     }
     
+    
+    ///  Remove input ad and  fill repository with new ads if `autoFill` is `true`
+    /// - Parameter ad:an ad object which will remove from the repository
     public func invalidate(ad: AdWrapperType) {
         remove(ad: ad)
         fillRepoAdsIfAutoFillEnable()
     }
     
+    /// Append delegate to the repository. the repository will call the delegate object when needed
+    /// - Parameter delegate:an object which confirms the **AdRepositoryDelegate ** protocol
     public func append(delegate: AdRepositoryDelegate) {
         multicastDelegate.append(delegate: delegate)
     }
     
+    /// Remove a delegate from the repository.
+    /// - Parameter delegate:an object which confirms the **AdRepositoryDelegate ** protocol
     public func remove(delegate: AdRepositoryDelegate) {
         multicastDelegate.remove(delegate: delegate)
     }

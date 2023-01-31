@@ -14,17 +14,22 @@ public typealias NativeAd = GADNativeAdWrapper
 public protocol AdWrapperProtocol:NSObject{
     
     associatedtype AdType:NSObject
-    /// Repository configuration. See **RepositoryConfig.swift** for more details.
+    
+    /// Repository configuration. See **AdRepositoryConfig.swift** for more details.
     var config:AdRepositoryConfig{get}
-   
+    
+    /// Unique id for the ad wrapper that used for some process in the ad's own repository
     var uniqueId:String{get}
     
-    /// GADNativeAd object that loaded successfully with adLoader inside `owner` Repository object
+    /// Any ad type object (ex: GADNativeAd)
     var loadedAd:AdType{get}
     
-    /// Show GADNativeAd load Date (In milisecond)
-    var loadedDate:TimeInterval{get}
+    /// Ad's  loaded Date
+    var loadedDate:Date{get}
     
-    /// Show how many time this object return as valid ads to user. See **`loadAd`** function in **NativeAdRepository.swift** for more details
+    /// Show how many time this object return as valid ads to user. See **loadAd** function in **AdRepository.swift** for more details
+    /// - NOTE: This value typically changes by the ad's own repository but you can also change it if failed to show/present returned ad.
+    /// - NOTE: This property is thread-safe in all provided AdWrapper.
+    /// - Warning: If you try to implement your own ad wrapper, make it thread-safe to prevent race condition issues. you can use the **Atomci** property wrapper to do this. (see **AtomicProperty.swif** for more details)
     var showCount:Int{get set}
 }

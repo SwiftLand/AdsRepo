@@ -12,7 +12,7 @@ public class RewardedAdLoader:NSObject,AdLoaderProtocol{
     
     public typealias AdWrapperType = GADRewardedAdWrapper
     
-    public var state: AdLoaderState = .waiting
+    public private(set) var state: AdLoaderState = .waiting
     public var request:GADRequest = GADRequest()
     public var config:AdRepositoryConfig
     

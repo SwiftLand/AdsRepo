@@ -12,30 +12,6 @@ import AppTrackingTransparency
 import GoogleMobileAds
 class MainController: UIViewController {
     
-    var loadedInterstinalAdCount = 0{
-        didSet{
-            interstinalAdBtn.setTitle("Interstinal Ad (loaded:\(loadedInterstinalAdCount))", for: .normal)
-        }
-    }
-    var loadedRewardedAdCount = 0{
-        didSet{
-            rewardedAdBtn.setTitle("Rewarded Ad (loaded:\(loadedRewardedAdCount))", for: .normal)
-        }
-    }
-    
-    var loadedNativeAdCount = 0{
-        didSet{
-            nativeBannerCollectionViewBtn.setTitle("Native banner ad in collection view (loaded:\(loadedNativeAdCount))", for: .normal)
-            nativeCollectionViewBtn.setTitle("Native ad in collection view (loaded:\(loadedNativeAdCount))", for: .normal)
-            imageNativeAdbtn.setTitle("Full screen Image Native ad (loaded:\(loadedNativeAdCount))", for: .normal)
-        }
-    }
-    var loadedVideoNativeAdCount = 0{
-        didSet{
-            VideoNativeAdBtn.setTitle("Full screen Video Native ad (loaded:\(loadedVideoNativeAdCount))", for: .normal)
-        }
-    }
-    
     @IBOutlet weak var nativeBannerCollectionViewBtn: UIButton!
     @IBOutlet weak var nativeCollectionViewBtn: UIButton!
     @IBOutlet weak var imageNativeAdbtn: UIButton!
@@ -46,14 +22,7 @@ class MainController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         RepositoryManager.shared.add(Observer: self)
-        interstinalAdBtn.setTitle("Interstinal Ad (loaded:\(loadedInterstinalAdCount))", for: .normal)
-        rewardedAdBtn.setTitle("Rewarded Ad (loaded:\(loadedRewardedAdCount))", for: .normal)
-        
-        nativeBannerCollectionViewBtn.setTitle("Native banner ad in collection view (loaded:\(loadedNativeAdCount))", for: .normal)
-        nativeCollectionViewBtn.setTitle("Native ad in collection view (loaded:\(loadedNativeAdCount))", for: .normal)
-        imageNativeAdbtn.setTitle("Full screen Image Native ad (loaded:\(loadedNativeAdCount))", for: .normal)
-        
-        VideoNativeAdBtn.setTitle("Full screen Video Native ad (loaded:\(loadedVideoNativeAdCount))", for: .normal)
+        updateRepositoryCountView()
         
     }
     override func viewWillDisappear(_ animated: Bool) {
@@ -106,41 +75,35 @@ class MainController: UIViewController {
         let amount = ad.adReward.amount
         print("Rewarded received with amount \(amount).")
     }
+    
+    private func updateRepositoryCountView(){
+        interstinalAdBtn.setTitle("Interstinal Ad (loaded:\(RepositoryManager.shared.interstitialAdsRepo.totalAdCount))", for: .normal)
+        rewardedAdBtn.setTitle("Rewarded Ad (loaded:\(RepositoryManager.shared.rewardedAdsRepo.totalAdCount))", for: .normal)
+        
+        nativeBannerCollectionViewBtn.setTitle("Native banner ad in collection view (loaded:\(RepositoryManager.shared.nativeAdRepo.totalAdCount))", for: .normal)
+        
+        nativeCollectionViewBtn.setTitle("Native ad in collection view (loaded:\(RepositoryManager.shared.nativeAdRepo.totalAdCount))", for: .normal)
+        imageNativeAdbtn.setTitle("Full screen Image Native ad (loaded:\(RepositoryManager.shared.nativeAdRepo.totalAdCount))", for: .normal)
+        
+        VideoNativeAdBtn.setTitle("Full screen Video Native ad (loaded:\(RepositoryManager.shared.nativeVideoAdRepo.totalAdCount))", for: .normal)
+    }
 }
 extension MainController:AdRepositoryDelegate{
     
     func adRepository(didReceive repository: AnyRepositoryType) {
-        updateRepositoryCountView(repository)
+        updateRepositoryCountView()
     }
     
     func adRepository(didFinishLoading repository:AnyRepositoryType,error:Error?){
-        if error == nil{
-            print("Repo(\(repository.config.adUnitId)) is full, count:\(repository.currentAdCount)")
-        }else{
-            print("Repo(\(repository.config.adUnitId)) have error:\(String(describing: error))")
-        }
+        updateRepositoryCountView()
     }
     
     func adRepository(didExpire ad:AnyAdType,in repository:AnyRepositoryType){
-        updateRepositoryCountView(repository)
+        updateRepositoryCountView()
     }
     
     func adRepository(didRemove ad:AnyAdType,in repository:AnyRepositoryType){
-        updateRepositoryCountView(repository)
-    }
-    
-    private func updateRepositoryCountView(_ repository:any AdRepositoryProtocol){
-        switch repository.self{
-        case RepositoryManager.shared.interstitialAdsRepo:
-            loadedInterstinalAdCount = repository.currentAdCount
-        case RepositoryManager.shared.rewardedAdsRepo:
-            loadedRewardedAdCount = repository.currentAdCount
-        case RepositoryManager.shared.nativeAdRepo:
-            loadedNativeAdCount = repository.currentAdCount
-        case RepositoryManager.shared.nativeVideoAdRepo:
-            loadedVideoNativeAdCount = repository.currentAdCount
-        default:break
-        }
+        updateRepositoryCountView()
     }
 }
 

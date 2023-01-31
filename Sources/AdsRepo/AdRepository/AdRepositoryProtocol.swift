@@ -78,7 +78,7 @@ public protocol AdRepositoryProtocol:NSObject {
     @discardableResult
     func fillRepoAds()->Bool
     
-    ///If the repository has at least one ad (in a user-specified condition), will return that ad otherwise returns `nil`
+    ///If the repository has at least one ad (in a developer-specified condition), will return that ad otherwise returns `nil`
     func loadAd()->AdWrapperType?
     
     /// Will remove invalid ads (which confirm `invalidAdCondition`) instantly

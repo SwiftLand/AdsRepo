@@ -17,7 +17,7 @@ public final class AdRepository<AdWrapperType:AdWrapperProtocol,
     
   
     public private(set) lazy var adLoader:AdLoaderType = AdLoaderType(config: config)
-    public var errorHandler:AdRepositoryErrorHandlerProtocol = AdRepositoryErrorHandler()
+    public var errorHandler:AdRepositoryErrorHandlerProtocol = GADErrorHandler()
     public var reachability:AdRepositoryReachabilityPorotocol = ReachabilityWrapper()
     
     /// Current reposiotry configuration. See **AdRepositoryConfig.swift** for more details.
@@ -126,7 +126,7 @@ public final class AdRepository<AdWrapperType:AdWrapperProtocol,
         return true
     }
     
-    ///If the repository has at least one ad (in a user-specified condition), will return that ad otherwise returns `nil`
+    ///If the repository has at least one ad (in a developer-specified condition), will return that ad otherwise returns `nil`
     public func loadAd()->AdWrapperType? {
         
         if loadOnlyValidAd {

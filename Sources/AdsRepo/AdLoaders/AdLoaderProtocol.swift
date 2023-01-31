@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import GoogleMobileAds
 
 public protocol AdLoaderProtocol:NSObject {
     

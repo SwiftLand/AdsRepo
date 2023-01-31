@@ -7,7 +7,7 @@
 
 import Foundation
 
-/// `AdRepositoryConfig` contains all repository non-mutable configuration. it's necessary to create a repository
+/// `AdRepositoryConfig` is a struct that contains all non-mutable repository properties.
 public struct AdRepositoryConfig{
     public let adUnitId:String
     public let size:Int

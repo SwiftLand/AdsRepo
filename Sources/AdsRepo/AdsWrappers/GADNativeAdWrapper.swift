@@ -29,8 +29,7 @@ public class GADNativeAdWrapper:NSObject,AdWrapperProtocol{
     
     
     init(loadedAd: GADNativeAd,config:AdRepositoryConfig){
-        
-        self.config = config
         self.loadedAd = loadedAd
+        self.config = config
     }
 }

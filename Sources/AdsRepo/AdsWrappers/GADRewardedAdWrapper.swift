@@ -28,7 +28,6 @@ public class GADRewardedAdWrapper:NSObject,AdWrapperProtocol{
     @Atomic public var showCount:Int = 0
     
     init(ad:GADRewardedAd,config:AdRepositoryConfig) {
-        
         self.loadedAd = ad
         self.config = config
     }

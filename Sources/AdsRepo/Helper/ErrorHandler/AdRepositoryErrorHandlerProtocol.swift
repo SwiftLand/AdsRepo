@@ -22,7 +22,7 @@ public protocol AdRepositoryErrorHandlerProtocol{
     func isRetryAble(error: Error)->Bool
     
     
-    ///  Will call `retryClosure` after all user-specific conditions are provided.
+    ///  Will call `retryClosure` after all developer-specific conditions are provided.
     /// - Parameter retry: call input closure after spacific condtion (ex: after period of time)
     func requestForRetry(onRetry retry:@escaping RetryClosure)
     

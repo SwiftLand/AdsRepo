@@ -9,9 +9,9 @@ import Foundation
 import GoogleMobileAds
 
 /// `ErrorHandler` will handle all types of repository errors. it is configurable to retry at a specific time before the return fails to its own repository.
-class AdRepositoryErrorHandler:AdRepositoryErrorHandlerProtocol  {
+class GADErrorHandler:AdRepositoryErrorHandlerProtocol  {
     
-    private let TAG = "\(AdRepositoryErrorHandler.self)"
+    private let TAG = "\(GADErrorHandler.self)"
     @Atomic public var delayBetweenRetyies:Int = 5
     @Atomic public var maxRetryCount:Int = 10
     

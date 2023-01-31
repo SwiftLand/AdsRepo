@@ -18,10 +18,10 @@ class AdRepositoryErrorHnadlerSpec: QuickSpec {
         
         describe("AdRepositoryErrorHnadler"){
             
-            var errorHandler:AdRepositoryErrorHandler! = AdRepositoryErrorHandler()
+            var errorHandler:GADErrorHandler! = GADErrorHandler()
             
             beforeEach {
-               errorHandler = AdRepositoryErrorHandler()
+               errorHandler = GADErrorHandler()
             }
             
             context("is retryable"){

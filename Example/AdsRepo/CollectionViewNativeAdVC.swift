@@ -97,14 +97,17 @@ extension CollectionViewNativeAdVC:AdRepositoryDelegate{
             return
         }
 
-        guard let adRepository = self.adRepository else {return}
+     
 
-        collectionView?.visibleCells.forEach{
-            cell in
+        collectionView?.visibleCells.forEach{[weak self] cell in
+            
+            guard let adRepository = self?.adRepository else {return}
+            
             if let adCell = cell as? NativeAdCell,
                adCell.adWrapper == nil {
                adCell.adWrapper = adRepository.loadAd()
             }
+            
             if let adCell = cell as? BannerNativeAdCell,
                 adCell.adWrapper == nil {
                 adCell.adWrapper = adRepository.loadAd()

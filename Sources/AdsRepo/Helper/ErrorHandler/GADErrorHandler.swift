@@ -12,8 +12,8 @@ import GoogleMobileAds
 class GADErrorHandler:AdRepositoryErrorHandlerProtocol  {
     
     private let TAG = "\(GADErrorHandler.self)"
-    @Atomic public var delayBetweenRetyies:Int = 5
-    @Atomic public var maxRetryCount:Int = 10
+    public var delayBetweenRetyies:Int = 5
+    public var maxRetryCount:Int = 10
     
     internal var currentRetryCount = 0
     internal var lastWorkItem:DispatchWorkItem?  = nil

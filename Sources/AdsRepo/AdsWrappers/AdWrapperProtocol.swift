@@ -29,7 +29,5 @@ public protocol AdWrapperProtocol:NSObject{
     
     /// Show how many time this object return as valid ads to user. See **loadAd** function in **AdRepository.swift** for more details
     /// - NOTE: This value typically changes by the ad's own repository but you can also change it if failed to show/present returned ad.
-    /// - NOTE: This property is thread-safe in all provided AdWrapper.
-    /// - Warning: If you try to implement your own ad wrapper, make it thread-safe to prevent race condition issues. you can use the **Atomci** property wrapper to do this. (see **AtomicProperty.swif** for more details)
     var showCount:Int{get set}
 }

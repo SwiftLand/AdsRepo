@@ -12,6 +12,7 @@ import GoogleMobileAds
 
 class RepositoryManager{
     static let shared = RepositoryManager()
+    
     let interstitialAdsRepo: InterstitalAdRepository = {
         let repo = InterstitalAdRepository(config:AdRepositoryConfig.debugInterstitialConfig())
         repo.waitForNewAdBeforeRemove = false
@@ -24,8 +25,14 @@ class RepositoryManager{
     }()
 
     let nativeVideoAdRepo: NativeAdRepository = {
-       return NativeAdRepository(config:AdRepositoryConfig.debugNativeVideoConfig())
+        let repo = NativeAdRepository(config:AdRepositoryConfig.debugNativeVideoConfig())
+        let videoOptions = GADVideoOptions()
+          videoOptions.customControlsRequested = true
+        repo.adLoader.set(options: [videoOptions])
+        repo.adLoader.set(adTypes: [.native])
+       return repo
     }()
+    
     let nativeAdRepo: NativeAdRepository = {
         return NativeAdRepository(config:AdRepositoryConfig.debugNativeConfig())
     }()

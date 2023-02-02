@@ -70,7 +70,7 @@ pod 'AdsRepo' , :testspecs => ['Tests']
 [Carthage](https://github.com/Carthage/Carthage) is a decentralized dependency manager that builds your dependencies and provides you with binary frameworks. To integrate **AdsRepo** into your Xcode project using Carthage, specify it in your `Cartfile`:
 
 ```ogdl
-github "ali72/AdsRepo"
+github "SwiftLand/AdsRepo"
 ```
 
 ### Swift Package Manager
@@ -80,7 +80,7 @@ Once you have your Swift package set up, adding **AdsRepo** as a dependency is a
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/ali72/AdsRepo.git", .upToNextMajor(from: "Latest_version"))
+    .package(url: "https://github.com/SwiftLand/AdsRepo.git", .upToNextMajor(from: "Latest_version"))
 ]
 ```
 

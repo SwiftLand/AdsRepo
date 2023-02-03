@@ -1,8 +1,10 @@
 PODS:
-  - AdsRepo (0.1.0)
+  - AdsRepo (0.1.0):
+    - AdsRepo/Core (= 0.1.0)
+  - AdsRepo/Core (0.1.0)
   - AdsRepo/Tests (0.1.0):
-    - Nimble
-    - Quick
+    - Nimble (= 10.0.0)
+    - Quick (= 5.0.1)
   - Nimble (10.0.0)
   - Quick (5.0.1)
 
@@ -22,10 +24,10 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  AdsRepo: 52891c2a1078c379ae349e26810a7b57ea4300db
+  AdsRepo: 93db08913a651a24b1ee0264eb16c55f47a0b124
   Nimble: 5316ef81a170ce87baf72dd961f22f89a602ff84
   Quick: 749aa754fd1e7d984f2000fe051e18a3a9809179
 
-PODFILE CHECKSUM: 16d4b2e7a3ff5b56c6c7c39f387ae1a6c0a1a55e
+PODFILE CHECKSUM: a6cdc2f8d1b0722cf9c3c34d8ee9ae250e5ee858
 
 COCOAPODS: 1.11.3

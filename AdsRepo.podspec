@@ -37,14 +37,16 @@ TODO: Add long description of the pod here.
 
  s.subspec 'Core' do |core|
    core.source_files = 'Sources/AdsRepo/Core/**/*'
-   
-   core.test_spec 'Tests' do |test_spec|
-     test_spec.source_files = 'Tests/AdsRepoTests/**/*'
-     test_spec.dependency 'Nimble', '10.0.0'
-     test_spec.dependency 'Quick', '5.0.1'
-   end
  end
-
+ 
+ s.test_spec 'Tests' do |test_spec|
+   test_spec.source_files = 'Tests/Core/**/*'
+   test_spec.dependency 'Nimble', '10.0.0'
+   test_spec.dependency 'Quick', '5.0.1'
+ end
+ 
+ 
+ 
   s.subspec 'GoogleMobileAds' do |gad|
     
     gad.source_files = 'Sources/AdsRepo/GoogleMobileAds/**/*'
@@ -52,7 +54,7 @@ TODO: Add long description of the pod here.
     gad.dependency  'Google-Mobile-Ads-SDK'
     
     gad.test_spec 'Tests' do |test_spec|
-      test_spec.source_files = 'Tests/AdsRepoTests/**/*'
+      test_spec.source_files = ['Tests/GoogleMobileAds/**/*','Tests/Core/**/*']
       test_spec.dependency 'Nimble', '10.0.0'
       test_spec.dependency 'Quick', '5.0.1'
     end

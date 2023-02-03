@@ -8,9 +8,7 @@
 import Foundation
 import Quick
 import Nimble
-#if canImport(GoogleMobileAds)
 import GoogleMobileAds
-#endif
 @testable import AdsRepo
 
 class AdLoaderSpec: QuickSpec {
@@ -21,9 +19,7 @@ class AdLoaderSpec: QuickSpec {
             
             let config = AdRepositoryConfig(adUnitId: "sample", size: 2)
             
-            //you can add your custom adloader here.
             
-#if canImport(GoogleMobileAds)
             itBehavesLike(AdLoaderBehavior.self){
                 let adLoader = InterstitialAdLoader(config: config)
                 adLoader.Loader = GADInterstitialAdMock.self
@@ -40,7 +36,6 @@ class AdLoaderSpec: QuickSpec {
                 adLoader.Loader = GADAdLoaderMock.self
                 return adLoader
             }
-#endif
         }
     }
 }
@@ -125,30 +120,18 @@ private class AdLoaderTester<T:AdLoaderProtocol>{
 
 
 private final class ErrorController{
-#if canImport(GoogleMobileAds)
     static let error = NSError(domain: GADErrorDomain, code: GADErrorCode.invalidRequest.rawValue)
-#else
-    static let error = NSError(domain: "AnyErrorDomain", code: 0)
-#endif
-    
-    
-    
+
     static func setErrorForAllRequests(){
-#if canImport(GoogleMobileAds)
         GADInterstitialAdMock.error = error
         GADRewardedAdMock.error = error
         GADAdLoaderMock.error = error
-#endif
     }
     
-    
-    
     static func removeErrorForAllRequests(){
-#if canImport(GoogleMobileAds)
         GADInterstitialAdMock.error = nil
         GADRewardedAdMock.error = nil
         GADAdLoaderMock.error = nil
-#endif
     }
 }
 

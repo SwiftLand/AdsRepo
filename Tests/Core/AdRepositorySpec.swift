@@ -8,9 +8,6 @@
 import Foundation
 import Quick
 import Nimble
-//#if canImport(GoogleMobileAds)
-//import GoogleMobileAds
-//#endif
 @testable import AdsRepo
 
 class AdRepositorySpec: QuickSpec {
@@ -69,7 +66,7 @@ class AdRepositorySpec: QuickSpec {
                 }
             }
             context("when call validateRepositoryAds"){
-                it("if ad reach the showCount threshold"){
+                it("if ad reach the loadCount threshold"){
                     
                     //Preparation
                     repo.autoFill = false
@@ -286,7 +283,6 @@ class AdRepositorySpec: QuickSpec {
                         reachablity.isConnected = true
                         delegate.adRepositoryDidReceiveClosure = {ad in
                             reachablity.isConnected = false
-//                            repo.adLoader.responseError = NSError(domain: "AnyError", code:0)
                         }
                         
                         //Testing

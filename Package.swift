@@ -7,7 +7,7 @@ private let packageName = "AdsRepo"
 let package = Package(
     name: "AdsRepo",
     platforms: [
-           .iOS(.v11)
+           .iOS(.v12)
        ],
     products: [
         .library(

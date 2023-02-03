@@ -1,32 +1,21 @@
-#
-# Be sure to run `pod lib lint AdsRepo.podspec' to ensure this is a
-# valid spec before submitting.
-#
-# Any lines starting with a # are optional, but their use is encouraged
-# To learn more about a Podspec see https://guides.cocoapods.org/syntax/podspec.html
-#
-
 Pod::Spec.new do |s|
   s.name             = 'AdsRepo'
   s.version          = '0.1.0'
-  s.summary          = 'A short description of AdsRepo.'
-
-# This description is used to generate tags and improve search results.
-#   * Think: What does it do? Why did you write it? What is the focus?
-#   * Try to keep it short, snappy and to the point.
-#   * Write the description between the DESC delimiters below.
-#   * Finally, don't worry about the indent, CocoaPods strips it!
+  s.summary          = 'Advertise management system'
+  s.documentation_url = 'https://github.com/SwiftLand/AdsRepo'
 
   s.description      = <<-DESC
-TODO: Add long description of the pod here.
+  AdsRepo is a Swift base library for managing and loading different ad units simultaneously and controlling all of them under repository options and functions. the repository will load ads and keep them fresh base on developer-specific conditions and you only communicate with the repository to get ads.
                        DESC
 
-  s.homepage         = 'https://github.com/x-oauth-basic/AdsRepo'
-  # s.screenshots     = 'www.example.com/screenshots_1', 'www.example.com/screenshots_2'
+  s.homepage         = 'https://github.com/SwiftLand/AdsRepo'
+  s.screenshots     = 'https://raw.githubusercontent.com/SwiftLand/AdsRepo/master/Screenshots/auto-update-screenshot.gif', 'https://raw.githubusercontent.com/SwiftLand/AdsRepo/master/Screenshots/fast-load-screenshot.gif',
+      'https://raw.githubusercontent.com/SwiftLand/AdsRepo/master/Screenshots/notify-expire-sceenshot.png',
+      'https://raw.githubusercontent.com/SwiftLand/AdsRepo/master/Screenshots/multi-repo-screenshot.gif'
+  
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
-  s.author           = { 'x-oauth-basic' => 'alikhajepur@gmail.com' }
-  s.source           = { :git => 'https://github.com/x-oauth-basic/AdsRepo.git', :tag => s.version.to_s }
-  # s.social_media_url = 'https://twitter.com/<TWITTER_USERNAME>'
+  s.author           = { 'Ali khajehpour' => 'alikhajepur@gmail.com' }
+  s.source           = { :git => 'https://github.com/SwiftLand/AdsRepo.git', :tag => s.version.to_s }
 
   s.ios.deployment_target = '12.0'
   s.swift_version = '5.0'

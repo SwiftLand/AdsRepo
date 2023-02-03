@@ -61,8 +61,15 @@ it, simply add the following line to your Podfile:
 ```ruby
 # core only
 pod 'AdsRepo'
-# with tests
+
+# core + GoogleMobileAds
+pod 'AdsRepo/GoogleMobileAds'
+
+# with core tests
 pod 'AdsRepo' , :testspecs => ['Tests']
+
+# with core tests + GoogleMobileAds testes
+pod 'AdsRepo/GoogleMobileAds' , :testspecs => ['Tests']
 ```
 
 ### Carthage
@@ -80,7 +87,7 @@ Once you have your Swift package set up, adding **AdsRepo** as a dependency is a
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/SwiftLand/AdsRepo.git", .upToNextMajor(from: "Latest_version"))
+    .package(url: "https://github.com/ali72/AdsRepo.git", .upToNextMajor(from: "Latest_version"))
 ]
 ```
 
@@ -138,7 +145,7 @@ Or you can create your own repository instance.
 AdRepository</*Your AdWrapperType*/,/*Your AdLoadertype*/>(config:/*your RepositoryConfig*/)
 ```
 
-**NOTE:** Premaded repositories actually are a type alias for `AdRepository` object.
+**NOTE:** If you install the library with the `GoogleMobileAds` option, you can use pre-made repositories. they are actually a type alias for the `AdRepository` object.
 
 ```swift
 public typealias InterstitalAdRepository = AdRepository<GADInterstitialAdWrapper,InterstitialAdLoader>
@@ -200,7 +207,7 @@ public protocol AdRepositoryDelegate:NSObject{
 } 
 ```
 
-after `didReceive` or `didFinishLoading` was called (based on your need) you can ask the repository to give you an ad by calling `loadAd` function.
+After `didReceive` or `didFinishLoading` was called (based on your need) you can ask the repository to give you an ad by calling `loadAd` function.
 
 **NOTE:** Please see the example project to find the best configuration for the ad repository and also know how to use `GAdNativeAd` in `UICollectionView` and `UITableView` in the best way.
 
@@ -306,20 +313,7 @@ public protocol AdRepositoryProtocol:NSObject {
 
 Each repository needs an ad loader to know how to load ads. to create a repository you have to set an ad loader and ad wrapper type as input generic type and the repository will init them when required.
 
-We already added some Ad loaders in the current version for you that you can use for creating your Ad Repository instance.
-
-```swift
-//To download and create Interstitial ads
-InterstitialAdLoader
-
-//To Download and create native ads
-NativeAdLoader  
-
-//To Download and create rewarded ads
-RewardedAdLoader
-```
-
-But you can also create your custom ad loader by following this protocol:
+You can create your custom ad loader by following this protocol:
 
 ```swift
 public protocol AdLoaderProtocol:NSObject {
@@ -350,17 +344,22 @@ public protocol AdLoaderProtocol:NSObject {
 
 **Note:** Default Ad loaders also have some other public properties and functions base on its type to controll and set load setting options.  
 
+**Note:** If you install **AdsRepo** with the `GoogleMobileAds` option, we added some Ad loaders for you that you can use for creating your google type Ad Repository instance.
+
+```swift
+//To download and create Interstitial ads
+InterstitialAdLoader
+
+//To Download and create native ads
+NativeAdLoader  
+
+//To Download and create rewarded ads
+RewardedAdLoader
+```
+
 ### Ad Wrapper
 
 We have to wrap each ad object with our `AdWrapper` object to add some extra properties to them. those properties will be used and controlled by their own ad repository instance.
-
-Here we added some Google ads wrappers to the current version and you can simply use them:
-
-```swift
-public typealias InterstitialAd = GADInterstitialAdWrapper
-public typealias RewardedAd = GADRewardedAdWrapper
-public typealias NativeAd = GADNativeAdWrapper
-```
 
 But you are able to create your custom ad wrapper by following this protocol:
 
@@ -385,6 +384,17 @@ public protocol AdWrapperProtocol:NSObject{
     /// - NOTE: This value typically changes by the ad's own repository but you can also change it if failed to show/present returned ad.
     var showCount:Int{get set}
 }
+```
+
+**Note:** If you install **AdsRepo** with the `GoogleMobileAds` option, you will find out that we added some Google ads wrappers and you can simply use them:
+
+```swift
+// for InterstitialAds
+GADInterstitialAdWrapper
+// for Rewarded Ads
+GADRewardedAdWrapper
+// for Native Ads
+GADNativeAdWrapper
 ```
 
 ### Error handler
@@ -461,6 +471,8 @@ public protocol AdRepositoryReachabilityPorotocol {
 ## Running Tests
 
 To run tests, go to **Edit scheme** and from **Test** in tab **Info** press on **+** to add a new test target. and also you require **Quick** and **Nimble** libraries to run tests which will install if install this pod with tests.
+
+**NOTE:** If you install with the `GoogleMobileAds` option, In addition to `Core` tests, we also add `GoogleMobileAds` tests to your project which will tests premade repositories, ad loaders, and error handlers for google ads.
 
 ## FAQ
 

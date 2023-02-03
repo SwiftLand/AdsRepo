@@ -472,7 +472,7 @@ public protocol AdRepositoryReachabilityPorotocol {
 
 To run tests, go to **Edit scheme** and from **Test** in tab **Info** press on **+** to add a new test target. and also you require **Quick** and **Nimble** libraries to run tests which will install if install this pod with tests.
 
-**NOTE:** If you install with the `GoogleMobileAds` option, In addition to `Core` tests, we also add `GoogleMobileAds` tests to your project which will tests premade repositories, ad loaders, and error handlers for google ads.
+**NOTE:** If you install with the `GoogleMobileAds` option, In addition to `Core` tests, we also add `GoogleMobileAds` tests to your project which will test premade repositories, ad loaders, and error handlers for google ads.
 
 ## FAQ
 

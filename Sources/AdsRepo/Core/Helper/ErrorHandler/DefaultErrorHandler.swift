@@ -6,12 +6,15 @@
 //
 
 import Foundation
+
+#if canImport(GoogleMobileAds)
 import GoogleMobileAds
+#endif
 
 /// `ErrorHandler` will handle all types of repository errors. it is configurable to retry at a specific time before the return fails to its own repository.
-class GADErrorHandler:AdRepositoryErrorHandlerProtocol  {
+class DefaultErrorHandler:AdRepositoryErrorHandlerProtocol  {
     
-    private let TAG = "\(GADErrorHandler.self)"
+    private let TAG = "\(DefaultErrorHandler.self)"
     public var delayBetweenRetyies:Int = 5
     public var maxRetryCount:Int = 10
     
@@ -27,29 +30,11 @@ class GADErrorHandler:AdRepositoryErrorHandlerProtocol  {
         
         guard currentRetryCount < maxRetryCount else {return false}
         
-        let errorCode = GADErrorCode(rawValue: (error as NSError).code)
-        switch (errorCode) {
-            //retrable errors
-        case .internalError,.receivedInvalidResponse:
-            print(TAG,"Internal error, an invalid response was received from the ad server.")
-            return true
-        case .networkError,.timeout,.serverError,.adAlreadyUsed:
-            print(TAG,"The ad request was unsuccessful due to network connectivity.")
-            return true
-        case .noFill,.mediationNoFill:
-            print(TAG,"The ad request was successful, but no ad was returned due to lack of ad inventory.")
-            return true
-        case .osVersionTooLow,.invalidRequest,.applicationIdentifierMissing:
-            print(TAG,"Invalid ad request, possibly an incorrect ad unit ID was given.")
-            return false;
-        case.mediationDataError,.mediationAdapterError,.mediationInvalidAdSize,.invalidArgument:
-            print(TAG,"Invalid ad request, possibly an incorrect ad mediation setting.")
-            return false
-        default:
-            break
-        }
-        print(TAG,"unkonwn error")
-        return false
+        #if canImport(GoogleMobileAds)
+        return isGADRetryAble(error: error)
+        #else
+        return true
+        #endif
     }
     
     /// Will call `retryClosure` after specific delay based on `delayBetweenRetyies` value
@@ -87,3 +72,38 @@ class GADErrorHandler:AdRepositoryErrorHandlerProtocol  {
         print("deinit => ErrorHandler")
     }
 }
+
+
+#if canImport(GoogleMobileAds)
+extension DefaultErrorHandler{
+    
+    func isGADRetryAble(error: Error) -> Bool {
+        
+        
+        let errorCode = GADErrorCode(rawValue: (error as NSError).code)
+        switch (errorCode) {
+            //retrable errors
+        case .internalError,.receivedInvalidResponse:
+            print(TAG,"Internal error, an invalid response was received from the ad server.")
+            return true
+        case .networkError,.timeout,.serverError,.adAlreadyUsed:
+            print(TAG,"The ad request was unsuccessful due to network connectivity.")
+            return true
+        case .noFill,.mediationNoFill:
+            print(TAG,"The ad request was successful, but no ad was returned due to lack of ad inventory.")
+            return true
+        case .osVersionTooLow,.invalidRequest,.applicationIdentifierMissing:
+            print(TAG,"Invalid ad request, possibly an incorrect ad unit ID was given.")
+            return false;
+        case.mediationDataError,.mediationAdapterError,.mediationInvalidAdSize,.invalidArgument:
+            print(TAG,"Invalid ad request, possibly an incorrect ad mediation setting.")
+            return false
+        default:
+            break
+        }
+        print(TAG,"unkonwn error")
+        return false
+        
+    }
+}
+#endif

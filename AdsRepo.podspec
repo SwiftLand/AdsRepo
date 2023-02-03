@@ -30,16 +30,31 @@ TODO: Add long description of the pod here.
 
   s.ios.deployment_target = '12.0'
   s.swift_version = '5.0'
-   
-  s.source_files = 'Sources/AdsRepo/**/*'
+  s.requires_arc  = true
+  s.static_framework = true
+  s.default_subspec = 'Core'
   
 
-  s.static_framework = true
-  s.dependency 'Google-Mobile-Ads-SDK', '~> 9.10.0'
-  
-  s.test_spec 'Tests' do |test_spec|
-    test_spec.source_files = 'Tests/AdsRepoTests/**/*'
-    test_spec.dependency 'Nimble'
-    test_spec.dependency 'Quick'
+ s.subspec 'Core' do |core|
+   core.source_files = 'Sources/AdsRepo/Core/**/*'
+   
+   core.test_spec 'Tests' do |test_spec|
+     test_spec.source_files = 'Tests/AdsRepoTests/**/*'
+     test_spec.dependency 'Nimble', '10.0.0'
+     test_spec.dependency 'Quick', '5.0.1'
+   end
+ end
+
+  s.subspec 'GoogleMobileAds' do |gad|
+    
+    gad.source_files = 'Sources/AdsRepo/GoogleMobileAds/**/*'
+    gad.dependency 'AdsRepo/Core'
+    gad.dependency  'Google-Mobile-Ads-SDK'
+    
+    gad.test_spec 'Tests' do |test_spec|
+      test_spec.source_files = 'Tests/AdsRepoTests/**/*'
+      test_spec.dependency 'Nimble', '10.0.0'
+      test_spec.dependency 'Quick', '5.0.1'
+    end
   end
 end

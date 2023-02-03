@@ -7,7 +7,6 @@
 
 import Foundation
 import UIKit
-import GoogleMobileAds
 import AdsRepo
 
 protocol NativeAdCellDelegate{

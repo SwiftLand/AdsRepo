@@ -7,10 +7,6 @@
 
 import Foundation
 
-public typealias InterstitialAd = GADInterstitialAdWrapper
-public typealias RewardedAd = GADRewardedAdWrapper
-public typealias NativeAd = GADNativeAdWrapper
-
 public protocol AdWrapperProtocol:NSObject{
     
     associatedtype AdType:NSObject

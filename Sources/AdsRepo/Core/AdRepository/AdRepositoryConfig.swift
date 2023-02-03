@@ -20,7 +20,7 @@ public struct AdRepositoryConfig{
     ///   - size: Repository total size
     ///   - expireIntervalTime: Expire time  in seconds for each repository ad
     ///   - showCountThreshold: Max number that the repository can load each ad
-    init(adUnitId: String, size: Int, expireIntervalTime: TimeInterval = 120, showCountThreshold: Int = 1) {
+    public init(adUnitId: String, size: Int, expireIntervalTime: TimeInterval = 120, showCountThreshold: Int = 1) {
         self.adUnitId = adUnitId
         self.size = size
         self.expireIntervalTime = expireIntervalTime

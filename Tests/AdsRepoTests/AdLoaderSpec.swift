@@ -8,7 +8,9 @@
 import Foundation
 import Quick
 import Nimble
+#if canImport(GoogleMobileAds)
 import GoogleMobileAds
+#endif
 @testable import AdsRepo
 
 class AdLoaderSpec: QuickSpec {
@@ -19,6 +21,9 @@ class AdLoaderSpec: QuickSpec {
             
             let config = AdRepositoryConfig(adUnitId: "sample", size: 2)
             
+            //you can add your custom adloader here.
+            
+#if canImport(GoogleMobileAds)
             itBehavesLike(AdLoaderBehavior.self){
                 let adLoader = InterstitialAdLoader(config: config)
                 adLoader.Loader = GADInterstitialAdMock.self
@@ -35,58 +40,59 @@ class AdLoaderSpec: QuickSpec {
                 adLoader.Loader = GADAdLoaderMock.self
                 return adLoader
             }
+#endif
         }
     }
 }
-    
+
 private class AdLoaderBehavior<T:AdLoaderProtocol>: Behavior<T> {
     
     
-        override class func spec(_ context: @escaping () -> T) {
-    
-            describe("AdLoaderSpec"){
+    override class func spec(_ context: @escaping () -> T) {
+        
+        describe("AdLoaderSpec"){
+            
+            let config = AdRepositoryConfig(adUnitId: "sample", size: 2)
+            var adloader:T!
+            
+            beforeEach {
+                adloader = context()
+                ErrorController.removeErrorForAllRequests()
+            }
+            
+            it("if success"){
+                //Testing
+                let tester = AdLoaderTester<T>(adloader: adloader)
+                tester.startTest()
                 
-                let config = AdRepositoryConfig(adUnitId: "sample", size: 2)
-                var adloader:T!
+                //Assertation
+                expect(tester.numberOfNotifyRepositoryDidReceiveAdCalled).to(equal(config.size),description: "test1")
+                expect(tester.numberOfNotifyRepositoryDidFinishLoadCalled).to(equal(1),description: "test2")
+                expect(tester.receivedAd).notTo(beNil(),description: "test3")
+                expect(tester.receivedError).to(beNil(),description: "test4")
+            }
+            
+            it("if failed"){
+                //Preparation
+                ErrorController.setErrorForAllRequests()
                 
-                beforeEach {
-                    adloader = context()
-                    ErrorController.removeErrorForAllRequests()
-                }
+                //Testing
+                let tester = AdLoaderTester<T>(adloader: adloader)
+                tester.startTest()
                 
-                it("if success"){
-                    //Testing
-                    let tester = AdLoaderTester<T>(adloader: adloader)
-                    tester.startTest()
-                    
-                    //Assertation
-                    expect(tester.numberOfNotifyRepositoryDidReceiveAdCalled).to(equal(config.size),description: "test1")
-                    expect(tester.numberOfNotifyRepositoryDidFinishLoadCalled).to(equal(1),description: "test2")
-                    expect(tester.receivedAd).notTo(beNil(),description: "test3")
-                    expect(tester.receivedError).to(beNil(),description: "test4")
-                }
-                
-                it("if failed"){
-                    //Preparation
-                    ErrorController.setErrorForAllRequests()
-                    
-                    //Testing
-                    let tester = AdLoaderTester<T>(adloader: adloader)
-                    tester.startTest()
-                    
-                    //Assertation
-                    expect(tester.numberOfNotifyRepositoryDidReceiveAdCalled).to(equal(0),description: "test1")
-                    expect(tester.numberOfNotifyRepositoryDidFinishLoadCalled).to(equal(1),description: "test2")
-                    expect(tester.receivedAd).to(beNil(),description: "test3")
-                    expect(tester.receivedError).notTo(beNil(),description: "test4")
-                    expect(tester.receivedError?.code).to(equal(ErrorController.error.code),description: "test5")
-                }
+                //Assertation
+                expect(tester.numberOfNotifyRepositoryDidReceiveAdCalled).to(equal(0),description: "test1")
+                expect(tester.numberOfNotifyRepositoryDidFinishLoadCalled).to(equal(1),description: "test2")
+                expect(tester.receivedAd).to(beNil(),description: "test3")
+                expect(tester.receivedError).notTo(beNil(),description: "test4")
+                expect(tester.receivedError?.code).to(equal(ErrorController.error.code),description: "test5")
             }
         }
     }
+}
 
 private class AdLoaderTester<T:AdLoaderProtocol>{
-
+    
     var numberOfNotifyRepositoryDidReceiveAdCalled = 0
     var numberOfNotifyRepositoryDidFinishLoadCalled = 0
     var receivedError:NSError? = nil
@@ -119,19 +125,32 @@ private class AdLoaderTester<T:AdLoaderProtocol>{
 
 
 private final class ErrorController{
-    
+#if canImport(GoogleMobileAds)
     static let error = NSError(domain: GADErrorDomain, code: GADErrorCode.invalidRequest.rawValue)
+#else
+    static let error = NSError(domain: "AnyErrorDomain", code: 0)
+#endif
+    
+    
     
     static func setErrorForAllRequests(){
+#if canImport(GoogleMobileAds)
         GADInterstitialAdMock.error = error
         GADRewardedAdMock.error = error
         GADAdLoaderMock.error = error
+#endif
     }
+    
+    
+    
     static func removeErrorForAllRequests(){
+#if canImport(GoogleMobileAds)
         GADInterstitialAdMock.error = nil
         GADRewardedAdMock.error = nil
         GADAdLoaderMock.error = nil
+#endif
     }
 }
+
 
 

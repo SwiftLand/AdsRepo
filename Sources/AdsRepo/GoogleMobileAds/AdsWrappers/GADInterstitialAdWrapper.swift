@@ -8,7 +8,6 @@
 import Foundation
 import GoogleMobileAds
 
-
 public class GADInterstitialAdWrapper:NSObject,AdWrapperProtocol {
     
     /// Repository configuration. See **AdRepositoryConfig.swift** for more details.

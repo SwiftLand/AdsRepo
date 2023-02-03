@@ -9,7 +9,7 @@
 // DO NOT EDIT
 // swiftlint:disable line_length
 // swiftlint:disable variable_name
-
+#if canImport(GoogleMobileAds)
 import Foundation
 import GoogleMobileAds
 @testable import AdsRepo
@@ -88,3 +88,4 @@ class GADNativeAdLoaderDelegateMock:NSObject ,GADNativeAdLoaderDelegate {
     }
 
 }
+#endif

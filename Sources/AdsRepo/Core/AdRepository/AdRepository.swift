@@ -7,17 +7,13 @@
 
 import Foundation
 
-public typealias InterstitalAdRepository = AdRepository<GADInterstitialAdWrapper,InterstitialAdLoader>
-public typealias RewardedAdRepository = AdRepository<GADRewardedAdWrapper,RewardedAdLoader>
-public typealias NativeAdRepository = AdRepository<GADNativeAdWrapper,NativeAdLoader>
-
 public final class AdRepository<AdWrapperType:AdWrapperProtocol,
                           AdLoaderType:AdLoaderProtocol>:NSObject,AdRepositoryProtocol where AdLoaderType.AdWrapperType == AdWrapperType{
     
     
   
     public private(set) lazy var adLoader:AdLoaderType = AdLoaderType(config: config)
-    public var errorHandler:AdRepositoryErrorHandlerProtocol = GADErrorHandler()
+    public var errorHandler:AdRepositoryErrorHandlerProtocol = DefaultErrorHandler()
     public var reachability:AdRepositoryReachabilityPorotocol = ReachabilityWrapper()
     
     /// Current reposiotry configuration. See **AdRepositoryConfig.swift** for more details.

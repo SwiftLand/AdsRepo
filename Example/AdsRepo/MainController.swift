@@ -9,7 +9,7 @@
 import UIKit
 import AdsRepo
 import AppTrackingTransparency
-import GoogleMobileAds
+
 class MainController: UIViewController {
     
     @IBOutlet weak var nativeBannerCollectionViewBtn: UIButton!

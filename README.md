@@ -492,6 +492,4 @@ For contributing, please download the project and create a new branch and add yo
 
 ## License
 
-AdsRepo is available under the MIT license. See the LICENSE file for more info.
-
-[MIT](https://choosealicense.com/licenses/mit/)
+AdsRepo is available under the MIT license. See the [LICENSE](https://github.com/SwiftLand/AdsRepo/blob/master/LICENSE) file for more info.

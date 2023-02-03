@@ -9,7 +9,9 @@ import Foundation
 import Foundation
 import Quick
 import Nimble
+#if canImport(GoogleMobileAds)
 import GoogleMobileAds
+#endif
 @testable import AdsRepo
 
 class AdRepositoryErrorHnadlerSpec: QuickSpec {
@@ -18,13 +20,14 @@ class AdRepositoryErrorHnadlerSpec: QuickSpec {
         
         describe("AdRepositoryErrorHnadler"){
             
-            var errorHandler:GADErrorHandler! = GADErrorHandler()
+            var errorHandler:DefaultErrorHandler!
             
             beforeEach {
-               errorHandler = GADErrorHandler()
+               errorHandler = DefaultErrorHandler()
             }
             
             context("is retryable"){
+             #if canImport(GoogleMobileAds)
                 it("if retryable"){
                     let error = NSError(domain: GADErrorDomain, code: GADErrorCode.noFill.rawValue)
                     expect(errorHandler.isRetryAble(error: error)).to(beTrue())
@@ -34,6 +37,12 @@ class AdRepositoryErrorHnadlerSpec: QuickSpec {
                     let error = NSError(domain: GADErrorDomain, code: GADErrorCode.invalidRequest.rawValue)
                     expect(errorHandler.isRetryAble(error: error)).to(beFalse())
                 }
+                #else
+                it("if retryable"){
+                    let error = NSError(domain: "AnyDomain", code: 0)//any type of error
+                    expect(errorHandler.isRetryAble(error: error)).to(beTrue())
+                }
+                #endif
             }
             
             it("request for retry"){

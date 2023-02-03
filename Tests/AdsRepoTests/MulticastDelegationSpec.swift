@@ -78,10 +78,10 @@ class MulticastDelegationSpec: QuickSpec {
                 }
             }
             context("when invoke"){
-                var fakeRepo:InterstitalAdRepository!
+                var fakeRepo:AdRepository<AdWrapperMock,AdLoaderMock>!
                 
                 beforeEach {
-                    fakeRepo = InterstitalAdRepository(config: .init(adUnitId: "sample", size: 2))
+                    fakeRepo = AdRepository<AdWrapperMock,AdLoaderMock>(config: .init(adUnitId: "sample", size: 2))
                 }
                 
                 it("single item"){

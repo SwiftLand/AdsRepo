@@ -9,7 +9,7 @@ import Foundation
 import GoogleMobileAds
 
 public class InterstitialAdLoader:NSObject,AdLoaderProtocol{
-
+    
     public typealias AdWrapperType = GADInterstitialAdWrapper
     public private(set) var state: AdLoaderState = .waiting
     public var request:GADRequest = GADRequest()

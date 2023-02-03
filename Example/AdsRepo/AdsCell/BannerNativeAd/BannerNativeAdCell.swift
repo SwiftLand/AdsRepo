@@ -6,7 +6,6 @@
 //
 import Foundation
 import UIKit
-import GoogleMobileAds
 import AdsRepo
 
 class BannerNativeAdCell:UICollectionViewCell{

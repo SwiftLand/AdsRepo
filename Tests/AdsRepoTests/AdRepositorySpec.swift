@@ -4,10 +4,13 @@
 //
 //  Created by Ali on 8/8/22.
 //
+
 import Foundation
 import Quick
 import Nimble
-import GoogleMobileAds
+//#if canImport(GoogleMobileAds)
+//import GoogleMobileAds
+//#endif
 @testable import AdsRepo
 
 class AdRepositorySpec: QuickSpec {
@@ -17,12 +20,12 @@ class AdRepositorySpec: QuickSpec {
         describe("AdRepository"){
             
             let repoConfig = AdRepositoryConfig.debugNativeConfig()
-            var repo:AdRepository<NativeAd,NativeAdLoaderMock>!
+            var repo:AdRepository<AdWrapperMock,AdLoaderMock>!
             var delegate:AdRepositoryDelegateMock!
             var errorHandler:AdRepositoryErrorHandlerProtocolMock!
          
             beforeEach {
-                repo = AdRepository<NativeAd,NativeAdLoaderMock>(config:repoConfig)
+                repo = .init(config:repoConfig)
                 delegate = AdRepositoryDelegateMock()
                 errorHandler = AdRepositoryErrorHandlerProtocolMock()
                 repo.errorHandler = errorHandler
@@ -283,7 +286,7 @@ class AdRepositorySpec: QuickSpec {
                         reachablity.isConnected = true
                         delegate.adRepositoryDidReceiveClosure = {ad in
                             reachablity.isConnected = false
-                            repo.adLoader.responseError = NSError(domain: GADErrorDomain, code: GADErrorCode.networkError.rawValue)
+//                            repo.adLoader.responseError = NSError(domain: "AnyError", code:0)
                         }
                         
                         //Testing
@@ -319,7 +322,7 @@ class AdRepositorySpec: QuickSpec {
                 context("if retryable"){
                    it("and finally success"){
                        //Preparation
-                       repo.adLoader.responseError = NSError(domain: GADErrorDomain, code: GADErrorCode.timeout.rawValue)
+                       repo.adLoader.responseError = NSError(domain: "AnyErrorDomain", code:0)
                         
                         var counter = 0;
                         let numberOfRetry = errorHandler.maxRetryCount/2
@@ -345,7 +348,7 @@ class AdRepositorySpec: QuickSpec {
                     }
                     it("never success"){
                         //Preparation
-                        let error = NSError(domain: GADErrorDomain, code: GADErrorCode.timeout.rawValue)
+                        let error = NSError(domain: "AnyErrorDomain", code:0)
                         repo.adLoader.responseError = error
                         
                         var counter = 0;
@@ -377,7 +380,7 @@ class AdRepositorySpec: QuickSpec {
                 }
                 it("if not retryable"){
                     //Preparation
-                    let error = NSError(domain: GADErrorDomain, code: GADErrorCode.invalidRequest.rawValue)
+                    let error = NSError(domain: "AnyErrorDomain", code:0)
                     repo.adLoader.responseError = error
                     errorHandler.isRetryAbleErrorReturnValue = false
                     

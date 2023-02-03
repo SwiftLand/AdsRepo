@@ -1,24 +1,26 @@
 //
-//  MockNativeAdLoader.swift
+//  AdLoaderMock.swift
 //  AdsRepo-Unit-Tests
 //
-//  Created by Ali on 1/27/23.
+//  Created by Ali on 2/3/23.
 //
 
+
 import Foundation
-import GoogleMobileAds
 @testable import AdsRepo
 
-public class NativeAdLoaderMock:NSObject,AdLoaderProtocol{
 
-    public typealias AdWrapperType = GADNativeAdWrapper
+
+class AdLoaderMock:NSObject,AdLoaderProtocol{
+
+    typealias AdWrapperType = AdWrapperMock
     
-    public var state: AdLoaderState = .waiting
-    public var config:AdRepositoryConfig
+    var state: AdLoaderState = .waiting
+    var config:AdRepositoryConfig
    
     
-    public var notifyRepositoryDidReceiveAd: ((AdWrapperType) -> ())?
-    public var notifyRepositoryDidFinishLoad: ((Error?) -> ())?
+    var notifyRepositoryDidReceiveAd: ((AdWrapperType) -> ())?
+    var notifyRepositoryDidFinishLoad: ((Error?) -> ())?
 
     
     //for tests
@@ -44,7 +46,7 @@ public class NativeAdLoaderMock:NSObject,AdLoaderProtocol{
         }
         
         for _ in 0..<count{
-            let adWrapper = GADNativeAdWrapper(loadedAd:  GADNativeAdMock(), config: config)
+            let adWrapper = AdWrapperMock(loadedAd:  AdMock(), config: config)
             loadedAds.append(adWrapper)
             notifyRepositoryDidReceiveAd?(adWrapper)
         }
@@ -53,4 +55,3 @@ public class NativeAdLoaderMock:NSObject,AdLoaderProtocol{
         notifyRepositoryDidFinishLoad?(nil)
     }
 }
-

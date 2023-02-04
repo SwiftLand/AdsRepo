@@ -8,6 +8,10 @@
 import Foundation
 import GoogleMobileAds
 
+#if SWIFT_PACKAGE
+import AdsRepo
+#endif
+
 public class NativeAdLoader:NSObject,AdLoaderProtocol{
     
     public typealias AdWrapperType = GADNativeAdWrapper

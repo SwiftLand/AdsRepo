@@ -10,6 +10,7 @@ import Quick
 import Nimble
 import GoogleMobileAds
 @testable import AdsRepo
+@testable import AdsRepo_GoogleMobileAds
 
 class AdLoaderSpec: QuickSpec {
     

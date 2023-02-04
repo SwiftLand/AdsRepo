@@ -33,7 +33,7 @@ import AppKit
 
 
 
-class AdRepositoryErrorHandlerProtocolMock: AdRepositoryErrorHandlerProtocol {
+class AdRepositoryErrorHandlerProtocolMock: NSObject,AdRepositoryErrorHandlerProtocol {
     
     var delayBetweenRetyies: Int {
         get { return underlyingDelayBetweenRetyies }

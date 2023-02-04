@@ -9,6 +9,7 @@
 import UIKit
 import AdsRepo
 import AppTrackingTransparency
+import GoogleMobileAds
 
 class MainController: UIViewController {
     

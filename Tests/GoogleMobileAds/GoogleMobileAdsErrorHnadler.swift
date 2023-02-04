@@ -11,6 +11,7 @@ import Quick
 import Nimble
 import GoogleMobileAds
 @testable import AdsRepo
+@testable import AdsRepo_GoogleMobileAds
 
 class GADAdRepositoryErrorHandlerSpec: QuickSpec {
     
@@ -18,10 +19,10 @@ class GADAdRepositoryErrorHandlerSpec: QuickSpec {
         
         describe("GoogleMobileAds ErrorHnadler"){
             
-            var errorHandler:DefaultErrorHandler!
+            var errorHandler:AdRepositoryErrorHandlerProtocol!
             
             beforeEach {
-               errorHandler = DefaultErrorHandler()
+               errorHandler = GADErrorHandler()
             }
             
             context("is GoogleMobileAds retryable"){

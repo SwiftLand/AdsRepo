@@ -10,9 +10,14 @@ let package = Package(
            .iOS(.v12)
        ],
     products: [
+        
         .library(
             name: "AdsRepo",
             targets: ["AdsRepo"]),
+        
+        .library(
+            name: "AdsRepo/GoogleMobileAds",
+            targets: [ "AdsRepo/GoogleMobileAds"]),
     ],
     dependencies: [
             .package(url: "https://github.com/googleads/swift-package-manager-google-mobile-ads", from: "9.10.0"),
@@ -22,12 +27,21 @@ let package = Package(
     targets: [
         .target(
             name: "AdsRepo",
+            path: "Sources/AdsRepo/Core"),
+        
+        .target(
+            name: "AdsRepo/GoogleMobileAds",
             dependencies: [
-                           .product(name: "GoogleMobileAds", package: "swift-package-manager-google-mobile-ads")
-                       ]),
+                .product(name: "GoogleMobileAds", package: "swift-package-manager-google-mobile-ads")
+            ],
+            path: "Sources/AdsRepo/GoogleMobileAds"),
+        
         .testTarget(
             name: "AdsRepoTests",
-            dependencies: ["AdsRepo","Quick","Nimble"]),
+            dependencies: ["AdsRepo","Quick","Nimble"],path: "Tests/Core"),
+        .testTarget(
+            name: "AdsRepo/GoogleMobileAdsTests",
+            dependencies: ["AdsRepo","AdsRepo/GoogleMobileAds","Quick","Nimble"],path: "Tests/GoogleMobileAds"),
     ],
     swiftLanguageVersions: [.v5]
 )

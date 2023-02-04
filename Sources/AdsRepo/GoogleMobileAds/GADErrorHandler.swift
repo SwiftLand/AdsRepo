@@ -7,14 +7,25 @@
 
 import Foundation
 import GoogleMobileAds
-extension DefaultErrorHandler{
+
+#if SWIFT_PACKAGE
+import AdsRepo
+#endif
+
+
+class GADErrorHandler: DefaultErrorHandler {
+    
+    override func isRetryAble(error: Error) -> Bool {
+        guard (error as NSError).domain == GADErrorDomain else {
+            return true
+        }
+        return isGADRetryAble(error: error)
+    }
     
     func isGADRetryAble(error: Error) -> Bool {
-        guard (error as NSError).domain == GADErrorDomain else {return true}
-        
+
         let errorCode = GADErrorCode(rawValue: (error as NSError).code)
         switch (errorCode) {
-            //retrable errors
         case .internalError,.receivedInvalidResponse:
             print("GoogleMobileAds","Internal error, an invalid response was received from the ad server.")
             return true

@@ -8,10 +8,8 @@
 import Foundation
 import UIKit
 import AdsRepo
+import GoogleMobileAds
 
-protocol NativeAdCellDelegate{
-    
-}
 class NativeAdCell:UICollectionViewCell{
     
     var observerId: String = UUID().uuidString

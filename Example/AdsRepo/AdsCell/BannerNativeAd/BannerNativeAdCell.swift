@@ -7,6 +7,7 @@
 import Foundation
 import UIKit
 import AdsRepo
+import GoogleMobileAds
 
 class BannerNativeAdCell:UICollectionViewCell{
     var observerId: String = UUID().uuidString

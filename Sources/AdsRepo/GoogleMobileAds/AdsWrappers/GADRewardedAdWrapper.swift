@@ -8,6 +8,10 @@
 import Foundation
 import GoogleMobileAds
 
+#if SWIFT_PACKAGE
+import AdsRepo
+#endif
+
 public class GADRewardedAdWrapper:NSObject,AdWrapperProtocol{
     
     /// Repository configuration. See **AdRepositoryConfig.swift** for more details.
@@ -26,8 +30,8 @@ public class GADRewardedAdWrapper:NSObject,AdWrapperProtocol{
     /// - NOTE: This value typically changes by the ad's own repository but you can also change it if failed to show/present returned ad.
     public var showCount:Int = 0
     
-    init(ad:GADRewardedAd,config:AdRepositoryConfig) {
-        self.loadedAd = ad
+    init(loadedAd:GADRewardedAd,config:AdRepositoryConfig) {
+        self.loadedAd = loadedAd
         self.config = config
     }
 }

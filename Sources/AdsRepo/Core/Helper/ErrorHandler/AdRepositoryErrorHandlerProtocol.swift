@@ -7,7 +7,7 @@
 
 import Foundation
 
-public protocol AdRepositoryErrorHandlerProtocol{
+public protocol AdRepositoryErrorHandlerProtocol:NSObject{
     
     typealias RetryClosure = (_ currentAttempt:Int)->()
     

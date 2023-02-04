@@ -8,6 +8,10 @@
 import Foundation
 import GoogleMobileAds
 
+#if SWIFT_PACKAGE
+import AdsRepo
+#endif
+
 public class RewardedAdLoader:NSObject,AdLoaderProtocol{
     
     public typealias AdWrapperType = GADRewardedAdWrapper
@@ -55,7 +59,7 @@ public class RewardedAdLoader:NSObject,AdLoaderProtocol{
     }
     
     private func fulfill(ad: GADRewardedAd){
-        notifyRepositoryDidReceiveAd?(GADRewardedAdWrapper(ad: ad, config: config))
+        notifyRepositoryDidReceiveAd?(GADRewardedAdWrapper(loadedAd: ad, config: config))
         notifyFinishLoadIfNeed()
     }
 }

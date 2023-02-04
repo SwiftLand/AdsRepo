@@ -7,14 +7,14 @@
 
 import Foundation
 
-public final class AdRepository<AdWrapperType:AdWrapperProtocol,
+open class AdRepository<AdWrapperType:AdWrapperProtocol,
                           AdLoaderType:AdLoaderProtocol>:NSObject,AdRepositoryProtocol where AdLoaderType.AdWrapperType == AdWrapperType{
     
     
   
     public private(set) lazy var adLoader:AdLoaderType = AdLoaderType(config: config)
     public var errorHandler:AdRepositoryErrorHandlerProtocol = DefaultErrorHandler()
-    public var reachability:AdRepositoryReachabilityPorotocol = ReachabilityWrapper()
+    public var reachability:AdRepositoryReachabilityPorotocol = DefaultReachability()
     
     /// Current reposiotry configuration. See **AdRepositoryConfig.swift** for more details.
     public private(set) var config:AdRepositoryConfig
@@ -45,7 +45,7 @@ public final class AdRepository<AdWrapperType:AdWrapperProtocol,
     public var hasInvalidAd:Bool{
         return adsRepo.contains(where: invalidAdCondition)
     }
-   
+    
     /// Condition to validate ads
     ///  - NOTE:by default use `showCount` and `expireIntervalTime` to validate ads in repository
     public var invalidAdCondition:((AdWrapperType) -> Bool) = {
@@ -74,8 +74,8 @@ public final class AdRepository<AdWrapperType:AdWrapperProtocol,
             }
         }
     }
- 
-
+    
+    
     internal var adsRepo:[AdWrapperType] = []
     internal var multicastDelegate = MulticastDelegate<AdRepositoryDelegate>()
     internal var adTimerDict:[String:DispatchSourceTimer] = [:]
@@ -84,7 +84,7 @@ public final class AdRepository<AdWrapperType:AdWrapperProtocol,
     /// - Parameters:
     ///   - config: current reposiotry configuration. you can't change it after intial repository. See **RepositoryConfig.swift** for more details.
     public init(config:AdRepositoryConfig){
-            self.config = config
+        self.config = config
     }
     
     /// Will remove invalid ads (which confirm `invalidAdCondition`) instantly
@@ -128,7 +128,7 @@ public final class AdRepository<AdWrapperType:AdWrapperProtocol,
         if loadOnlyValidAd {
             validateRepositoryAds()
         }
-
+        
         guard adsRepo.count>0 else {
             fillRepoAdsIfAutoFillEnable()
             return nil
@@ -180,7 +180,7 @@ extension AdRepository{
     private func waitForConnection(){
         
         reachability.setBackOnlineNotifier{[weak self] reachability in
-    
+            
             reachability.stopNotifier()
             self?.fillRepoAdsIfAutoFillEnable()
         }
@@ -253,7 +253,7 @@ extension AdRepository{
             guard let self = self else {return}
             
             self.adTimerDict.removeValue(forKey: ad.uniqueId)
-
+            
             self.multicastDelegate.invoke{
                 $0.adRepository(didExpire: ad, in: self)
             }
@@ -280,7 +280,7 @@ extension AdRepository{
         append(ad:ad)
         createTimer(for: ad)
         startTimer(for: ad)
-
+        
         multicastDelegate.invoke{
             $0.adRepository(didReceive: self)
         }
@@ -296,7 +296,7 @@ extension AdRepository{
         print("AdRepository","did finish load ads for",AdWrapperType.self)
         errorHandler.restart()
         fillRepoAdsIfAutoFillEnable()
-
+        
         multicastDelegate.invoke{
             $0.adRepository(didFinishLoading: self, error: error)
         }

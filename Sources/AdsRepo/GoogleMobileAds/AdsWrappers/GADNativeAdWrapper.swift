@@ -8,6 +8,10 @@
 import Foundation
 import GoogleMobileAds
 
+#if SWIFT_PACKAGE
+import AdsRepo
+#endif
+
 public class GADNativeAdWrapper:NSObject,AdWrapperProtocol{
 
     /// Repository configuration. See **AdRepositoryConfig.swift** for more details.

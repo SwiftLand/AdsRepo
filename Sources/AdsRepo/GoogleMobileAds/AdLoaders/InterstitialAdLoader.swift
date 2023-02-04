@@ -8,6 +8,10 @@
 import Foundation
 import GoogleMobileAds
 
+#if SWIFT_PACKAGE
+import AdsRepo
+#endif
+
 public class InterstitialAdLoader:NSObject,AdLoaderProtocol{
     
     public typealias AdWrapperType = GADInterstitialAdWrapper
@@ -54,7 +58,7 @@ public class InterstitialAdLoader:NSObject,AdLoaderProtocol{
     }
     
     private func fulfill(ad: GADInterstitialAd){
-        notifyRepositoryDidReceiveAd?(GADInterstitialAdWrapper(ad, config: config))
+        notifyRepositoryDidReceiveAd?(GADInterstitialAdWrapper(loadedAd:ad, config: config))
         notifyFinishLoadIfNeed()
     }
 }

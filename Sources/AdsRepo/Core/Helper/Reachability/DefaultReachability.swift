@@ -6,7 +6,7 @@
 //
 
 import Foundation
-class ReachabilityWrapper:AdRepositoryReachabilityPorotocol{
+class DefaultReachability:AdRepositoryReachabilityPorotocol{
    
     private var reachability = try? Reachability()
     

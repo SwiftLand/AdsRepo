@@ -8,7 +8,10 @@
 import Foundation
 import GoogleMobileAds
 @testable import AdsRepo
+
+#if SWIFT_PACKAGE
 @testable import AdsRepo_GoogleMobileAds
+#endif
 
 public class NativeAdLoaderMock:NSObject,AdLoaderProtocol{
 

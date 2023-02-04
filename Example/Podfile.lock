@@ -62,8 +62,6 @@ DEPENDENCIES:
   - AdsRepo/GoogleMobileAds (from `../`)
   - AdsRepo/GoogleMobileAds/Tests (from `../`)
   - Google-Mobile-Ads-SDK (= 9.10)
-  - Nimble
-  - Quick
 
 SPEC REPOS:
   trunk:
@@ -91,6 +89,6 @@ SPEC CHECKSUMS:
   PromisesObjC: ab77feca74fa2823e7af4249b8326368e61014cb
   Quick: 749aa754fd1e7d984f2000fe051e18a3a9809179
 
-PODFILE CHECKSUM: 9e23fa84be1452f8c72c964066ac3c46ee1d3359
+PODFILE CHECKSUM: b9a510ec148caefa620f84c45b740fcc63bd3988
 
 COCOAPODS: 1.11.3

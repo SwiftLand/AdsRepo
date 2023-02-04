@@ -55,19 +55,9 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "607FACE41AFB9204008FA782"
-               BuildableName = "AdsRepo_Tests.xctest"
-               BlueprintName = "AdsRepo_Tests"
-               ReferencedContainer = "container:AdsRepo.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "C104391D3F5B22CFFFBAC4B8E97BDCBF"
-               BuildableName = "AdsRepo-Unit-Tests.xctest"
-               BlueprintName = "AdsRepo-Unit-Tests"
+               BlueprintIdentifier = "BDED170EA135156FE118288E783492E7"
+               BuildableName = "AdsRepo-Unit-GoogleMobileAds-Tests.xctest"
+               BlueprintName = "AdsRepo-Unit-GoogleMobileAds-Tests"
                ReferencedContainer = "container:Pods/Pods.xcodeproj">
             </BuildableReference>
          </TestableReference>

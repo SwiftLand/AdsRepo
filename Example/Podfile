@@ -6,10 +6,4 @@ target 'AdsRepo_Example' do
 
   pod 'Google-Mobile-Ads-SDK', '9.10'
   
-  target 'AdsRepo_Tests' do
-    inherit! :search_paths
-
-    pod 'Quick'
-    pod 'Nimble'
-  end
 end

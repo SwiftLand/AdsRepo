@@ -18,7 +18,6 @@ profile
 DerivedData
 *.hmap
 *.ipa
-.swiftpm
 
 # Bundler
 .bundle
@@ -26,3 +25,4 @@ DerivedData
 
 #Pods
 Example/Pods/
+*.xcworkspace

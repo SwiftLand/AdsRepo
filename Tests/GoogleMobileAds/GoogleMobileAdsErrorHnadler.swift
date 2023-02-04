@@ -11,7 +11,10 @@ import Quick
 import Nimble
 import GoogleMobileAds
 @testable import AdsRepo
+
+#if SWIFT_PACKAGE
 @testable import AdsRepo_GoogleMobileAds
+#endif
 
 class GADAdRepositoryErrorHandlerSpec: QuickSpec {
     

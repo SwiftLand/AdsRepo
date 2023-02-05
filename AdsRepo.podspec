@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'AdsRepo'
-  s.version          = '0.2.0'
+  s.version          = '0.3.0'
   s.summary          = 'Advertise management system'
   s.documentation_url = 'https://github.com/SwiftLand/AdsRepo'
 

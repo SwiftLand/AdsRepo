@@ -20,7 +20,6 @@
 - [Requirements](#requirements)
 - [Installation](#installation)
   - [CocoPods](#cocopods)
-  - [Carthage](#carthage)
   - [Swift Package Manager](#swift-package-manager)
 - [Usage/Examples](#usage/examples)
   -  [Create Repository](#create-repository)
@@ -59,25 +58,15 @@ AdsRepo is available through [CocoaPods](https://cocoapods.org). To install
 it, simply add the following line to your Podfile:
 
 ```ruby
-# core only
+# Core only
 pod 'AdsRepo'
-
-# core + GoogleMobileAds
-pod 'AdsRepo/GoogleMobileAds'
-
-# with core tests
+# Core with tests
 pod 'AdsRepo' , :testspecs => ['Tests']
 
-# with core tests + GoogleMobileAds testes
+# GoogleMobileAds extension (optional)
+pod 'AdsRepo/GoogleMobileAds'
+# GoogleMobileAds extension with testes (optional)
 pod 'AdsRepo/GoogleMobileAds' , :testspecs => ['Tests']
-```
-
-### Carthage
-
-[Carthage](https://github.com/Carthage/Carthage) is a decentralized dependency manager that builds your dependencies and provides you with binary frameworks. To integrate **AdsRepo** into your Xcode project using Carthage, specify it in your `Cartfile`:
-
-```ogdl
-github "SwiftLand/AdsRepo"
 ```
 
 ### Swift Package Manager

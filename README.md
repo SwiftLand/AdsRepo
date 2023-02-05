@@ -21,6 +21,7 @@
 - [Installation](#installation)
   - [CocoPods](#cocopods)
   - [Swift Package Manager](#swift-package-manager)
+  - [Manually](#manually)
 - [Usage/Examples](#usage/examples)
   -  [Create Repository](#create-repository)
   - [Use your Repositories](#use-your-repositories)
@@ -463,7 +464,7 @@ public protocol AdRepositoryReachabilityPorotocol {
 }
 ```
 
-## Running Tests
+## Run Tests
 
 To run tests, go to **Edit scheme** and from **Test** in tab **Info** press on **+** to add a new test target. and also you require **Quick** and **Nimble** libraries to run tests which will install if install this pod with tests.
 
@@ -471,9 +472,17 @@ To run tests, go to **Edit scheme** and from **Test** in tab **Info** press on *
 
 ## FAQ
 
+#### Why should I use **AdsRepo**?
+
+The main problem when your revenue model is based on advertising is how to load/show advertisements to increase your revenue. **AdsRepo** helps you to create an effective strategy to load and show advertising on the client side.
+
+#### Is it like **Mediation**?
+
+**No**, mediation services (like AdMob Mediation) will help you to maximize your fill rate on the server side and it hasn't any idea about how to load/show ads on the client side.
+
 #### How **AdsRepo** works?
 
-You create repository with spacific config and ask repositry to load ads and connect it to your views. repositories will do the rests.
+You create a repository with a specific config and strategy to load/show the ad then ask the repository to load ads and connect it to your views. repositories will do the rest.
 
 #### How many repository can make?
 
@@ -481,7 +490,7 @@ As much as you want. but each ads load inside memory that's mean if you set larg
 
 #### How handle memory warning?
 
-AdsRepo didn't handle memory warnings right now but you can listen to the memory warning delegate and clear or remove some ads inside repositories.
+**AdsRepo** didn't handle memory warnings right now but you can listen to the memory warning delegate and clear or remove some ads inside repositories.
 
 #### Why does not support banner ads?
 

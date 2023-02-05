@@ -16,7 +16,7 @@ class CollectionViewNativeAdVC:UICollectionViewController{
         case largeBanner
     }
     
-    typealias RepoTpye = NativeAdRepository
+    typealias RepoTpye = GADNativeAdRepository
     weak var adRepository:RepoTpye? = nil
     var type:AdType = .banner
     

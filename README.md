@@ -2,7 +2,7 @@
 
 # AdsRepo
 
-[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/) [![CI Status](https://img.shields.io/travis/x-oauth-basic/AdsRepo.svg?style=flat)](https://travis-ci.org/x-oauth-basic/AdsRepo) [![Version](https://img.shields.io/cocoapods/v/AdsRepo.svg?style=flat)](https://cocoapods.org/pods/AdsRepo)
+[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/) [![Version](https://img.shields.io/cocoapods/v/AdsRepo.svg?style=flat)](https://cocoapods.org/pods/AdsRepo)
 [![Carthage Compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 [![Swift Package Manager](https://img.shields.io/badge/Swift_Package_Manager-compatible-orange.svg?style=flat)](https://img.shields.io/badge/Swift_Package_Manager-compatible-orange?style=flat-square)
 
@@ -87,7 +87,7 @@ Once you have your Swift package set up, adding **AdsRepo** as a dependency is a
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/ali72/AdsRepo.git", .upToNextMajor(from: "Latest_version"))
+    .package(url: "https://github.com/SwiftLand/AdsRepo.git", .upToNextMajor(from: "Latest_version"))
 ]
 ```
 
@@ -96,6 +96,11 @@ dependencies: [
 Alternatively you can copy the `Sources` folder and its files into your project and install the required dependencies.
 
 - [AdMob](https://developers.google.com/admob/ios/quick-start#manual_download)
+
+and for tests, copy the `Tests` folder content into your test target. you require the below dependencies for run tests:
+
+- [Quick](https://github.com/Quick/Quick)
+- [Nimble](https://github.com/Quick/Nimble)
 
 ## Usage/Examples
 
@@ -127,30 +132,29 @@ public struct AdRepositoryConfig{
 }
 ```
 
-After you create your configuration pass it to your repository instance.
+After you create your configuration pass it to your repository instance. for example if you install with the `GoogleMobileAds` option, you can use pre-made ad repositories like this:
 
 ```swift
-// for InterstitialAds
-let interstitialAdRepo = InterstitialAdRepository(config:/*Your RepositoryConfig*/)
-// for Rewarded Ads
-let rewardedAdRepo = RewardedAdRepository(config:/*Your RepositoryConfig*/)
-// for Native Ads
-let nativeAdRepo = NativeAdRepository(config:/*Your RepositoryConfig*/)
+// for google interstitialAds
+let interstitialAdRepo = GADInterstitalAdRepository(config:/*Your RepositoryConfig*/)
+// for google rewarded Ads
+let rewardedAdRepo = GADRewardedAdRepository(config:/*Your RepositoryConfig*/)
+// for google native Ads
+let nativeAdRepo = GADNativeAdRepository(config:/*Your RepositoryConfig*/)
 ```
 
 Or you can create your own repository instance.
 
 ```swift
-// for InterstitialAds
 AdRepository</*Your AdWrapperType*/,/*Your AdLoadertype*/>(config:/*your RepositoryConfig*/)
 ```
 
 **NOTE:** If you install the library with the `GoogleMobileAds` option, you can use pre-made repositories. they are actually a type alias for the `AdRepository` object.
 
 ```swift
-public typealias InterstitalAdRepository = AdRepository<GADInterstitialAdWrapper,InterstitialAdLoader>
-public typealias RewardedAdRepository = AdRepository<GADRewardedAdWrapper,RewardedAdLoader>
-public typealias NativeAdRepository = AdRepository<GADNativeAdWrapper,NativeAdLoader>
+public typealias GADInterstitalAdRepository = GADAdRepository<GADInterstitialAdWrapper,InterstitialAdLoader>
+public typealias GADRewardedAdRepository = GADAdRepository<GADRewardedAdWrapper,RewardedAdLoader>
+public typealias GADNativeAdRepository = GADAdRepository<GADNativeAdWrapper,NativeAdLoader>
 ```
 
 **NOTE:** It's better to keep your repository as a singleton instance. see the example project for more details.
@@ -161,7 +165,7 @@ You can call `loadAd` to get an ad under conditions specified by the developer. 
 
 ```swift
  //ask repository to give you an ad (ex: interstitial ad reposityory)
- guard let adWrapper =  interstitialAdRepo.loadAd() else {return}
+ guard let adWrapper =  myInterstitialAdRepo.loadAd() else {return}
 
  //get interstitial ad from loadedAd property
  adWrapper.loadedAd.present(fromRootViewController: self)
@@ -171,11 +175,11 @@ If the ad loader returns `nil` that means the repository doesn't have and valid 
 
 ```swift
  override func viewWillAppear(_ animated: Bool) {
-        interstitialAdRepo.add(Observer: self)   
+        myInterstitialAdRepo.add(Observer: self)   
  }
 
   override func viewWillDisappear(_ animated: Bool) {
-       interstitialAdRepo.remove(Observer: self)
+       myInterstitialAdRepo.remove(Observer: self)
   }
 ```
 
@@ -443,6 +447,8 @@ You can also implement a repository error handler by following the below protoco
     func cancel()
 }
 ```
+
+**Note:** If you install **AdsRepo** with the `GoogleMobileAds` option, you will notice we override the ad repository error handler in `GADAdRepository` object to replace `DefaultErrorHandler` with `GADErrorHandler`.
 
 ### Network reachability
 

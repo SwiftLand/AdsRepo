@@ -11,7 +11,7 @@ import GoogleMobileAds
 
 class BannerNativeAdCell:UICollectionViewCell{
     var observerId: String = UUID().uuidString
-    typealias RepoTpye = NativeAdRepository
+    typealias RepoTpye = GADNativeAdRepository
     var isLoaded:Bool {nativeAdView.nativeAd != nil}
     weak var adController:RepoTpye? = nil
     

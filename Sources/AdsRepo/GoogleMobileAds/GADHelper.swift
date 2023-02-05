@@ -13,9 +13,9 @@ import AdsRepo
 #endif
 
 
-public typealias InterstitalAdRepository = GADAdRepository<GADInterstitialAdWrapper,InterstitialAdLoader>
-public typealias RewardedAdRepository = GADAdRepository<GADRewardedAdWrapper,RewardedAdLoader>
-public typealias NativeAdRepository = GADAdRepository<GADNativeAdWrapper,NativeAdLoader>
+public typealias GADInterstitalAdRepository = GADAdRepository<GADInterstitialAdWrapper,InterstitialAdLoader>
+public typealias GADRewardedAdRepository = GADAdRepository<GADRewardedAdWrapper,RewardedAdLoader>
+public typealias GADNativeAdRepository = GADAdRepository<GADNativeAdWrapper,NativeAdLoader>
 
 public func setTestDevices(deviceIds:[String]){
     GADMobileAds.sharedInstance().requestConfiguration.testDeviceIdentifiers = deviceIds

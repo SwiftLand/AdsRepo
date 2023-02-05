@@ -13,19 +13,19 @@ import GoogleMobileAds
 class RepositoryManager{
     static let shared = RepositoryManager()
     
-    let interstitialAdsRepo: InterstitalAdRepository = {
-        let repo = InterstitalAdRepository(config:AdRepositoryConfig.debugInterstitialConfig())
+    let interstitialAdsRepo: GADInterstitalAdRepository = {
+        let repo = GADInterstitalAdRepository(config:AdRepositoryConfig.debugInterstitialConfig())
         repo.waitForNewAdBeforeRemove = false
        return repo
     }()
-    let rewardedAdsRepo: RewardedAdRepository = {
-        let repo = RewardedAdRepository(config:AdRepositoryConfig.debugRewardedConfig())
+    let rewardedAdsRepo: GADRewardedAdRepository = {
+        let repo = GADRewardedAdRepository(config:AdRepositoryConfig.debugRewardedConfig())
         repo.waitForNewAdBeforeRemove = false
         return repo
     }()
 
-    let nativeVideoAdRepo: NativeAdRepository = {
-        let repo = NativeAdRepository(config:AdRepositoryConfig.debugNativeVideoConfig())
+    let nativeVideoAdRepo: GADNativeAdRepository = {
+        let repo = GADNativeAdRepository(config:AdRepositoryConfig.debugNativeVideoConfig())
         let videoOptions = GADVideoOptions()
           videoOptions.customControlsRequested = true
         repo.adLoader.set(options: [videoOptions])
@@ -33,8 +33,8 @@ class RepositoryManager{
        return repo
     }()
     
-    let nativeAdRepo: NativeAdRepository = {
-        return NativeAdRepository(config:AdRepositoryConfig.debugNativeConfig())
+    let nativeAdRepo: GADNativeAdRepository = {
+        return GADNativeAdRepository(config:AdRepositoryConfig.debugNativeConfig())
     }()
     
     func fillAllRepositories(){

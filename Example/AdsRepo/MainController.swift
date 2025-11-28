@@ -58,18 +58,18 @@ class MainController: UIViewController {
             navigationController?.pushViewController(vc, animated: true)
         case rewardedAdBtn:
             guard let adWrapper =  RepositoryManager.shared.rewardedAdsRepo.loadAd() else {return}
-            adWrapper.loadedAd.present(fromRootViewController: self, userDidEarnRewardHandler: {
+            adWrapper.loadedAd.present(from: self, userDidEarnRewardHandler: {
                 [weak self] in
                 self?.onReceivedReward (ad:adWrapper.loadedAd)
             })
         case interstinalAdBtn:
             guard let adWrapper =  RepositoryManager.shared.interstitialAdsRepo.loadAd() else {return}
-            adWrapper.loadedAd.present(fromRootViewController: self)
+            adWrapper.loadedAd.present(from: self)
         default:break
         }
     }
     
-    private func onReceivedReward (ad:GADRewardedAd){
+    private func onReceivedReward (ad:RewardedAd){
         guard ad.adReward.amount != 0 else {
             return
         }

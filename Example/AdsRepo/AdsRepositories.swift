@@ -26,8 +26,8 @@ class RepositoryManager{
 
     let nativeVideoAdRepo: GADNativeAdRepository = {
         let repo = GADNativeAdRepository(config:AdRepositoryConfig.debugNativeVideoConfig())
-        let videoOptions = GADVideoOptions()
-          videoOptions.customControlsRequested = true
+        let videoOptions = VideoOptions()
+        videoOptions.areCustomControlsRequested = true
         repo.adLoader.set(options: [videoOptions])
         repo.adLoader.set(adTypes: [.native])
        return repo

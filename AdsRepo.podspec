@@ -38,7 +38,7 @@ Pod::Spec.new do |s|
     
     gad.source_files = 'Sources/AdsRepo/GoogleMobileAds/**/*'
     gad.dependency 'AdsRepo/Core'
-    gad.dependency  'Google-Mobile-Ads-SDK'
+    gad.dependency 'Google-Mobile-Ads-SDK', '>= 12.6.0', '< 13.0.0'
     
     gad.test_spec 'Tests' do |test_spec|
       test_spec.source_files = ['Tests/GoogleMobileAds/**/*']

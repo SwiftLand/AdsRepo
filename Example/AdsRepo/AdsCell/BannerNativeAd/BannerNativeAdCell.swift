@@ -16,7 +16,7 @@ class BannerNativeAdCell:UICollectionViewCell{
     weak var adController:RepoTpye? = nil
     
     @IBOutlet weak var adView:UIView!
-    @IBOutlet weak var nativeAdView: GADNativeAdView!
+    @IBOutlet weak var nativeAdView: NativeAdView!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var showCountLabel:UILabel!
     

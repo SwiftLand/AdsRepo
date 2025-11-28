@@ -21,7 +21,7 @@ public class GADRewardedAdWrapper:NSObject,AdWrapperProtocol{
     public private(set) var uniqueId: String  = UUID().uuidString
     
     /// Loaded GADRewardedAd  object
-    public var loadedAd:GADRewardedAd
+    public var loadedAd:RewardedAd
     
     /// GADRewardedAd's  loaded Date
     public private(set) var loadedDate:Date = Date()
@@ -30,7 +30,7 @@ public class GADRewardedAdWrapper:NSObject,AdWrapperProtocol{
     /// - NOTE: This value typically changes by the ad's own repository but you can also change it if failed to show/present returned ad.
     public var showCount:Int = 0
     
-    init(loadedAd:GADRewardedAd,config:AdRepositoryConfig) {
+    init(loadedAd:RewardedAd,config:AdRepositoryConfig) {
         self.loadedAd = loadedAd
         self.config = config
     }

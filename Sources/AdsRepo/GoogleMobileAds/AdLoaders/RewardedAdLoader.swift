@@ -17,14 +17,14 @@ public class RewardedAdLoader:NSObject,AdLoaderProtocol{
     public typealias AdWrapperType = GADRewardedAdWrapper
     
     public private(set) var state: AdLoaderState = .waiting
-    public var request:GADRequest = GADRequest()
+    public var request:Request = Request()
     public var config:AdRepositoryConfig
     
     public var notifyRepositoryDidReceiveAd: ((AdWrapperType) -> ())?
     public var notifyRepositoryDidFinishLoad: ((Error?) -> ())?
     
     private var count = 0
-    internal var Loader = GADRewardedAd.self
+    internal var Loader = RewardedAd.self
     
     required public init(config: AdRepositoryConfig) {
         self.config = config
@@ -35,7 +35,7 @@ public class RewardedAdLoader:NSObject,AdLoaderProtocol{
         state = .loading
         self.count = count
         for _ in 0..<count{
-            Loader.load(withAdUnitID:config.adUnitId,
+            Loader.load(with:config.adUnitId,
                         request: request,
                         completionHandler: {[weak self] (ad, error) in
                 guard let self = self else{return}
@@ -58,7 +58,7 @@ public class RewardedAdLoader:NSObject,AdLoaderProtocol{
         }
     }
     
-    private func fulfill(ad: GADRewardedAd){
+    private func fulfill(ad: RewardedAd){
         notifyRepositoryDidReceiveAd?(GADRewardedAdWrapper(loadedAd: ad, config: config))
         notifyFinishLoadIfNeed()
     }

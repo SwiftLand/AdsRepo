@@ -30,12 +30,12 @@ class GADAdRepositoryErrorHandlerSpec: QuickSpec {
             
             context("is GoogleMobileAds retryable"){
                 it("if retryable"){
-                    let error = NSError(domain: GADErrorDomain, code: GADErrorCode.noFill.rawValue)
+                    let error = NSError(domain: GADErrorDomain, code: RequestError.noFill.rawValue)
                     expect(errorHandler.isRetryAble(error: error)).to(beTrue())
                 }
                 
                 it("if not retryable"){
-                    let error = NSError(domain: GADErrorDomain, code: GADErrorCode.invalidRequest.rawValue)
+                    let error = NSError(domain: GADErrorDomain, code: RequestError.invalidRequest.rawValue)
                     expect(errorHandler.isRetryAble(error: error)).to(beFalse())
                 }
             }

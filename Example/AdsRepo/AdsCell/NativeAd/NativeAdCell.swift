@@ -14,7 +14,7 @@ class NativeAdCell:UICollectionViewCell{
     
     var observerId: String = UUID().uuidString
     @IBOutlet weak var adView:UIView!
-    @IBOutlet weak var nativeAdView: GADNativeAdView!
+    @IBOutlet weak var nativeAdView: NativeAdView!
     @IBOutlet weak var adIconLeadingConstrian: NSLayoutConstraint!
     @IBOutlet weak var adIconWidthConstrians: NSLayoutConstraint!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!

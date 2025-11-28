@@ -18,5 +18,5 @@ public typealias GADRewardedAdRepository = GADAdRepository<GADRewardedAdWrapper,
 public typealias GADNativeAdRepository = GADAdRepository<GADNativeAdWrapper,NativeAdLoader>
 
 public func setTestDevices(deviceIds:[String]){
-    GADMobileAds.sharedInstance().requestConfiguration.testDeviceIdentifiers = deviceIds
+    MobileAds.shared.requestConfiguration.testDeviceIdentifiers = deviceIds
 }

@@ -21,7 +21,7 @@ public class GADInterstitialAdWrapper:NSObject,AdWrapperProtocol {
     public private(set) var uniqueId: String  = UUID().uuidString
     
     /// Loaded GADInterstitialAd  object
-    public private(set) var loadedAd:GADInterstitialAd
+    public private(set) var loadedAd:InterstitialAd
     
     /// GADInterstitialAd's  loaded Date
     public private(set) var loadedDate:Date = Date()
@@ -30,7 +30,7 @@ public class GADInterstitialAdWrapper:NSObject,AdWrapperProtocol {
     /// - NOTE: This value typically changes by the ad's own repository but you can also change it if failed to show/present returned ad.
     public var showCount:Int = 0
     
-    init(loadedAd:GADInterstitialAd,config:AdRepositoryConfig) {
+    init(loadedAd:InterstitialAd,config:AdRepositoryConfig) {
         self.loadedAd = loadedAd
         self.config = config
     }

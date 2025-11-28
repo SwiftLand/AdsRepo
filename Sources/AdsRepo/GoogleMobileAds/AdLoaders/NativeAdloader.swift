@@ -18,18 +18,18 @@ public class NativeAdLoader:NSObject,AdLoaderProtocol{
     
     public private(set) var state: AdLoaderState = .waiting
     public var config:AdRepositoryConfig
-    public var request:GADRequest = GADRequest()
+    public var request:Request = Request()
     
     public var notifyRepositoryDidReceiveAd: ((AdWrapperType) -> ())?
     public var notifyRepositoryDidFinishLoad: ((Error?) -> ())?
     
     private weak var rootVC:UIViewController? = nil
     private var options:[GADAdLoaderOptions]? = nil
-    private var adTypes:[GADAdLoaderAdType]? = nil
-    private var nativeAdLoader:GADAdLoader!
+    private var adTypes:[AdLoaderAdType]? = nil
+    private var nativeAdLoader:AdLoader!
     private var receiveddError:Error? = nil
     
-    internal var Loader = GADAdLoader.self
+    internal var Loader = AdLoader.self
     
     required public init(config: AdRepositoryConfig) {
         self.config = config
@@ -43,10 +43,10 @@ public class NativeAdLoader:NSObject,AdLoaderProtocol{
         let vc = rootVC ?? UIApplication.shared.keyWindow?.rootViewController
         
         //multiAdOption have to control from repository
-        options.removeAll(where:{$0 is GADMultipleAdsAdLoaderOptions})
-        let multiAdOption = GADMultipleAdsAdLoaderOptions()
-        multiAdOption.numberOfAds = count
-        options.append(multiAdOption)
+//        options.removeAll(where:{$0 is MultipleAdsAdLoaderOptions})
+//        let multiAdOption = MultipleAdsAdLoaderOptions()
+//        multiAdOption.numberOfAds = count
+//        options.append(multiAdOption)
         
         nativeAdLoader = Loader.init(
             adUnitID:config.adUnitId,
@@ -59,7 +59,7 @@ public class NativeAdLoader:NSObject,AdLoaderProtocol{
         nativeAdLoader.load(request)
     }
     
-    public func updateLoader(adTypes:[GADAdLoaderAdType]?,
+    public func updateLoader(adTypes:[AdLoaderAdType]?,
                              options:[GADAdLoaderOptions]?,
                              rootVC:UIViewController?){
         self.adTypes = adTypes
@@ -67,7 +67,7 @@ public class NativeAdLoader:NSObject,AdLoaderProtocol{
         self.rootVC = rootVC
     }
     
-    public func set(adTypes:[GADAdLoaderAdType]?){
+    public func set(adTypes:[AdLoaderAdType]?){
         self.adTypes = adTypes
     }
     
@@ -81,20 +81,20 @@ public class NativeAdLoader:NSObject,AdLoaderProtocol{
     
 }
 
-extension NativeAdLoader:GADNativeAdLoaderDelegate{
+extension NativeAdLoader:NativeAdLoaderDelegate{
     
-    public  func adLoader(_ adLoader: GADAdLoader, didReceive nativeAd: GADNativeAd) {
+    public  func adLoader(_ adLoader: AdLoader, didReceive nativeAd: NativeAd) {
         notifyRepositoryDidReceiveAd?(GADNativeAdWrapper(loadedAd: nativeAd, config: config))
     }
     
-    public func adLoaderDidFinishLoading(_ adLoader: GADAdLoader) {
+    public func adLoaderDidFinishLoading(_ adLoader: AdLoader) {
         state = .waiting
         let error = receiveddError
         receiveddError = nil
         notifyRepositoryDidFinishLoad?(error)
     }
     
-    public func adLoader(_ adLoader: GADAdLoader, didFailToReceiveAdWithError error: Error) {
+    public func adLoader(_ adLoader: AdLoader, didFailToReceiveAdWithError error: Error) {
         receiveddError = error
     }
 }

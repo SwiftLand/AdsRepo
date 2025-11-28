@@ -16,14 +16,14 @@ public class InterstitialAdLoader:NSObject,AdLoaderProtocol{
     
     public typealias AdWrapperType = GADInterstitialAdWrapper
     public private(set) var state: AdLoaderState = .waiting
-    public var request:GADRequest = GADRequest()
+    public var request:Request = Request()
     public var config:AdRepositoryConfig
     
     public var notifyRepositoryDidReceiveAd: ((AdWrapperType) -> ())?
     public var notifyRepositoryDidFinishLoad: ((Error?) -> ())?
     
     private var count = 0
-    internal var Loader = GADInterstitialAd.self
+    internal var Loader = InterstitialAd.self
     
     required public init(config: AdRepositoryConfig) {
         self.config = config
@@ -35,7 +35,7 @@ public class InterstitialAdLoader:NSObject,AdLoaderProtocol{
         state = .loading
         self.count = count
         for _ in 0..<count{
-            Loader.load(withAdUnitID:config.adUnitId,
+            Loader.load(with:config.adUnitId,
                         request: request,completionHandler: {[weak self] (ad, error) in
                 guard let self = self else{return}
                 
@@ -57,7 +57,7 @@ public class InterstitialAdLoader:NSObject,AdLoaderProtocol{
         }
     }
     
-    private func fulfill(ad: GADInterstitialAd){
+    private func fulfill(ad: InterstitialAd){
         notifyRepositoryDidReceiveAd?(GADInterstitialAdWrapper(loadedAd:ad, config: config))
         notifyFinishLoadIfNeed()
     }

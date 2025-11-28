@@ -15,7 +15,7 @@ class FullScreenNativeAdVC: UIViewController {
     
     typealias RepoType = GADNativeAdRepository
     var isLoaded:Bool {nativeAdView.nativeAd != nil}
-    @IBOutlet weak var nativeAdView: GADNativeAdView!
+    @IBOutlet weak var nativeAdView: NativeAdView!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     weak var adRepository:RepoType? = nil
     
@@ -55,7 +55,7 @@ class FullScreenNativeAdVC: UIViewController {
         adRepository?.remove(delegate: self)
     }
     
-    private func showNativeAd(_ nativeAd: GADNativeAd) {
+    private func showNativeAd(_ nativeAd: NativeAd) {
         
         // This app uses a fixed width for the GADMediaView and changes its height to match the aspect
         // Set the mediaContent on the GADMediaView to populate it with available

@@ -23,16 +23,16 @@ class GADErrorHandler: DefaultErrorHandler {
     }
     
     func isGADRetryAble(error: Error) -> Bool {
-
-        let errorCode = GADErrorCode(rawValue: (error as NSError).code)
+       
+        let errorCode =  RequestError(_nsError: error as NSError).code
         switch (errorCode) {
-        case .internalError,.receivedInvalidResponse:
+        case .internalError,.receivedInvalidAdString:
             print("GoogleMobileAds","Internal error, an invalid response was received from the ad server.")
             return true
         case .networkError,.timeout,.serverError,.adAlreadyUsed:
             print("GoogleMobileAds","The ad request was unsuccessful due to network connectivity.")
             return true
-        case .noFill,.mediationNoFill:
+        case .noFill:
             print("GoogleMobileAds","The ad request was successful, but no ad was returned due to lack of ad inventory.")
             return true
         case .osVersionTooLow,.invalidRequest,.applicationIdentifierMissing:

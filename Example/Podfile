@@ -5,6 +5,6 @@ target 'AdsRepo_Example' do
   pod 'AdsRepo', :path => '../', :testspecs => ['Tests']
   
   pod 'AdsRepo/GoogleMobileAds', :path => '../', :testspecs => ['Tests']
-  pod 'Google-Mobile-Ads-SDK', '9.10'
+  pod 'Google-Mobile-Ads-SDK', '12.6.0'
   
 end

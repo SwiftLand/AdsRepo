@@ -21,7 +21,7 @@ public class GADNativeAdWrapper:NSObject,AdWrapperProtocol{
     public private(set) var uniqueId: String  = UUID().uuidString
     
     /// Loaded GADNativeAd  object
-    public private(set) var loadedAd: GADNativeAd
+    public private(set) var loadedAd: NativeAd
     
     /// GADNativeAd's  loaded Date
     public private(set) var loadedDate:Date = Date()
@@ -31,7 +31,7 @@ public class GADNativeAdWrapper:NSObject,AdWrapperProtocol{
     public var showCount:Int = 0
     
     
-    init(loadedAd: GADNativeAd,config:AdRepositoryConfig){
+    init(loadedAd: NativeAd,config:AdRepositoryConfig){
         self.loadedAd = loadedAd
         self.config = config
     }
